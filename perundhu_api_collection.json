@@ -1,0 +1,342 @@
+{
+  "info": {
+    "_postman_id": "perundhu-tnstc-live-tracking-phase4",
+    "name": "PERUNDHU — TNSTC Live Tracking API (Phase 4 Verified)",
+    "description": "API endpoints for TNSTC Live Tracking System with Authentication, Token Rotation, and RBAC. Compatible with Postman and Thunder Client.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "maduraiDistrictId",
+      "value": "6ad04f9acac25e5e811df235",
+      "type": "string"
+    },
+    {
+      "key": "periyarBusStandId",
+      "value": "6ad04f9acac25e5e811df237",
+      "type": "string"
+    },
+    {
+      "key": "route70Id",
+      "value": "6ad04f9acac25e5e811df249",
+      "type": "string"
+    },
+    {
+      "key": "route70DirectionId",
+      "value": "6ad04f9acac25e5e811df24c",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication & RBAC (Phase 4)",
+      "item": [
+        {
+          "name": "Register Passenger",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"passenger.demo@tnstc.gov.in\",\n  \"password\": \"PassengerPass@123\",\n  \"fullName\": \"Murugan Passenger\",\n  \"phone\": \"+91-9876543210\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Registers a new user account with PASSENGER role enforced server-side."
+          }
+        },
+        {
+          "name": "Login Passenger",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"passenger.demo@tnstc.gov.in\",\n  \"password\": \"PassengerPass@123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Authenticates passenger, returns JWT access token and sets HttpOnly refresh cookie."
+          }
+        },
+        {
+          "name": "Login Administrator",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@perundhu.tnstc.gov.in\",\n  \"password\": \"AdminTNSTC@2026!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Authenticates administrator account provisioned via admin:create."
+          }
+        },
+        {
+          "name": "Get Current Profile (Me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            },
+            "description": "Returns authenticated user safe profile."
+          }
+        },
+        {
+          "name": "Rotate Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            },
+            "description": "Atomically rotates refresh token with reuse detection."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            },
+            "description": "Revokes current refresh session and clears HttpOnly cookie."
+          }
+        },
+        {
+          "name": "Admin-Only Check (RBAC)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin-check",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "admin-check"]
+            },
+            "description": "RBAC guard verification: 200 for ADMIN, 403 Forbidden for PASSENGER."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. System Probes",
+      "item": [
+        {
+          "name": "Liveness Probe (Health)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Returns 200 OK if HTTP server is running."
+          }
+        },
+        {
+          "name": "Readiness Probe (DB Status)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ready",
+              "host": ["{{baseUrl}}"],
+              "path": ["ready"]
+            },
+            "description": "Returns 200 OK if MongoDB connection is active."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Districts",
+      "item": [
+        {
+          "name": "List All Districts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/districts?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["districts"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "description": "Lists districts with pagination."
+          }
+        },
+        {
+          "name": "Search District (Madurai)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/districts?q=Madurai",
+              "host": ["{{baseUrl}}"],
+              "path": ["districts"],
+              "query": [
+                { "key": "q", "value": "Madurai" }
+              ]
+            },
+            "description": "Searches districts by name or code."
+          }
+        },
+        {
+          "name": "Get Bus Stands in District",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/districts/{{maduraiDistrictId}}/bus-stands?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["districts", "{{maduraiDistrictId}}", "bus-stands"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "description": "Returns all active bus stands within a district."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Bus Stands & Spatial Search",
+      "item": [
+        {
+          "name": "Nearby Bus Stands (Spatial $geoNear)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bus-stands/nearby?lat=9.9252&lng=78.1198&radiusMeters=10000",
+              "host": ["{{baseUrl}}"],
+              "path": ["bus-stands", "nearby"],
+              "query": [
+                { "key": "lat", "value": "9.9252" },
+                { "key": "lng", "value": "78.1198" },
+                { "key": "radiusMeters", "value": "10000" }
+              ]
+            },
+            "description": "Performs 2dsphere spatial lookup and calculates distance in meters."
+          }
+        },
+        {
+          "name": "Routes Serving Bus Stand (Periyar)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bus-stands/{{periyarBusStandId}}/routes?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["bus-stands", "{{periyarBusStandId}}", "routes"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "description": "Discovers active routes and directions serving the given bus stand."
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Routes & Geometry",
+      "item": [
+        {
+          "name": "Route Direction Details & Polyline",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/routes/{{route70Id}}/directions/{{route70DirectionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["routes", "{{route70Id}}", "directions", "{{route70DirectionId}}"]
+            },
+            "description": "Returns ordered stop sequence and full GeoJSON LineString coordinates for the route."
+          }
+        }
+      ]
+    }
+  ]
+}
