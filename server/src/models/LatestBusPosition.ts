@@ -10,6 +10,7 @@ export type LocationSource =
 export type TrackingStatus =
   | 'SIMULATED'
   | 'LIVE'
+  | 'DELAYED'
   | 'STALE'
   | 'OFFLINE'
   | 'DEVIATED'
@@ -23,6 +24,11 @@ export interface ILatestBusPosition {
   routeId?: Types.ObjectId;
   directionId?: Types.ObjectId;
   location: GeoJsonPoint;
+  snappedLocation?: GeoJsonPoint;
+  crossTrackDistanceMeters?: number;
+  distanceAlongRouteMeters?: number;
+  totalRouteDistanceMeters?: number;
+  progressRatio?: number;
   heading: number;
   speedKmph: number;
   accuracyMeters: number;
@@ -71,6 +77,31 @@ const latestBusPositionSchema = new Schema<LatestBusPositionDocument>(
       type: GeoJsonPointSchema,
       required: [true, 'Bus coordinate location is required']
     },
+    snappedLocation: {
+      type: GeoJsonPointSchema,
+      default: undefined
+    },
+    crossTrackDistanceMeters: {
+      type: Number,
+      min: [0, 'Cross-track distance must be non-negative'],
+      default: undefined
+    },
+    distanceAlongRouteMeters: {
+      type: Number,
+      min: [0, 'Distance along route must be non-negative'],
+      default: undefined
+    },
+    totalRouteDistanceMeters: {
+      type: Number,
+      min: [0, 'Total route distance must be non-negative'],
+      default: undefined
+    },
+    progressRatio: {
+      type: Number,
+      min: [0, 'Progress ratio must be between 0 and 1'],
+      max: [1, 'Progress ratio must be between 0 and 1'],
+      default: undefined
+    },
     heading: {
       type: Number,
       default: 0,
@@ -109,7 +140,7 @@ const latestBusPositionSchema = new Schema<LatestBusPositionDocument>(
     trackingStatus: {
       type: String,
       enum: {
-        values: ['SIMULATED', 'LIVE', 'STALE', 'OFFLINE', 'DEVIATED', 'UNAVAILABLE'],
+        values: ['SIMULATED', 'LIVE', 'DELAYED', 'STALE', 'OFFLINE', 'DEVIATED', 'UNAVAILABLE'],
         message: 'Invalid tracking status: {VALUE}'
       },
       required: [true, 'Tracking status is required'],

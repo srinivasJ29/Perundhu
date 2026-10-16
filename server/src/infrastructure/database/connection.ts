@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { logger } from '../../common/logger';
+import { env } from '../../config/env';
 
 export type DatabaseStatus =
   | 'connected'
@@ -12,11 +13,24 @@ let isConfigured = false;
 let mockReadyState: number | null = null;
 
 /**
+ * Masks credentials in MongoDB connection string for safe logging.
+ */
+function maskMongoUri(uri?: string): string {
+  if (!uri) return 'unconfigured';
+  return uri.replace(/mongodb(\+srv)?:\/\/([^:]+):([^@]+)@/, 'mongodb$1://$2:***@');
+}
+
+/**
  * Initializes the MongoDB connection using Mongoose.
- * Connects only if a non-empty URI is supplied.
+ * Connects only if a non-empty URI is supplied, or enforces presence in production.
  */
 export async function connectDatabase(uri?: string): Promise<typeof mongoose | null> {
   if (!uri || uri.trim() === '') {
+    if (env.NODE_ENV === 'production') {
+      const msg = 'Fatal: MONGODB_URI must be configured in production environment';
+      logger.fatal(msg);
+      throw new Error(msg);
+    }
     logger.info('MongoDB URI is not configured. Skipping database connection.');
     isConfigured = false;
     return null;
@@ -37,7 +51,7 @@ export async function connectDatabase(uri?: string): Promise<typeof mongoose | n
   });
 
   try {
-    logger.info('Attempting connection to MongoDB Atlas...');
+    logger.info(`Attempting connection to MongoDB (${maskMongoUri(uri)})...`);
     await mongoose.connect(uri, {
       serverSelectionTimeoutMS: 5000,
       connectTimeoutMS: 10000

@@ -62,6 +62,7 @@ const tripStopTimeSchema = new Schema<TripStopTimeDocument>(
 
 tripStopTimeSchema.index({ tripId: 1, stopSequence: 1 }, { unique: true });
 tripStopTimeSchema.index({ tripId: 1, stopId: 1 });
+tripStopTimeSchema.index({ stopId: 1, scheduledDepartureTime: 1 });
 
 export const TripStopTime: Model<TripStopTimeDocument> =
   model<TripStopTimeDocument>('TripStopTime', tripStopTimeSchema);

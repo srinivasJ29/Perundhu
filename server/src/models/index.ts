@@ -12,3 +12,4 @@ export * from './LatestBusPosition';
 export * from './LocationHistory';
 export * from './User';
 export * from './RefreshTokenSession';
+export * from './StopEvent';

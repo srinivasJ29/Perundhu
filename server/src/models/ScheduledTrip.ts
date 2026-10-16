@@ -1,6 +1,7 @@
 import { Schema, model, Document, Model, Types } from 'mongoose';
 
 export type DayOfWeek = 'MON' | 'TUE' | 'WED' | 'THU' | 'FRI' | 'SAT' | 'SUN';
+export type TripOperationalStatus = 'SCHEDULED' | 'IN_TRANSIT' | 'COMPLETED' | 'CANCELLED';
 
 const TIME_REGEX = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
@@ -11,6 +12,7 @@ export interface IScheduledTrip {
   departureTime: string; // HH:mm
   arrivalTime: string;   // HH:mm
   operationalDays: DayOfWeek[];
+  status: TripOperationalStatus;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -62,6 +64,15 @@ const scheduledTripSchema = new Schema<ScheduledTripDocument>(
       enum: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'],
       default: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
     },
+    status: {
+      type: String,
+      enum: {
+        values: ['SCHEDULED', 'IN_TRANSIT', 'COMPLETED', 'CANCELLED'],
+        message: 'Invalid trip status: {VALUE}'
+      },
+      default: 'SCHEDULED',
+      index: true
+    },
     isActive: {
       type: Boolean,
       default: true,
@@ -75,6 +86,7 @@ const scheduledTripSchema = new Schema<ScheduledTripDocument>(
 );
 
 scheduledTripSchema.index({ routeDirectionId: 1, departureTime: 1 });
+scheduledTripSchema.index({ operationalDays: 1 });
 
 export const ScheduledTrip: Model<ScheduledTripDocument> =
   model<ScheduledTripDocument>('ScheduledTrip', scheduledTripSchema);

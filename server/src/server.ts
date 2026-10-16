@@ -3,6 +3,8 @@ import { app } from './app';
 import { env } from './config/env';
 import { logger } from './common/logger';
 import { connectDatabase, disconnectDatabase } from './infrastructure/database';
+import { routeSimulator, locationPipelineService } from './modules/location';
+import { initSocketServer, closeSocketServer } from './modules/realtime';
 
 async function bootstrap(): Promise<void> {
   // 1. Initialize optional database connection
@@ -12,8 +14,12 @@ async function bootstrap(): Promise<void> {
     logger.error({ err }, 'Database initialization failed. Proceeding with degraded readiness.');
   }
 
-  // 2. Start HTTP Server
+  // 2. Connect Location Pipeline to Simulator Engine
+  routeSimulator.setPipeline(locationPipelineService);
+
+  // 3. Start HTTP & Socket.IO Real-Time Server
   const server = http.createServer(app);
+  initSocketServer(server);
 
   server.listen(env.PORT, () => {
     logger.info(
@@ -31,6 +37,22 @@ async function bootstrap(): Promise<void> {
     isShuttingDown = true;
 
     logger.info(`Received ${signal}. Initiating graceful server shutdown...`);
+
+    // Clean up Socket.IO real-time server
+    try {
+      await closeSocketServer();
+      logger.info('Socket.IO real-time server closed.');
+    } catch (err) {
+      logger.error({ err }, 'Error closing Socket.IO server during shutdown.');
+    }
+
+    // Clean up simulation timers
+    try {
+      routeSimulator.destroy();
+      logger.info('Route simulator service halted.');
+    } catch (err) {
+      logger.error({ err }, 'Error stopping route simulator during shutdown.');
+    }
 
     // Stop accepting new connections
     server.close(async () => {

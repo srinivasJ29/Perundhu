@@ -76,8 +76,14 @@ export class AuthService {
   public async login(input: LoginInput, meta?: RequestMetadata): Promise<AuthSuccessResult> {
     const normalizedEmail = input.email.trim().toLowerCase();
 
+// Constant-time Argon2id dummy hash for non-existent account timing mitigation
+const DUMMY_ARGON2_HASH =
+  '$argon2id$v=19$m=65536,t=3,p=4$dG5zdGNsaXZldHJhY2tpbmc$9nI1d3RjYjV2cGtyM294bWlsZW1haW50YWluZXJzZWNyZXQ';
+
     const user = await User.findOne({ email: normalizedEmail }).select('+passwordHash');
     if (!user) {
+      // Run dummy hash verification to equalize response timing with existing accounts
+      await verifyPassword(DUMMY_ARGON2_HASH, input.password);
       // Use generic error message to prevent account enumeration
       throw new UnauthorizedError('Invalid email or password');
     }

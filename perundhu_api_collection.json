@@ -1,14 +1,19 @@
 {
   "info": {
-    "_postman_id": "perundhu-tnstc-live-tracking-phase4",
-    "name": "PERUNDHU — TNSTC Live Tracking API (Phase 4 Verified)",
-    "description": "API endpoints for TNSTC Live Tracking System with Authentication, Token Rotation, and RBAC. Compatible with Postman and Thunder Client.",
+    "_postman_id": "perundhu-tnstc-live-tracking-phase9",
+    "name": "PERUNDHU — TNSTC Live Tracking API (Phase 9 Socket.IO Real-Time Tracking)",
+    "description": "API endpoints and Real-Time WebSocket contracts for TNSTC Live Tracking System with Bus Fleet Management, Scheduled Trips, Route Timetables, Stop Departures, Deterministic GPS Simulation Engine, Next-Stop Detection, Stop Arrival/Departure Events, Dynamic ETA Predictions, and Socket.IO Pub/Sub Tracking (Rooms: bus:{busId}, route:{routeId}). Compatible with Postman and Thunder Client.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     {
       "key": "baseUrl",
       "value": "http://localhost:5000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "socketUrl",
+      "value": "http://localhost:5000",
       "type": "string"
     },
     {
@@ -39,6 +44,21 @@
     {
       "key": "route70DirectionId",
       "value": "6ad04f9acac25e5e811df24c",
+      "type": "string"
+    },
+    {
+      "key": "busId",
+      "value": "6ad04f9acac25e5e811df250",
+      "type": "string"
+    },
+    {
+      "key": "tripId",
+      "value": "6ad04f9acac25e5e811df260",
+      "type": "string"
+    },
+    {
+      "key": "periyarStopId",
+      "value": "6ad04f9acac25e5e811df238",
       "type": "string"
     }
   ],
@@ -334,6 +354,432 @@
               "path": ["routes", "{{route70Id}}", "directions", "{{route70DirectionId}}"]
             },
             "description": "Returns ordered stop sequence and full GeoJSON LineString coordinates for the route."
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Bus Fleet (Phase 5)",
+      "item": [
+        {
+          "name": "List All Buses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/buses?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["buses"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "description": "Retrieves paginated list of active buses in the fleet inventory."
+          }
+        },
+        {
+          "name": "Filter Buses (Status & Type)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/buses?status=IN_SERVICE&vehicleType=ORDINARY_NON_AC",
+              "host": ["{{baseUrl}}"],
+              "path": ["buses"],
+              "query": [
+                { "key": "status", "value": "IN_SERVICE" },
+                { "key": "vehicleType", "value": "ORDINARY_NON_AC" }
+              ]
+            },
+            "description": "Filters buses by operational status (IN_SERVICE, MAINTENANCE, OFFLINE) and vehicle classification."
+          }
+        },
+        {
+          "name": "Get Bus by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/buses/{{busId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["buses", "{{busId}}"]
+            },
+            "description": "Retrieves single bus record by ID including its currently assigned trip summary."
+          }
+        },
+        {
+          "name": "Get Bus Trips",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/buses/{{busId}}/trips?dayOfWeek=MON",
+              "host": ["{{baseUrl}}"],
+              "path": ["buses", "{{busId}}", "trips"],
+              "query": [
+                { "key": "dayOfWeek", "value": "MON" }
+              ]
+            },
+            "description": "Retrieves paginated scheduled trips associated with a specific bus."
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Trips & Timetables (Phase 5)",
+      "item": [
+        {
+          "name": "Search Scheduled Trips",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/trips?page=1&limit=20&status=SCHEDULED",
+              "host": ["{{baseUrl}}"],
+              "path": ["trips"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "status", "value": "SCHEDULED" }
+              ]
+            },
+            "description": "Retrieves paginated list of scheduled trips with operational status and route direction."
+          }
+        },
+        {
+          "name": "Get Active Trips",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/trips/active?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["trips", "active"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "description": "Returns trips whose persisted operational status indicates they are currently active (IN_TRANSIT or assigned in-service bus)."
+          }
+        },
+        {
+          "name": "Get Trip Details & Stop Itinerary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/trips/{{tripId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["trips", "{{tripId}}"]
+            },
+            "description": "Retrieves trip details including ordered stop times, planned arrival/departure per waypoint."
+          }
+        },
+        {
+          "name": "Route Timetable by Direction",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/routes/{{route70Id}}/timetable?dayOfWeek=MON",
+              "host": ["{{baseUrl}}"],
+              "path": ["routes", "{{route70Id}}", "timetable"],
+              "query": [
+                { "key": "dayOfWeek", "value": "MON" }
+              ]
+            },
+            "description": "Returns planned scheduled departures for the route organized by direction. Explicitly marked as non-real-time schedule."
+          }
+        },
+        {
+          "name": "Stop Scheduled Departures",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stops/{{periyarStopId}}/departures?fromTime=06:00&toTime=22:00",
+              "host": ["{{baseUrl}}"],
+              "path": ["stops", "{{periyarStopId}}", "departures"],
+              "query": [
+                { "key": "fromTime", "value": "06:00" },
+                { "key": "toTime", "value": "22:00" }
+              ]
+            },
+            "description": "Retrieves scheduled bus departures from a stop within a validated time window. Not a live GPS arrival estimate."
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Admin Fleet & Trip Management (Phase 5)",
+      "item": [
+        {
+          "name": "Admin: Create New Bus",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"registrationNumber\": \"TN-58-N-9999\",\n  \"fleetNumber\": \"MDU-MGR-099\",\n  \"depotName\": \"Madurai Central Depot\",\n  \"vehicleType\": \"ORDINARY_NON_AC\",\n  \"status\": \"IN_SERVICE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/buses",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "buses"]
+            },
+            "description": "Protected admin endpoint to register a new bus into the fleet inventory."
+          }
+        },
+        {
+          "name": "Admin: Update Bus Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"MAINTENANCE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/buses/{{busId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "buses", "{{busId}}", "status"]
+            },
+            "description": "Protected admin endpoint to update operational status of a vehicle."
+          }
+        },
+        {
+          "name": "Admin: Create Scheduled Trip",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tripCode\": \"TRIP-70-OUT-0900\",\n  \"routeDirectionId\": \"{{route70DirectionId}}\",\n  \"busId\": \"{{busId}}\",\n  \"departureTime\": \"09:00\",\n  \"arrivalTime\": \"09:45\",\n  \"operationalDays\": [\"MON\", \"TUE\", \"WED\", \"THU\", \"FRI\", \"SAT\", \"SUN\"],\n  \"status\": \"SCHEDULED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/trips",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "trips"]
+            },
+            "description": "Protected admin endpoint to create a scheduled trip with validated route direction and bus assignment."
+          }
+        },
+        {
+          "name": "Admin: Assign Bus to Trip",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"busId\": \"{{busId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/trips/{{tripId}}/bus",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "trips", "{{tripId}}", "bus"]
+            },
+            "description": "Assigns or changes bus allocated to a trip, with conflict check and maintenance state verification."
+          }
+        },
+        {
+          "name": "Admin: Update Trip Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"IN_TRANSIT\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/trips/{{tripId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "trips", "{{tripId}}", "status"]
+            },
+            "description": "Protected admin endpoint to update trip operational status (SCHEDULED, IN_TRANSIT, COMPLETED, CANCELLED)."
+          }
+        },
+        {
+          "name": "Admin: Replace Trip Stop Times",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stopTimes\": [\n    {\n      \"stopId\": \"{{periyarStopId}}\",\n      \"stopSequence\": 1,\n      \"scheduledArrivalTime\": \"09:00\",\n      \"scheduledDepartureTime\": \"09:02\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/trips/{{tripId}}/stop-times",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "trips", "{{tripId}}", "stop-times"]
+            },
+            "description": "Replaces scheduled stop times along the trip itinerary with chronological and route direction validation."
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Admin Simulator Controls (Phase 6)",
+      "item": [
+        {
+          "name": "Admin: Get Simulator Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/simulator/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "simulator", "status"]
+            },
+            "description": "Inspect current status of the deterministic route simulator, active sessions, and engine configuration."
+          }
+        },
+        {
+          "name": "Admin: Start Simulator",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"speedMultiplier\": 1,\n  \"routeEndPolicy\": \"LOOP\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/simulator/start",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "simulator", "start"]
+            },
+            "description": "Start the deterministic route simulation session for eligible buses. Optional parameters: speedMultiplier (1-100), routeEndPolicy (LOOP or COMPLETE)."
+          }
+        },
+        {
+          "name": "Admin: Stop Simulator",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/simulator/stop",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "simulator", "stop"]
+            },
+            "description": "Stop the active simulation session and halt periodic tick updates."
+          }
+        },
+        {
+          "name": "Admin: Reset Simulator",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clearPositionHistory\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/simulator/reset",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "simulator", "reset"]
+            },
+            "description": "Reset simulation state back to time 0 (start of route). Optional parameter: clearPositionHistory (boolean)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Passenger Next-Stop & Dynamic ETA (Phase 8)",
+      "item": [
+        {
+          "name": "Get Next Stop for Scheduled Trip",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/trips/{{tripId}}/next-stop",
+              "host": ["{{baseUrl}}"],
+              "path": ["trips", "{{tripId}}", "next-stop"]
+            },
+            "description": "Public passenger endpoint resolving the next upcoming stop ahead of the bus, along-route progress, arrival status (APPROACHING, ARRIVED, DEPARTED, TERMINAL_REACHED), and remaining distance in meters."
+          }
+        },
+        {
+          "name": "Get Dynamic ETA for Scheduled Trip",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/trips/{{tripId}}/eta",
+              "host": ["{{baseUrl}}"],
+              "path": ["trips", "{{tripId}}", "eta"]
+            },
+            "description": "Public passenger endpoint providing dynamic ETA predictions for the next stop and all downstream stops along the route. Clearly distinguishes simulated predictions (predictionSource: SIMULATED_MOVEMENT, isRealTimePrediction: false) from live GPS or schedule fallbacks."
+          }
+        },
+        {
+          "name": "Get Dynamic ETA for Bus",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/buses/{{busId}}/eta",
+              "host": ["{{baseUrl}}"],
+              "path": ["buses", "{{busId}}", "eta"]
+            },
+            "description": "Public passenger endpoint resolving the active trip for a bus vehicle and returning its real-time or simulated dynamic ETA predictions for all downstream stops."
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Hardware GPS Ingestion (Phase 10)",
+      "item": [
+        {
+          "name": "Ingest Hardware GPS Observation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Device-Id", "value": "GPS-TNSTC-MDU-045" },
+              { "key": "X-Timestamp", "value": "2026-10-16T09:30:00.000Z" },
+              { "key": "X-Nonce", "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890" },
+              { "key": "X-Signature-SHA256", "value": "<hmac_sha256_hex_digest>" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"busId\": \"{{busId}}\",\n  \"latitude\": 9.9252,\n  \"longitude\": 78.1198,\n  \"speedKmph\": 35,\n  \"heading\": 90,\n  \"accuracyMeters\": 4,\n  \"recordedAt\": \"2026-10-16T09:30:00.000Z\",\n  \"source\": \"VEHICLE_HARDWARE_GPS\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/location/ingest",
+              "host": ["{{baseUrl}}"],
+              "path": ["location", "ingest"]
+            },
+            "description": "Authenticated hardware telematics ingestion endpoint. Enforces HMAC-SHA256 signature verification over raw request body bytes using GPS_INGESTION_HMAC_SECRET, 5-minute replay window, and anti-replay nonce tracking. Accepted telemetry updates live position and broadcasts to Socket.IO rooms."
           }
         }
       ]

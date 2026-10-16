@@ -373,6 +373,7 @@ export async function runSeed(options: { dryRun?: boolean; uri?: string } = {}):
         departureTime: t.departureTime,
         arrivalTime: t.arrivalTime,
         operationalDays: t.operationalDays,
+        status: 'SCHEDULED',
         isActive: true
       };
 

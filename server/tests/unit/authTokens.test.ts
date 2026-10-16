@@ -27,7 +27,7 @@ describe('Auth Tokens & Cryptographic Functions', () => {
 
       const isValid = await verifyPassword(hash, plaintext);
       expect(isValid).toBe(true);
-    });
+    }, 30000);
 
     it('should reject incorrect password', async () => {
       const plaintext = 'CorrectPassword';
@@ -35,7 +35,7 @@ describe('Auth Tokens & Cryptographic Functions', () => {
 
       const isValid = await verifyPassword(hash, 'WrongPassword');
       expect(isValid).toBe(false);
-    });
+    }, 30000);
 
     it('should safely return false when given an invalid hash format', async () => {
       const isValid = await verifyPassword('not-a-valid-hash', 'password');

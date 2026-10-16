@@ -7,11 +7,14 @@ import {
   standRoutesQuerySchema
 } from './busStand.validation';
 
+import { heavyApiLimiter } from '../../common/middleware/rateLimiter';
+
 const router = Router();
 
 // 1. Nearby bus stands spatial query (Declared BEFORE :standId parameter routes)
 router.get(
   '/bus-stands/nearby',
+  heavyApiLimiter,
   validate({ query: nearbyBusStandsQuerySchema }),
   (req, res, next) => busStandController.getNearby(req, res, next)
 );

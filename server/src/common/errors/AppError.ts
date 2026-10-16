@@ -4,6 +4,7 @@ export interface ErrorResponse {
     message: string;
     details?: unknown;
     timestamp: string;
+    requestId?: string;
   };
 }
 
