@@ -1,0 +1,114 @@
+/**
+ * PERUNDHU (பேருந்து) — Step 6 Home Dashboard Page
+ * Main passenger portal unifying authenticated profile, selected district & route telemetry,
+ * genuine GPS-backed nearby terminals, journey search, and quick access actions.
+ */
+
+import React, { useEffect } from 'react';
+import { useLanguage } from '../../../hooks/useLanguage';
+import { useDashboardData } from '../hooks/useDashboardData';
+import { DashboardHeader } from '../components/DashboardHeader';
+import { JourneySearch } from '../components/JourneySearch';
+import { SelectedRouteCard } from '../components/SelectedRouteCard';
+import { NearbyBusStands } from '../components/NearbyBusStands';
+import { LiveBusOverview } from '../components/LiveBusOverview';
+import { QuickAccessGrid } from '../components/QuickAccessGrid';
+import { PassengerGuidance } from '../components/PassengerGuidance';
+import { TimetableModal } from '../components/TimetableModal';
+import '../styles/dashboard.css';
+
+export const DashboardPage: React.FC = () => {
+  const { t } = useLanguage();
+
+  const {
+    district,
+    districtRoutes,
+    selectedRoute,
+    isLoadingRouteDetail,
+    locationOptions,
+    liveOverview,
+    nearbyStands,
+    timetableModal,
+    handleRequestLocation,
+    handleBrowseDistrictStands,
+    handleOpenTimetable,
+    handleCloseTimetable,
+    refreshLiveOverview,
+    selectRoute
+  } = useDashboardData();
+
+  useEffect(() => {
+    document.title = `${t('dashboard.title')} — PERUNDHU`;
+  }, [t]);
+
+  const handleScrollToGuidance = () => {
+    const el = document.getElementById('passenger-guidance-section');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <div className="dashboard-page-wrapper">
+      {/* 1. Header with branding, district/route pills, language, and user profile */}
+      <DashboardHeader district={district} selectedRoute={selectedRoute} />
+
+      {/* 2. Main Dashboard Content Grid */}
+      <main className="dashboard-main-content" role="main">
+        <div className="app-container dashboard-layout-container">
+          {/* Welcome & Journey Quick Search */}
+          <JourneySearch
+            locationOptions={locationOptions}
+            districtRoutes={districtRoutes}
+            onSelectRoute={(routeId) => selectRoute(routeId)}
+          />
+
+          {/* Primary Two-Column Operations Layout */}
+          <div className="dashboard-grid-layout">
+            {/* Left Column: Active Route & Live Telemetry Overview */}
+            <div className="dashboard-column primary">
+              <SelectedRouteCard
+                district={district}
+                selectedRoute={selectedRoute}
+                isLoading={isLoadingRouteDetail}
+                onOpenTimetable={() => handleOpenTimetable()}
+              />
+
+              <LiveBusOverview
+                overviewState={liveOverview}
+                selectedRoute={selectedRoute}
+                onRefresh={refreshLiveOverview}
+              />
+            </div>
+
+            {/* Right Column: Nearby Terminals & Quick Shortcuts */}
+            <div className="dashboard-column secondary">
+              <NearbyBusStands
+                nearbyState={nearbyStands}
+                onRequestLocation={handleRequestLocation}
+                onBrowseDistrictStands={handleBrowseDistrictStands}
+              />
+
+              <QuickAccessGrid
+                selectedRoute={selectedRoute}
+                districtCode={district.code}
+                onOpenTimetable={() => handleOpenTimetable()}
+                onBrowseBusStands={handleBrowseDistrictStands}
+                onScrollToGuidance={handleScrollToGuidance}
+              />
+            </div>
+          </div>
+
+          {/* Passenger Guidance (5 Simple Steps in English & Tamil) */}
+          <PassengerGuidance />
+        </div>
+      </main>
+
+      {/* 3. Verified Timetable Dialog */}
+      <TimetableModal
+        modalState={timetableModal}
+        onClose={handleCloseTimetable}
+      />
+    </div>
+  );
+};

@@ -4,12 +4,19 @@
   "private": true,
   "description": "TNSTC Live Tracking Web Application — Real-Time Bus Tracking for Tamil Nadu",
   "workspaces": [
-    "server"
+    "server",
+    "client"
   ],
   "scripts": {
+    "client:dev": "npm --prefix client run dev",
+    "client:build": "npm --prefix client run build",
+    "client:test": "npm --prefix client run test",
+    "client:typecheck": "npm --prefix client run typecheck",
     "server:dev": "npm --prefix server run dev",
     "server:build": "npm --prefix server run build",
     "server:test": "npm --prefix server run test",
-    "server:typecheck": "npm --prefix server run typecheck"
+    "server:typecheck": "npm --prefix server run typecheck",
+    "test": "npm run server:test && npm run client:test",
+    "typecheck": "npm run server:typecheck && npm run client:typecheck"
   }
 }

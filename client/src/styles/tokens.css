@@ -1,0 +1,116 @@
+/**
+ * PERUNDHU (பேருந்து) — Design Tokens System
+ * Strict compliance with approved color palette and accessible typography
+ */
+
+:root {
+  /* Approved Brand Color Palette (Synchronized with User Spec) */
+  --color-primary-dark: #071F22;
+  --color-primary: #1D7873;
+  --color-secondary: #67958C;
+  --color-accent: #F5C096;
+  --color-danger: #EF2E33;
+  --color-background: #F6F8F6;
+  --color-surface: #FFFFFF;
+
+  /* Brand Names (Backwards Compatible with Existing Components) */
+  --color-deep-teal: #071F22;
+  --color-primary-teal: #1D7873;
+  --color-primary-teal-hover: #16605C;
+  --color-primary-teal-active: #0F4441;
+  --color-sage: #67958C;
+  --color-sage-light: #D5E1DE;
+  --color-warm-peach: #F5C096;
+  --color-warm-peach-light: #FDF4ED;
+  --color-coral-red: #EF2E33;
+  --color-coral-red-light: #FDE8E9;
+
+  /* Semantic Color Tokens */
+  --color-text: #071F22;
+  --color-text-primary: #071F22;
+  --color-text-secondary: #2C4B4A;
+  --color-text-muted: #577873;
+  --color-text-inverse: #FFFFFF;
+  --color-muted: #577873;
+
+  --color-border: #D8E2E0;
+  --color-border-subtle: #E8EFEF;
+  --color-border-focus: #1D7873;
+  --color-focus: #1D7873;
+
+  --color-action-primary: #1D7873;
+  --color-action-primary-hover: #16605C;
+  --color-action-secondary: #F5C096;
+  --color-action-secondary-hover: #EEAE7E;
+
+  --color-status-success: #15803D;
+  --color-status-success-bg: #E8F5E9;
+  --color-status-warning: #B45309;
+  --color-status-warning-bg: #FFF8E1;
+  --color-status-error: #EF2E33;
+  --color-status-error-bg: #FDE8E9;
+  --color-status-info: #0284C7;
+  --color-status-info-bg: #E0F2FE;
+
+  --color-disabled-text: #8E9E9B;
+  --color-disabled-bg: #EAEFEF;
+  --color-disabled-border: #D5DFDE;
+
+  /* Typography */
+  --font-family-base: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family-tamil: 'Noto Sans Tamil', 'Inter', system-ui, sans-serif;
+
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.25rem;    /* 20px */
+  --font-size-2xl: 1.5rem;    /* 24px */
+  --font-size-3xl: 1.875rem;  /* 30px */
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+
+  /* Spacing Scale (8pt grid convention) */
+  --space-1: 0.25rem;  /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.25rem;  /* 20px */
+  --space-6: 1.5rem;   /* 24px */
+  --space-8: 2rem;     /* 32px */
+  --space-10: 2.5rem;  /* 40px */
+  --space-12: 3rem;    /* 48px */
+  --space-16: 4rem;    /* 64px */
+
+  /* Border Radii */
+  --radius-sm: 0.25rem;  /* 4px */
+  --radius-md: 0.5rem;   /* 8px */
+  --radius-lg: 0.75rem;  /* 12px */
+  --radius-xl: 1rem;     /* 16px */
+  --radius-full: 9999px;
+
+  /* Shadows (Elevations) */
+  --shadow-sm: 0 1px 2px 0 rgba(7, 31, 34, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(7, 31, 34, 0.08), 0 2px 4px -2px rgba(7, 31, 34, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(7, 31, 34, 0.1), 0 4px 6px -4px rgba(7, 31, 34, 0.05);
+
+  /* Focus Rings */
+  --focus-ring: 0 0 0 3px rgba(29, 120, 115, 0.35);
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Z-Index Scales */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-modal: 1050;
+  --z-toast: 1100;
+}
