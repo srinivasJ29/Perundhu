@@ -130,11 +130,13 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
         attributionControl={false}
         style={{ width: '100%', height: '100%' }}
       >
-        {/* OpenStreetMap Standard Tile Layer */}
+        {/* Interactive Tile Layer (CARTO Voyager / Esri Satellite / CARTO Dark) */}
         <TileLayer
+          key={layerConfig.id}
           url={tileUrl}
           attribution={layerConfig.attribution || MAP_LAYERS.street.attribution}
           maxZoom={layerConfig.maxZoom}
+          subdomains={['a', 'b', 'c', 'd']}
         />
 
         <AttributionControl position="bottomright" prefix={false} />

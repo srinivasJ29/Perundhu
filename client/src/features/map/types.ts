@@ -40,37 +40,33 @@ export interface MapLayerConfig {
 export const MAP_LAYERS: Record<MapLayerId, MapLayerConfig> = {
   street: {
     id: 'street',
-    nameEn: 'Standard Street Map',
-    nameTa: 'நிலையான தெரு வரைபடம்',
-    tileUrlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
+    nameEn: 'CARTO Voyager (Clean Transit)',
+    nameTa: 'போக்குவரத்து வரைபடம் (CARTO)',
+    tileUrlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>',
     maxZoom: 19,
     minZoom: 5,
     isAvailable: true
   },
   satellite: {
     id: 'satellite',
-    nameEn: 'Satellite Imagery',
-    nameTa: 'செயற்கைக்கோள் படம்',
-    tileUrlTemplate: '',
-    attribution: '',
+    nameEn: 'Satellite Imagery (Esri)',
+    nameTa: 'செயற்கைக்கோள் படம் (Esri)',
+    tileUrlTemplate: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
     maxZoom: 19,
     minZoom: 5,
-    isAvailable: false,
-    unavailableReasonEn: 'Satellite layer requires an external permitted aerial tile provider configuration.',
-    unavailableReasonTa: 'செயற்கைக்கோள் படத்திற்கு கூடுதல் சேவை கட்டமைப்பு தேவை.'
+    isAvailable: true
   },
   hybrid: {
     id: 'hybrid',
-    nameEn: 'Hybrid Map',
-    nameTa: 'கலப்பு வரைபடம்',
-    tileUrlTemplate: '',
-    attribution: '',
+    nameEn: 'Night Transit (Dark Matter)',
+    nameTa: 'இரவு முறை வரைபடம் (CARTO)',
+    tileUrlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>',
     maxZoom: 19,
     minZoom: 5,
-    isAvailable: false,
-    unavailableReasonEn: 'Hybrid layer requires an external aerial tile provider configuration.',
-    unavailableReasonTa: 'கலப்பு வரைபடத்திற்கு கூடுதல் சேவை கட்டமைப்பு தேவை.'
+    isAvailable: true
   }
 };
 

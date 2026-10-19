@@ -101,8 +101,8 @@ export const MapLayerControl: React.FC<MapLayerControlProps> = ({
 
           <p className="map-layer-footer-notice">
             {language === 'ta'
-              ? 'அரசுப் பேருந்து வழித்தடங்கள் ஓபன்ஸ்ட்ரீட்மேப் (OpenStreetMap) தரவுகளுடன் இணைக்கப்பட்டுள்ளன.'
-              : 'Public transit corridors are rendered via OpenStreetMap standard tiles.'}
+              ? 'அரசுப் பேருந்து வழித்தடங்கள் CARTO மற்றும் Esri செயற்கைக்கோள் தரவுகளுடன் இணைக்கப்பட்டுள்ளன.'
+              : 'Public transit corridors rendered via high-performance CARTO & Esri imagery.'}
           </p>
         </div>
       )}
