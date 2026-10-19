@@ -179,6 +179,28 @@ export const MapInfoPanel: React.FC<MapInfoPanelProps> = ({
               {language === 'ta' ? selectedEntity.subtitleTa : selectedEntity.subtitleEn}
             </p>
           )}
+
+          {selectedEntity.type === 'BUS' && selectedEntity.data && (
+            <div className="map-selected-bus-meta" style={{ marginTop: '8px', display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+              {selectedEntity.data.isSimulated ? (
+                <Badge variant="warning"><span>{t('map.simulated_badge')}</span></Badge>
+              ) : (
+                <Badge variant="success"><span>{t('map.live_gps_badge')}</span></Badge>
+              )}
+              {selectedEntity.data.trackingStatus === 'STALE' && (
+                <Badge variant="neutral"><span>{t('map.stale_badge')}</span></Badge>
+              )}
+              {selectedEntity.data.trackingStatus === 'DELAYED' && (
+                <Badge variant="warning"><span>{t('map.delayed_badge')}</span></Badge>
+              )}
+              {selectedEntity.data.trackingStatus === 'DEVIATED' && (
+                <Badge variant="error"><span>{t('map.deviated_badge')}</span></Badge>
+              )}
+              <span style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginLeft: '4px' }}>
+                {Math.round(selectedEntity.data.speedKmph || 0)} km/h • {Math.round(selectedEntity.data.heading || 0)}°
+              </span>
+            </div>
+          )}
         </div>
       )}
 
@@ -449,15 +471,32 @@ export const MapInfoPanel: React.FC<MapInfoPanelProps> = ({
                           </div>
                         </div>
 
-                        {b.isSimulated ? (
-                          <Badge variant="warning">
-                            <span>{t('map.simulated_badge')}</span>
-                          </Badge>
-                        ) : (
-                          <Badge variant="success">
-                            <span>{t('map.live_gps_badge')}</span>
-                          </Badge>
-                        )}
+                        <div style={{ display: 'flex', gap: '4px', alignItems: 'center', flexWrap: 'wrap' }}>
+                          {b.isSimulated ? (
+                            <Badge variant="warning">
+                              <span>{t('map.simulated_badge')}</span>
+                            </Badge>
+                          ) : (
+                            <Badge variant="success">
+                              <span>{t('map.live_gps_badge')}</span>
+                            </Badge>
+                          )}
+                          {b.trackingStatus === 'STALE' && (
+                            <Badge variant="neutral">
+                              <span>{t('map.stale_badge')}</span>
+                            </Badge>
+                          )}
+                          {b.trackingStatus === 'DELAYED' && (
+                            <Badge variant="warning">
+                              <span>{t('map.delayed_badge')}</span>
+                            </Badge>
+                          )}
+                          {b.trackingStatus === 'DEVIATED' && (
+                            <Badge variant="error">
+                              <span>{t('map.deviated_badge')}</span>
+                            </Badge>
+                          )}
+                        </div>
                       </div>
 
                       <div className="map-bus-card-stats">

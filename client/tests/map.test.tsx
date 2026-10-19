@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { I18nProvider } from '../src/i18n';
 import { AuthProvider } from '../src/features/auth';
@@ -51,26 +51,59 @@ vi.mock('react-leaflet', () => ({
 vi.mock('../src/services/socket/socketClient', () => ({
   socketClientManager: {
     setTokenProvider: vi.fn(),
-    getConnectionState: vi.fn(() => 'CONNECTED'),
-    onStateChange: vi.fn((cb) => {
-      cb('CONNECTED');
-      return vi.fn();
+    getConnectionState: vi.fn(() => socketMockState.connectionState),
+    onStateChange: vi.fn((cb: any) => {
+      socketMockState.stateListeners.add(cb);
+      cb(socketMockState.connectionState);
+      return () => {
+        socketMockState.stateListeners.delete(cb);
+      };
     }),
     connect: vi.fn(),
     disconnect: vi.fn(),
-    subscribeRoute: vi.fn(),
-    unsubscribeRoute: vi.fn(),
+    subscribeRoute: vi.fn((routeId: string) => {
+      socketMockState.subscribedRoutes.add(routeId);
+    }),
+    unsubscribeRoute: vi.fn((routeId: string) => {
+      socketMockState.unsubscribedRoutes.add(routeId);
+      socketMockState.subscribedRoutes.delete(routeId);
+    }),
     subscribeBus: vi.fn(),
     unsubscribeBus: vi.fn(),
     subscribeToRoute: vi.fn(),
     unsubscribeFromRoute: vi.fn(),
     subscribeToBus: vi.fn(),
     unsubscribeFromBus: vi.fn(),
-    onBusPosition: vi.fn(() => vi.fn()),
-    onBusStatus: vi.fn(() => vi.fn()),
-    onBusEta: vi.fn(() => vi.fn()),
-    onBusNextStop: vi.fn(() => vi.fn()),
-    onSubscriptionAck: vi.fn(() => vi.fn()),
+    onBusPosition: vi.fn((cb: any) => {
+      socketMockState.positionListeners.add(cb);
+      return () => {
+        socketMockState.positionListeners.delete(cb);
+      };
+    }),
+    onBusStatus: vi.fn((cb: any) => {
+      socketMockState.statusListeners.add(cb);
+      return () => {
+        socketMockState.statusListeners.delete(cb);
+      };
+    }),
+    onBusEta: vi.fn((cb: any) => {
+      socketMockState.etaListeners.add(cb);
+      return () => {
+        socketMockState.etaListeners.delete(cb);
+      };
+    }),
+    onBusNextStop: vi.fn((cb: any) => {
+      socketMockState.nextStopListeners.add(cb);
+      return () => {
+        socketMockState.nextStopListeners.delete(cb);
+      };
+    }),
+    onSubscriptionAck: vi.fn((cb: any) => {
+      socketMockState.ackListeners.add(cb);
+      return () => {
+        socketMockState.ackListeners.delete(cb);
+      };
+    }),
     onSubscriptionError: vi.fn(() => vi.fn())
   }
 }));
@@ -93,8 +126,21 @@ const {
   mockStands,
   mockRoutes,
   mockDirectionDetail70Outbound,
-  mockDirectionDetail70Inbound
+  mockDirectionDetail70Inbound,
+  socketMockState
 } = vi.hoisted(() => {
+  const socketMockState = {
+    ackListeners: new Set<(ack: any) => void>(),
+    positionListeners: new Set<(pos: any) => void>(),
+    statusListeners: new Set<(status: any) => void>(),
+    etaListeners: new Set<(eta: any) => void>(),
+    nextStopListeners: new Set<(stop: any) => void>(),
+    stateListeners: new Set<(state: any) => void>(),
+    connectionState: 'CONNECTED' as string,
+    subscribedRoutes: new Set<string>(),
+    unsubscribedRoutes: new Set<string>()
+  };
+
   const mockDistricts = [
     {
       id: 'backend-mdu-123',
@@ -314,9 +360,35 @@ const {
     mockStands,
     mockRoutes,
     mockDirectionDetail70Outbound,
-    mockDirectionDetail70Inbound
+    mockDirectionDetail70Inbound,
+    socketMockState
   };
 });
+
+function emitSocketAck(ack: any) {
+  act(() => {
+    socketMockState.ackListeners.forEach((cb) => cb(ack));
+  });
+}
+
+function emitBusPosition(pos: any) {
+  act(() => {
+    socketMockState.positionListeners.forEach((cb) => cb(pos));
+  });
+}
+
+function emitBusStatus(status: any) {
+  act(() => {
+    socketMockState.statusListeners.forEach((cb) => cb(status));
+  });
+}
+
+function emitSocketState(state: string) {
+  act(() => {
+    socketMockState.connectionState = state;
+    socketMockState.stateListeners.forEach((cb) => cb(state));
+  });
+}
 
 vi.mock('../src/services/api/districts.service', () => ({
   districtsService: {
@@ -365,6 +437,16 @@ describe('PERUNDHU Step 8 — Live Interactive Map & TypeScript Stabilization', 
   beforeEach(async () => {
     vi.clearAllMocks();
     safeSetItem(STORAGE_KEYS.LANGUAGE, 'en');
+
+    socketMockState.ackListeners.clear();
+    socketMockState.positionListeners.clear();
+    socketMockState.statusListeners.clear();
+    socketMockState.etaListeners.clear();
+    socketMockState.nextStopListeners.clear();
+    socketMockState.stateListeners.clear();
+    socketMockState.subscribedRoutes.clear();
+    socketMockState.unsubscribedRoutes.clear();
+    socketMockState.connectionState = 'CONNECTED';
 
     const { districtsService } = await import('../src/services/api/districts.service');
     vi.mocked(districtsService.getDistricts).mockResolvedValue({
@@ -566,6 +648,373 @@ describe('PERUNDHU Step 8 — Live Interactive Map & TypeScript Stabilization', 
       await waitFor(() => {
         expect(screen.getByText(/Nearby Bus Stands/i)).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('F. Real-Time Socket Telemetry & E2E Live Bus Tracking Pipeline', () => {
+    it('populates live bus markers on subscription:ack snapshot', async () => {
+      renderMapPage(['/routes/route-70?district=mdu']);
+
+      await waitFor(() => {
+        expect(screen.getAllByText(/Route 70/i).length).toBeGreaterThan(0);
+      });
+
+      expect(socketMockState.subscribedRoutes.has('route-70')).toBe(true);
+
+      emitSocketAck({
+        channel: 'route:route-70',
+        status: 'SUBSCRIBED',
+        snapshot: {
+          routeId: 'route-70',
+          activeBusesCount: 1,
+          buses: [
+            {
+              busId: 'bus-tn58-1001',
+              registrationNumber: 'TN 58 N 1001',
+              routeNumber: '70',
+              coordinates: [78.1400, 9.9300], // [lng, lat]
+              speedKmph: 35,
+              heading: 120,
+              isSimulated: true,
+              trackingStatus: 'LIVE',
+              source: 'SIMULATOR',
+              recordedAt: '2026-10-18T10:00:00.000Z'
+            }
+          ]
+        }
+      });
+
+      await waitFor(() => {
+        const markers = screen.getAllByTestId('map-marker');
+        const busMarker = markers.find(
+          (m) => m.getAttribute('data-lat') === '9.93' && m.getAttribute('data-lng') === '78.14'
+        );
+        expect(busMarker).toBeDefined();
+      });
+
+      // Click the marker to inspect popup telemetry
+      const markers = screen.getAllByTestId('map-marker');
+      const busMarker = markers.find(
+        (m) => m.getAttribute('data-lat') === '9.93' && m.getAttribute('data-lng') === '78.14'
+      );
+      fireEvent.click(busMarker!);
+
+      await waitFor(() => {
+        expect(screen.getAllByText(/TN 58 N 1001/i).length).toBeGreaterThan(0);
+        expect(screen.getAllByText(/SIMULATED/i).length).toBeGreaterThan(0);
+        expect(screen.getByText(/35 km\/h/i)).toBeInTheDocument();
+      });
+    });
+
+    it('updates bus marker position and reflects verified real GPS telemetry', async () => {
+      renderMapPage(['/routes/route-70?district=mdu']);
+
+      await waitFor(() => {
+        expect(screen.getAllByText(/Route 70/i).length).toBeGreaterThan(0);
+      });
+
+      // Initial simulated snapshot
+      emitSocketAck({
+        channel: 'route:route-70',
+        status: 'SUBSCRIBED',
+        snapshot: {
+          routeId: 'route-70',
+          activeBusesCount: 1,
+          buses: [
+            {
+              busId: 'bus-tn58-1001',
+              registrationNumber: 'TN 58 N 1001',
+              routeNumber: '70',
+              coordinates: [78.1400, 9.9300],
+              speedKmph: 35,
+              heading: 120,
+              isSimulated: true,
+              trackingStatus: 'LIVE',
+              source: 'SIMULATOR',
+              recordedAt: '2026-10-18T10:00:00.000Z'
+            }
+          ]
+        }
+      });
+
+      await waitFor(() => {
+        expect(
+          screen.getAllByTestId('map-marker').some(
+            (m) => m.getAttribute('data-lat') === '9.93' && m.getAttribute('data-lng') === '78.14'
+          )
+        ).toBe(true);
+      });
+
+      // Broadcast verified real hardware GPS position
+      emitBusPosition({
+        busId: 'bus-tn58-1001',
+        registrationNumber: 'TN 58 N 1001',
+        routeId: 'route-70',
+        routeNumber: '70',
+        coordinates: [78.1450, 9.9320],
+        speedKmph: 42,
+        heading: 125,
+        isSimulated: false,
+        trackingStatus: 'LIVE',
+        source: 'VEHICLE_HARDWARE_GPS',
+        recordedAt: '2026-10-18T10:00:15.000Z'
+      });
+
+      await waitFor(() => {
+        const markers = screen.getAllByTestId('map-marker');
+        const updatedMarker = markers.find(
+          (m) => m.getAttribute('data-lat') === '9.932' && m.getAttribute('data-lng') === '78.145'
+        );
+        expect(updatedMarker).toBeDefined();
+      });
+
+      // Verify that badge displays LIVE GPS instead of SIMULATED
+      const markers = screen.getAllByTestId('map-marker');
+      const updatedMarker = markers.find(
+        (m) => m.getAttribute('data-lat') === '9.932' && m.getAttribute('data-lng') === '78.145'
+      );
+      fireEvent.click(updatedMarker!);
+
+      await waitFor(() => {
+        expect(screen.getAllByText(/LIVE GPS/i).length).toBeGreaterThan(0);
+        expect(screen.getAllByText(/42 km\/h/i).length).toBeGreaterThan(0);
+      });
+    });
+
+    it('source protection: simulator telemetry cannot overwrite verified real hardware GPS telemetry', async () => {
+      renderMapPage(['/routes/route-70?district=mdu']);
+
+      await waitFor(() => {
+        expect(screen.getAllByText(/Route 70/i).length).toBeGreaterThan(0);
+      });
+
+      // 1. Establish verified real GPS telemetry
+      emitBusPosition({
+        busId: 'bus-tn58-1001',
+        registrationNumber: 'TN 58 N 1001',
+        routeId: 'route-70',
+        routeNumber: '70',
+        coordinates: [78.1450, 9.9320],
+        speedKmph: 40,
+        heading: 120,
+        isSimulated: false,
+        trackingStatus: 'LIVE',
+        source: 'VEHICLE_HARDWARE_GPS',
+        recordedAt: '2026-10-18T10:00:20.000Z'
+      });
+
+      await waitFor(() => {
+        expect(
+          screen.getAllByTestId('map-marker').some(
+            (m) => m.getAttribute('data-lat') === '9.932' && m.getAttribute('data-lng') === '78.145'
+          )
+        ).toBe(true);
+      });
+
+      // 2. Incoming simulated packet with a newer timestamp attempting to overwrite real telemetry
+      emitBusPosition({
+        busId: 'bus-tn58-1001',
+        registrationNumber: 'TN 58 N 1001',
+        routeId: 'route-70',
+        routeNumber: '70',
+        coordinates: [78.1600, 9.9450],
+        speedKmph: 25,
+        heading: 130,
+        isSimulated: true,
+        trackingStatus: 'LIVE',
+        source: 'SIMULATOR',
+        recordedAt: '2026-10-18T10:00:30.000Z'
+      });
+
+      // Position should remain protected at real GPS coordinates
+      const markers = screen.getAllByTestId('map-marker');
+      const protectedMarker = markers.find(
+        (m) => m.getAttribute('data-lat') === '9.932' && m.getAttribute('data-lng') === '78.145'
+      );
+      expect(protectedMarker).toBeDefined();
+
+      const simulatorMarker = markers.find(
+        (m) => m.getAttribute('data-lat') === '9.945' && m.getAttribute('data-lng') === '78.16'
+      );
+      expect(simulatorMarker).toBeUndefined();
+    });
+
+    it('out-of-order protection: drops older position telemetry packets', async () => {
+      renderMapPage(['/routes/route-70?district=mdu']);
+
+      await waitFor(() => {
+        expect(screen.getAllByText(/Route 70/i).length).toBeGreaterThan(0);
+      });
+
+      // Newer packet at 10:02:00
+      emitBusPosition({
+        busId: 'bus-tn58-1001',
+        registrationNumber: 'TN 58 N 1001',
+        routeId: 'route-70',
+        routeNumber: '70',
+        coordinates: [78.1450, 9.9320],
+        speedKmph: 40,
+        heading: 120,
+        isSimulated: false,
+        trackingStatus: 'LIVE',
+        source: 'VEHICLE_HARDWARE_GPS',
+        recordedAt: '2026-10-18T10:02:00.000Z'
+      });
+
+      await waitFor(() => {
+        expect(
+          screen.getAllByTestId('map-marker').some(
+            (m) => m.getAttribute('data-lat') === '9.932' && m.getAttribute('data-lng') === '78.145'
+          )
+        ).toBe(true);
+      });
+
+      // Delayed/out-of-order older packet from 10:01:00
+      emitBusPosition({
+        busId: 'bus-tn58-1001',
+        registrationNumber: 'TN 58 N 1001',
+        routeId: 'route-70',
+        routeNumber: '70',
+        coordinates: [78.1200, 9.9100],
+        speedKmph: 30,
+        heading: 110,
+        isSimulated: false,
+        trackingStatus: 'LIVE',
+        source: 'VEHICLE_HARDWARE_GPS',
+        recordedAt: '2026-10-18T10:01:00.000Z'
+      });
+
+      // Marker must not regress to the older coordinate
+      const markers = screen.getAllByTestId('map-marker');
+      expect(
+        markers.some(
+          (m) => m.getAttribute('data-lat') === '9.91' && m.getAttribute('data-lng') === '78.12'
+        )
+      ).toBe(false);
+      expect(
+        markers.some(
+          (m) => m.getAttribute('data-lat') === '9.932' && m.getAttribute('data-lng') === '78.145'
+        )
+      ).toBe(true);
+    });
+
+    it('rejects malformed coordinates with NaN or non-finite numbers safely', async () => {
+      renderMapPage(['/routes/route-70?district=mdu']);
+
+      await waitFor(() => {
+        expect(screen.getAllByText(/Route 70/i).length).toBeGreaterThan(0);
+      });
+
+      // Malformed coordinates with NaN
+      emitBusPosition({
+        busId: 'bus-malformed',
+        registrationNumber: 'TN 58 N 9999',
+        routeId: 'route-70',
+        routeNumber: '70',
+        coordinates: [NaN, 9.9300] as any,
+        speedKmph: 30,
+        heading: 100,
+        isSimulated: true,
+        trackingStatus: 'LIVE',
+        source: 'SIMULATOR',
+        recordedAt: '2026-10-18T10:03:00.000Z'
+      });
+
+      // Should not throw and should not create a marker with NaN
+      const markers = screen.queryAllByTestId('map-marker');
+      expect(
+        markers.some((m) => m.getAttribute('data-lat') === 'NaN' || m.getAttribute('data-lng') === 'NaN')
+      ).toBe(false);
+    });
+
+    it('bus:status event updates tracking status to STALE and displays DELAYED badge', async () => {
+      renderMapPage(['/routes/route-70?district=mdu']);
+
+      await waitFor(() => {
+        expect(screen.getAllByText(/Route 70/i).length).toBeGreaterThan(0);
+      });
+
+      emitBusPosition({
+        busId: 'bus-tn58-1001',
+        registrationNumber: 'TN 58 N 1001',
+        routeId: 'route-70',
+        routeNumber: '70',
+        coordinates: [78.1400, 9.9300],
+        speedKmph: 35,
+        heading: 120,
+        isSimulated: true,
+        trackingStatus: 'LIVE',
+        source: 'SIMULATOR',
+        recordedAt: '2026-10-18T10:00:00.000Z'
+      });
+
+      await waitFor(() => {
+        expect(
+          screen.getAllByTestId('map-marker').some(
+            (m) => m.getAttribute('data-lat') === '9.93' && m.getAttribute('data-lng') === '78.14'
+          )
+        ).toBe(true);
+      });
+
+      // Status update marking the bus as STALE and DELAYED
+      emitBusStatus({
+        busId: 'bus-tn58-1001',
+        currentStatus: 'STALE',
+        trackingStatus: 'STALE',
+        status: 'STALE',
+        isDelayed: true,
+        isDeviated: false,
+        timestamp: '2026-10-18T10:05:00.000Z'
+      });
+
+      // Click the marker to inspect popup badges
+      const markers = screen.getAllByTestId('map-marker');
+      const busMarker = markers.find(
+        (m) => m.getAttribute('data-lat') === '9.93' && m.getAttribute('data-lng') === '78.14'
+      );
+      fireEvent.click(busMarker!);
+
+      await waitFor(() => {
+        expect(screen.getAllByText(/STALE/i).length).toBeGreaterThan(0);
+        expect(screen.getAllByText(/DELAYED/i).length).toBeGreaterThan(0);
+      });
+    });
+
+    it('handles socket disconnection and reconnection states gracefully', async () => {
+      renderMapPage(['/routes/route-70?district=mdu']);
+
+      await waitFor(() => {
+        expect(screen.getAllByText(/Route 70/i).length).toBeGreaterThan(0);
+      });
+
+      // Initially connected
+      expect(screen.getByText(/Real-Time Connected/i)).toBeInTheDocument();
+
+      // Socket disconnects
+      emitSocketState('DISCONNECTED');
+
+      await waitFor(() => {
+        expect(screen.getByText(/Telemetry Offline/i)).toBeInTheDocument();
+      });
+
+      // Socket reconnects
+      emitSocketState('CONNECTED');
+
+      await waitFor(() => {
+        expect(screen.getByText(/Real-Time Connected/i)).toBeInTheDocument();
+      });
+    });
+
+    it('unsubscribes from socket route channel on unmount', async () => {
+      const { unmount } = renderMapPage(['/routes/route-70?district=mdu']);
+
+      await waitFor(() => {
+        expect(socketMockState.subscribedRoutes.has('route-70')).toBe(true);
+      });
+
+      unmount();
+
+      expect(socketMockState.unsubscribedRoutes.has('route-70')).toBe(true);
     });
   });
 });

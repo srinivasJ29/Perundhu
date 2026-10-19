@@ -106,6 +106,8 @@ export interface LiveBusMarkerData {
   trackingStatus: TrackingTelemetryStatus;
   source: LocationTelemetrySource;
   isSimulated: boolean;
+  isDelayed?: boolean;
+  isDeviated?: boolean;
   recordedAt: string;
   lastReceivedAt: number; // Epoch timestamp in ms
 }

@@ -41,10 +41,14 @@ export const BusLocationMarker: React.FC<BusLocationMarkerProps> = ({
     isSelected
   );
 
-  // Freshness check: if last recorded timestamp is older than 2 minutes (120,000ms)
+  // Freshness check: if last recorded timestamp is older than 2 minutes (120,000ms) or trackingStatus indicates stale
   const isStale =
-    bus.recordedAt &&
-    Date.now() - new Date(bus.recordedAt).getTime() > 120000;
+    bus.trackingStatus === 'STALE' ||
+    bus.trackingStatus === 'UNAVAILABLE' ||
+    (bus.recordedAt && Date.now() - new Date(bus.recordedAt).getTime() > 120000);
+
+  const isDelayed = bus.trackingStatus === 'DELAYED' || Boolean(bus.isDelayed);
+  const isDeviated = bus.trackingStatus === 'DEVIATED' || Boolean(bus.isDeviated);
 
   const handleMarkerClick = () => {
     onSelect({
@@ -103,6 +107,16 @@ export const BusLocationMarker: React.FC<BusLocationMarkerProps> = ({
                 {isStale && (
                   <Badge variant="neutral">
                     <span>{t('map.stale_badge')}</span>
+                  </Badge>
+                )}
+                {isDelayed && (
+                  <Badge variant="warning">
+                    <span>{t('map.delayed_badge')}</span>
+                  </Badge>
+                )}
+                {isDeviated && (
+                  <Badge variant="error">
+                    <span>{t('map.deviated_badge')}</span>
                   </Badge>
                 )}
               </div>

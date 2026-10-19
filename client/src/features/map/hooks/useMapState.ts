@@ -24,7 +24,8 @@ import {
 import {
   BusStandDto,
   NearbyBusStandDto,
-  DistrictDto
+  DistrictDto,
+  TrackingTelemetryStatus
 } from '../../../types/domain';
 import { RouteListItem } from '../../routes/types';
 import {
@@ -326,12 +327,21 @@ export function useMapState() {
     };
   }, [selectedRouteId, selectedDirectionId, districtRoutes]);
 
+  const routeNumberRef = useRef(routeGeometry?.routeNumber);
+  useEffect(() => {
+    routeNumberRef.current = routeGeometry?.routeNumber;
+  }, [routeGeometry?.routeNumber]);
+
   // Real-time Socket.IO Route Subscription Lifecycle
   useEffect(() => {
     if (!selectedRouteId) {
       setLiveBusesMap(new Map());
+      setSubscribedRoom(null);
       return;
     }
+
+    // Reset live buses map when switching routes
+    setLiveBusesMap(new Map());
 
     // Connect socket
     socketClientManager.connect();
@@ -344,7 +354,15 @@ export function useMapState() {
       if (ack.snapshot && Array.isArray(ack.snapshot.buses)) {
         const busMap = new Map<string, LiveBusMarkerData>();
         for (const raw of ack.snapshot.buses) {
-          if (raw.coordinates && Array.isArray(raw.coordinates) && raw.coordinates.length === 2) {
+          if (
+            raw.coordinates &&
+            Array.isArray(raw.coordinates) &&
+            raw.coordinates.length === 2 &&
+            typeof raw.coordinates[0] === 'number' &&
+            typeof raw.coordinates[1] === 'number' &&
+            !isNaN(raw.coordinates[0]) &&
+            !isNaN(raw.coordinates[1])
+          ) {
             const isSim =
               raw.source === 'SIMULATOR' || raw.trackingStatus === 'SIMULATED';
             busMap.set(raw.busId, {
@@ -354,7 +372,7 @@ export function useMapState() {
               directionId: raw.directionId,
               fleetNumber: raw.fleetNumber || 'TNSTC Bus',
               registrationNumber: raw.registrationNumber || '',
-              routeNumber: routeGeometry?.routeNumber || '70',
+              routeNumber: routeNumberRef.current || '70',
               lat: raw.coordinates[1],
               lng: raw.coordinates[0],
               heading: raw.heading || 0,
@@ -380,34 +398,46 @@ export function useMapState() {
       if (
         pos.coordinates &&
         Array.isArray(pos.coordinates) &&
-        pos.coordinates.length === 2
+        pos.coordinates.length === 2 &&
+        typeof pos.coordinates[0] === 'number' &&
+        typeof pos.coordinates[1] === 'number' &&
+        !isNaN(pos.coordinates[0]) &&
+        !isNaN(pos.coordinates[1])
       ) {
+        const [lng, lat] = pos.coordinates;
+
         setLiveBusesMap((prev) => {
           const next = new Map(prev);
           const existing = next.get(pos.busId);
+
+          const isSim =
+            pos.source === 'SIMULATOR' || pos.trackingStatus === 'SIMULATED';
+
+          // Source-protection guard: Never allow simulated telemetry to overwrite real GPS
+          if (existing && !existing.isSimulated && isSim) {
+            return prev;
+          }
 
           // Prevent outdated timestamps from overwriting newer telemetry
           if (
             existing &&
             pos.recordedAt &&
+            existing.recordedAt &&
             new Date(pos.recordedAt).getTime() < new Date(existing.recordedAt).getTime()
           ) {
             return prev;
           }
 
-          const isSim =
-            pos.source === 'SIMULATOR' || pos.trackingStatus === 'SIMULATED';
-
-          next.set(pos.busId, {
+          const updatedBus: LiveBusMarkerData = {
             busId: pos.busId,
             tripId: pos.tripId || existing?.tripId,
             routeId: pos.routeId || existing?.routeId,
             directionId: pos.directionId || existing?.directionId,
             fleetNumber: existing?.fleetNumber || 'TNSTC Bus',
             registrationNumber: existing?.registrationNumber || '',
-            routeNumber: routeGeometry?.routeNumber || existing?.routeNumber || '70',
-            lat: pos.coordinates[1],
-            lng: pos.coordinates[0],
+            routeNumber: routeNumberRef.current || existing?.routeNumber || '70',
+            lat,
+            lng,
             heading: pos.heading ?? existing?.heading ?? 0,
             speedKmph: pos.speedKmph ?? existing?.speedKmph ?? 0,
             progressRatio: pos.progressRatio ?? existing?.progressRatio,
@@ -420,8 +450,32 @@ export function useMapState() {
             isSimulated: isSim,
             recordedAt: pos.recordedAt || new Date().toISOString(),
             lastReceivedAt: Date.now()
-          });
+          };
+
+          next.set(pos.busId, updatedBus);
           return next;
+        });
+
+        // Keep selected entity card in sync if user currently has this bus selected
+        setSelectedEntity((prevEntity) => {
+          if (prevEntity && prevEntity.type === 'BUS' && prevEntity.id === pos.busId) {
+            return {
+              ...prevEntity,
+              lat,
+              lng,
+              data: {
+                ...prevEntity.data,
+                lat,
+                lng,
+                heading: pos.heading ?? prevEntity.data?.heading ?? 0,
+                speedKmph: pos.speedKmph ?? prevEntity.data?.speedKmph ?? 0,
+                trackingStatus: pos.trackingStatus || prevEntity.data?.trackingStatus,
+                recordedAt: pos.recordedAt || prevEntity.data?.recordedAt,
+                lastReceivedAt: Date.now()
+              }
+            };
+          }
+          return prevEntity;
         });
       }
     });
@@ -433,22 +487,63 @@ export function useMapState() {
         if (!prev.has(status.busId)) return prev;
         const next = new Map(prev);
         const existing = next.get(status.busId)!;
+        const effectiveStatus = (status.currentStatus ||
+          (status as any).trackingStatus ||
+          (status as any).status ||
+          existing.trackingStatus) as TrackingTelemetryStatus;
+        const isDelayed =
+          (status as any).isDelayed ??
+          (effectiveStatus === 'DELAYED' || existing.isDelayed);
+        const isDeviated =
+          (status as any).isDeviated ??
+          (effectiveStatus === 'DEVIATED' || existing.isDeviated);
+
         next.set(status.busId, {
           ...existing,
-          trackingStatus: status.currentStatus,
+          trackingStatus: effectiveStatus,
+          isDelayed,
+          isDeviated,
           lastReceivedAt: Date.now()
         });
         return next;
+      });
+
+      setSelectedEntity((prevEntity) => {
+        if (prevEntity && prevEntity.type === 'BUS' && prevEntity.id === status.busId) {
+          const effectiveStatus = (status.currentStatus ||
+            (status as any).trackingStatus ||
+            (status as any).status ||
+            prevEntity.data?.trackingStatus) as TrackingTelemetryStatus;
+          const isDelayed =
+            (status as any).isDelayed ??
+            (effectiveStatus === 'DELAYED' || prevEntity.data?.isDelayed);
+          const isDeviated =
+            (status as any).isDeviated ??
+            (effectiveStatus === 'DEVIATED' || prevEntity.data?.isDeviated);
+
+          return {
+            ...prevEntity,
+            data: {
+              ...prevEntity.data,
+              trackingStatus: effectiveStatus,
+              isDelayed,
+              isDeviated,
+              lastReceivedAt: Date.now()
+            }
+          };
+        }
+        return prevEntity;
       });
     });
 
     return () => {
       socketClientManager.unsubscribeRoute(selectedRouteId);
+      setSubscribedRoom(null);
       unsubAck();
       unsubPosition();
       unsubStatus();
     };
-  }, [selectedRouteId, routeGeometry?.routeNumber]);
+  }, [selectedRouteId]);
 
   // On-demand user geolocation
   const handleRequestUserLocation = useCallback(async () => {
