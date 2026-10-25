@@ -16,6 +16,7 @@ import { Badge } from '../../../components/common/Badge';
 interface BusStandMarkerProps {
   stand: BusStandDto;
   isSelected: boolean;
+  role?: 'ORIGIN' | 'DESTINATION' | null;
   onSelect: (entity: SelectedMapEntity) => void;
   onExploreRoutes?: (standId: string) => void;
 }
@@ -23,6 +24,7 @@ interface BusStandMarkerProps {
 export const BusStandMarker: React.FC<BusStandMarkerProps> = ({
   stand,
   isSelected,
+  role,
   onSelect,
   onExploreRoutes
 }) => {
@@ -34,7 +36,7 @@ export const BusStandMarker: React.FC<BusStandMarkerProps> = ({
 
   const lat = stand.location.coordinates[1];
   const lng = stand.location.coordinates[0];
-  const icon = createBusStandIcon(isSelected, stand.code);
+  const icon = createBusStandIcon(isSelected, stand.code, role);
 
   const title = language === 'ta' ? stand.nameTa : stand.nameEn;
   const secondaryTitle = language === 'ta' ? stand.nameEn : stand.nameTa;
@@ -47,8 +49,8 @@ export const BusStandMarker: React.FC<BusStandMarkerProps> = ({
       lng,
       titleEn: stand.nameEn,
       titleTa: stand.nameTa,
-      subtitleEn: `${stand.totalPlatforms} Platforms • Terminal`,
-      subtitleTa: `${stand.totalPlatforms} நடைமேடைகள் • முனையம்`,
+      subtitleEn: `${stand.totalPlatforms} Platforms • Terminal${role ? ` (${role})` : ''}`,
+      subtitleTa: `${stand.totalPlatforms} நடைமேடைகள் • முனையம்${role === 'ORIGIN' ? ' (தொடக்கம்)' : role === 'DESTINATION' ? ' (முடிவு)' : ''}`,
       data: stand
     });
   };
@@ -68,9 +70,19 @@ export const BusStandMarker: React.FC<BusStandMarkerProps> = ({
               <Building2 size={16} color="#FFFFFF" />
             </div>
             <div>
-              <Badge variant="neutral">
-                <span>{t('map.terminal')}</span>
-              </Badge>
+              {role === 'ORIGIN' ? (
+                <Badge variant="success">
+                  <span>{language === 'ta' ? 'தொடங்கும் முனையம்' : 'Origin Terminal'}</span>
+                </Badge>
+              ) : role === 'DESTINATION' ? (
+                <Badge variant="error">
+                  <span>{language === 'ta' ? 'சேரும் முனையம்' : 'Destination Terminal'}</span>
+                </Badge>
+              ) : (
+                <Badge variant="neutral">
+                  <span>{t('map.terminal')}</span>
+                </Badge>
+              )}
               <h4 className="map-popup-title">{title}</h4>
               <p className="map-popup-subtitle">{secondaryTitle}</p>
             </div>

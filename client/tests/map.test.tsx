@@ -21,13 +21,17 @@ vi.mock('leaflet', () => ({
 
 vi.mock('react-leaflet', () => ({
   MapContainer: ({ children }: any) => <div data-testid="map-container">{children}</div>,
-  TileLayer: () => <div data-testid="tile-layer" />,
+  TileLayer: ({ url, attribution }: any) => (
+    <div data-testid="tile-layer" data-url={url} data-attribution={attribution} />
+  ),
   AttributionControl: () => null,
   useMap: () => ({
     setView: vi.fn(),
     flyTo: vi.fn(),
     fitBounds: vi.fn(),
-    invalidateSize: vi.fn()
+    invalidateSize: vi.fn(),
+    zoomIn: vi.fn(),
+    zoomOut: vi.fn()
   }),
   useMapEvents: () => ({}),
   Marker: ({ children, position, eventHandlers }: any) => (
@@ -1015,6 +1019,79 @@ describe('PERUNDHU Step 8 — Live Interactive Map & TypeScript Stabilization', 
       unmount();
 
       expect(socketMockState.unsubscribedRoutes.has('route-70')).toBe(true);
+    });
+  });
+
+  describe('G. Map Layer Selection & Dynamic Basemap Switching', () => {
+    it('renders layer control button and toggles layer menu on click', async () => {
+      renderMapPage(['/routes/route-70?district=mdu']);
+
+      await waitFor(() => {
+        expect(screen.getAllByText(/Route 70/i).length).toBeGreaterThan(0);
+      });
+
+      // Initially, OpenStreetMap Standard is the active street basemap
+      const tileLayer = screen.getByTestId('tile-layer');
+      expect(tileLayer.getAttribute('data-url')).toContain('tile.openstreetmap.org');
+
+      // Floating layer button exists
+      const layerBtn = screen.getByRole('button', { name: /standard/i });
+      expect(layerBtn).toBeInTheDocument();
+
+      // Open menu
+      fireEvent.click(layerBtn);
+
+      expect(screen.getByRole('menu')).toBeInTheDocument();
+      expect(screen.getByText(/Map Layers/i)).toBeInTheDocument();
+      expect(screen.getByText(/OpenStreetMap \(Standard\)/i)).toBeInTheDocument();
+      expect(screen.getByText(/Satellite Imagery \(Esri\)/i)).toBeInTheDocument();
+      expect(screen.getByText(/Satellite Hybrid \(Roads & Labels\)/i)).toBeInTheDocument();
+    });
+
+    it('switches between all three layers and updates TileLayer URL without resetting route or state', async () => {
+      renderMapPage(['/routes/route-70?district=mdu']);
+
+      await waitFor(() => {
+        expect(screen.getAllByText(/Route 70/i).length).toBeGreaterThan(0);
+      });
+
+      const layerBtn = screen.getByRole('button', { name: /standard/i });
+      fireEvent.click(layerBtn);
+
+      // Switch to Satellite Imagery (Esri)
+      const satelliteOption = screen.getByRole('menuitemradio', { name: /Satellite Imagery \(Esri\)/i });
+      expect(satelliteOption).not.toBeDisabled();
+      fireEvent.click(satelliteOption);
+
+      await waitFor(() => {
+        const tileLayer = screen.getByTestId('tile-layer');
+        expect(tileLayer.getAttribute('data-url')).toContain('arcgisonline.com');
+      });
+
+      // Route and polylines remain intact
+      expect(screen.getAllByTestId('map-polyline').length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/Route 70/i).length).toBeGreaterThan(0);
+
+      // Switch to Satellite Hybrid (Roads & Labels)
+      fireEvent.click(layerBtn);
+      const hybridOption = screen.getByRole('menuitemradio', { name: /Satellite Hybrid \(Roads & Labels\)/i });
+      expect(hybridOption).not.toBeDisabled();
+      fireEvent.click(hybridOption);
+
+      await waitFor(() => {
+        const tileLayer = screen.getByTestId('tile-layer');
+        expect(tileLayer.getAttribute('data-url')).toContain('lyrs=y');
+      });
+
+      // Switch back to OpenStreetMap Standard
+      fireEvent.click(layerBtn);
+      const standardOption = screen.getByRole('menuitemradio', { name: /OpenStreetMap \(Standard\)/i });
+      fireEvent.click(standardOption);
+
+      await waitFor(() => {
+        const tileLayer = screen.getByTestId('tile-layer');
+        expect(tileLayer.getAttribute('data-url')).toContain('tile.openstreetmap.org');
+      });
     });
   });
 });

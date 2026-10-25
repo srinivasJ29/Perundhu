@@ -17,6 +17,15 @@ async function bootstrap(): Promise<void> {
   // 2. Connect Location Pipeline to Simulator Engine
   routeSimulator.setPipeline(locationPipelineService);
 
+  if (env.SIMULATOR_ENABLED) {
+    try {
+      await routeSimulator.start();
+      logger.info('Deterministic Route Simulator automatically started on boot.');
+    } catch (err) {
+      logger.error({ err }, 'Failed to start route simulator on boot.');
+    }
+  }
+
   // 3. Start HTTP & Socket.IO Real-Time Server
   const server = http.createServer(app);
   initSocketServer(server);

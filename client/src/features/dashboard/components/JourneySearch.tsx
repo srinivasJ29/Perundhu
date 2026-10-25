@@ -220,6 +220,41 @@ export const JourneySearch: React.FC<JourneySearchProps> = ({
           </div>
         </div>
 
+        {/* Quick Popular Hubs Preset Chips */}
+        <div className="journey-quick-hubs-row">
+          <span className="quick-hubs-label">
+            {language === 'ta' ? 'அடிக்கடி செல்லும் முனையங்கள்:' : 'Popular Hubs:'}
+          </span>
+          <div className="quick-hubs-list">
+            {[
+              { code: 'MDU-MGR', nameEn: 'Mattuthavani', nameTa: 'மாட்டுத்தாவணி' },
+              { code: 'MDU-PER', nameEn: 'Periyar', nameTa: 'பெரியார்' },
+              { code: 'MDU-ARP', nameEn: 'Arapalayam', nameTa: 'ஆரப்பாளையம்' },
+              { code: 'MDU-TMG', nameEn: 'Thirumangalam', nameTa: 'திருமங்கலம்' }
+            ].map((hub) => (
+              <button
+                key={hub.code}
+                type="button"
+                className="quick-hub-chip"
+                onClick={() => {
+                  const hubName = language === 'ta' ? hub.nameTa : hub.nameEn;
+                  setValidationError(null);
+                  setSearchExecuted(false);
+                  if (!fromValue.trim()) {
+                    setFromValue(hubName);
+                  } else if (!toValue.trim() && fromValue.trim() !== hubName) {
+                    setToValue(hubName);
+                  } else {
+                    setToValue(hubName);
+                  }
+                }}
+              >
+                <span>{language === 'ta' ? hub.nameTa : hub.nameEn}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Validation Error Banner */}
         {validationError && (
           <div className="journey-validation-alert" role="alert">

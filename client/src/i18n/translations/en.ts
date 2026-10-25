@@ -317,6 +317,8 @@ export const enTranslations: Record<string, string> = {
   'map.my_location_locating': 'Locating your device...',
   'map.my_location_error': 'Unable to determine your current location.',
   'map.my_location_denied': 'Location permission denied by browser.',
+  'map.zoom_in': 'Zoom In',
+  'map.zoom_out': 'Zoom Out',
   'map.recenter': 'Recenter Map',
   'map.fit_route': 'Fit Route Bounds',
   'map.search_placeholder': 'Search bus stands, stops, or routes...',

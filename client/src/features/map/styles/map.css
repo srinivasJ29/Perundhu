@@ -373,6 +373,13 @@
   outline-offset: 2px;
 }
 
+.map-floating-divider {
+  height: 1px;
+  background-color: var(--color-border);
+  margin: 2px 4px;
+  opacity: 0.8;
+}
+
 /* Layer Control */
 .map-layer-control-wrapper {
   position: absolute;

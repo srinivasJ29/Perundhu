@@ -18,7 +18,9 @@ import {
   Compass,
   Clock,
   Gauge,
-  AlertCircle
+  AlertCircle,
+  ShieldCheck,
+  ArrowRight
 } from 'lucide-react';
 import { useLanguage } from '../../../hooks/useLanguage';
 import {
@@ -262,6 +264,121 @@ export const MapInfoPanel: React.FC<MapInfoPanelProps> = ({
                     </div>
                   </div>
                 )}
+
+                {/* Bus Stand to Bus Stand Authorized TNSTC Road Corridor */}
+                {(() => {
+                  const originStandInfo = busStands.find(
+                    (s) =>
+                      (routeGeometry.originStand && (s.id === routeGeometry.originStand.id || s.code === routeGeometry.originStand.code)) ||
+                      (routeGeometry.stops.length > 0 && s.nameEn.toLowerCase().includes(routeGeometry.stops[0].stop.nameEn.toLowerCase().split(' ')[0]))
+                  );
+                  const destStandInfo = busStands.find(
+                    (s) =>
+                      (routeGeometry.destinationStand && (s.id === routeGeometry.destinationStand.id || s.code === routeGeometry.destinationStand.code)) ||
+                      (routeGeometry.stops.length > 0 && s.nameEn.toLowerCase().includes(routeGeometry.stops[routeGeometry.stops.length - 1].stop.nameEn.toLowerCase().split(' ')[0]))
+                  );
+
+                  const originNameTa = routeGeometry.originStand?.nameTa || originStandInfo?.nameTa || (routeGeometry.stops[0] ? routeGeometry.stops[0].stop.nameTa : 'தொடக்க முனையம்');
+                  const originNameEn = routeGeometry.originStand?.nameEn || originStandInfo?.nameEn || (routeGeometry.stops[0] ? routeGeometry.stops[0].stop.nameEn : 'Origin Stand');
+                  const destNameTa = routeGeometry.destinationStand?.nameTa || destStandInfo?.nameTa || (routeGeometry.stops[routeGeometry.stops.length - 1] ? routeGeometry.stops[routeGeometry.stops.length - 1].stop.nameTa : 'முடிவு முனையம்');
+                  const destNameEn = routeGeometry.destinationStand?.nameEn || destStandInfo?.nameEn || (routeGeometry.stops[routeGeometry.stops.length - 1] ? routeGeometry.stops[routeGeometry.stops.length - 1].stop.nameEn : 'Destination Stand');
+
+                  return (
+                    <div
+                      className="map-stand-corridor-card"
+                      style={{
+                        marginTop: '10px',
+                        marginBottom: '12px',
+                        padding: '12px 14px',
+                        background: 'var(--color-bg-secondary, #F4F7F6)',
+                        border: '1px solid var(--color-border-subtle, rgba(29, 119, 114, 0.2))',
+                        borderRadius: '10px'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <ShieldCheck size={16} color="var(--color-primary-teal, #1D7772)" />
+                          <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.4px', textTransform: 'uppercase', color: 'var(--color-primary-teal, #1D7772)' }}>
+                            {language === 'ta' ? 'அங்கீகரிக்கப்பட்ட பேருந்து சாலை வழித்தடம்' : 'TNSTC Bus Running Road Corridor'}
+                          </span>
+                        </div>
+                        <span style={{ fontSize: '10px', color: '#10B981', fontWeight: 700, background: 'rgba(16, 185, 129, 0.1)', padding: '2px 6px', border: '1px solid rgba(16, 185, 129, 0.25)', borderRadius: '4px' }}>
+                          {language === 'ta' ? 'முனையம் ⇄ முனையம்' : 'Stand to Stand'}
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        {/* Origin Stand */}
+                        <div
+                          style={{ flex: 1, minWidth: 0, cursor: originStandInfo ? 'pointer' : 'default' }}
+                          title={language === 'ta' ? 'வரைபடத்தில் பார்க்க கிளிக் செய்யவும்' : 'Click to inspect terminal on map'}
+                          onClick={() => {
+                            if (originStandInfo && originStandInfo.location?.coordinates) {
+                              onSelectEntity({
+                                type: 'BUS_STAND',
+                                id: originStandInfo.id,
+                                lat: originStandInfo.location.coordinates[1],
+                                lng: originStandInfo.location.coordinates[0],
+                                titleEn: originStandInfo.nameEn,
+                                titleTa: originStandInfo.nameTa,
+                                subtitleEn: `${originStandInfo.totalPlatforms} Platforms • Origin Terminal`,
+                                subtitleTa: `${originStandInfo.totalPlatforms} நடைமேடைகள் • தொடக்க முனையம்`,
+                                data: originStandInfo
+                              });
+                            }
+                          }}
+                        >
+                          <span style={{ fontSize: '10px', fontWeight: 700, color: '#10B981', textTransform: 'uppercase' }}>
+                            {language === 'ta' ? 'தொடக்க முனையம்' : 'Origin Stand'}
+                          </span>
+                          <div style={{ fontWeight: 600, fontSize: '13px', color: 'var(--color-deep-teal, #071F21)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {language === 'ta' ? originNameTa : originNameEn}
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0, padding: '0 4px' }}>
+                          <ArrowRight size={16} color="var(--color-primary-teal, #1D7772)" />
+                          <span style={{ fontSize: '9px', fontWeight: 600, color: 'var(--color-text-muted, #67958C)' }}>
+                            {routeGeometry.totalDistanceKm} km
+                          </span>
+                        </div>
+
+                        {/* Destination Stand */}
+                        <div
+                          style={{ flex: 1, minWidth: 0, cursor: destStandInfo ? 'pointer' : 'default', textAlign: 'right' }}
+                          title={language === 'ta' ? 'வரைபடத்தில் பார்க்க கிளிக் செய்யவும்' : 'Click to inspect terminal on map'}
+                          onClick={() => {
+                            if (destStandInfo && destStandInfo.location?.coordinates) {
+                              onSelectEntity({
+                                type: 'BUS_STAND',
+                                id: destStandInfo.id,
+                                lat: destStandInfo.location.coordinates[1],
+                                lng: destStandInfo.location.coordinates[0],
+                                titleEn: destStandInfo.nameEn,
+                                titleTa: destStandInfo.nameTa,
+                                subtitleEn: `${destStandInfo.totalPlatforms} Platforms • Destination Terminal`,
+                                subtitleTa: `${destStandInfo.totalPlatforms} நடைமேடைகள் • சேரும் முனையம்`,
+                                data: destStandInfo
+                              });
+                            }
+                          }}
+                        >
+                          <span style={{ fontSize: '10px', fontWeight: 700, color: '#F22932', textTransform: 'uppercase' }}>
+                            {language === 'ta' ? 'சேரும் முனையம்' : 'Destination Stand'}
+                          </span>
+                          <div style={{ fontWeight: 600, fontSize: '13px', color: 'var(--color-deep-teal, #071F21)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {language === 'ta' ? destNameTa : destNameEn}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style={{ marginTop: '8px', paddingTop: '6px', borderTop: '1px dashed var(--color-border-subtle, #E2E8F0)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '11px', color: 'var(--color-text-muted, #67958C)' }}>
+                        <span>{language === 'ta' ? 'பேருந்து இயங்கும் நெடுஞ்சாலை வழி (குறுக்குவழி அல்ல)' : 'Heavy-capacity bus running corridor (no by-roads)'}</span>
+                        <span style={{ fontWeight: 600, color: 'var(--color-primary-teal, #1D7772)' }}>{routeGeometry.stops.length} {language === 'ta' ? 'நிறுத்தங்கள்' : 'Stops'}</span>
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 {/* Metrics Grid */}
                 <div className="map-metrics-grid">

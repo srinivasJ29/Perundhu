@@ -6,7 +6,8 @@ describe('Environment Configuration Validation (loadEnv)', () => {
     const config = loadEnv({
       NODE_ENV: 'test',
       PORT: '8080',
-      MONGODB_URI: ''
+      MONGODB_URI: '',
+      CLIENT_ORIGIN: undefined
     });
 
     expect(config.NODE_ENV).toBe('test');

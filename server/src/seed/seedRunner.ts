@@ -10,8 +10,10 @@ import {
   RouteStopSequence,
   Bus,
   ScheduledTrip,
-  TripStopTime
+  TripStopTime,
+  User
 } from '../models';
+import { hashPassword } from '../modules/auth/auth.tokens';
 import {
   seedDistricts,
   seedBusStands,
@@ -430,6 +432,60 @@ export async function runSeed(options: { dryRun?: boolean; uri?: string } = {}):
       }
     }
     report.summary['trip_stop_times'] = tstStats;
+
+    // ---------------------------------------------------------------------------
+    // 10. Default System Users (Admin & Passenger Credentials)
+    // ---------------------------------------------------------------------------
+    const userStats = initItem('users', 3);
+    const defaultUsers = [
+      {
+        email: 'admin@tnstc.perundhu.gov.in',
+        password: 'PerundhuAdmin@2026',
+        fullName: 'TNSTC System Administrator',
+        role: 'ADMIN' as const,
+        status: 'ACTIVE' as const
+      },
+      {
+        email: 'admin@perundhu.tnstc.gov.in',
+        password: 'PerundhuAdmin@2026',
+        fullName: 'TNSTC System Administrator (Alias)',
+        role: 'ADMIN' as const,
+        status: 'ACTIVE' as const
+      },
+      {
+        email: 'passenger@example.com',
+        password: 'Passenger@123',
+        fullName: 'Madurai Citizen Passenger',
+        role: 'PASSENGER' as const,
+        status: 'ACTIVE' as const
+      }
+    ];
+
+    for (const u of defaultUsers) {
+      const existing = await User.findOne({ email: u.email });
+      if (isDryRun) {
+        if (!existing) userStats.inserted++;
+        else userStats.skipped++;
+      } else {
+        const passwordHash = await hashPassword(u.password);
+        const res = await User.updateOne(
+          { email: u.email },
+          {
+            $set: {
+              fullName: u.fullName,
+              passwordHash,
+              role: u.role,
+              status: u.status
+            }
+          },
+          { upsert: true }
+        );
+        if (res.upsertedCount > 0) userStats.inserted++;
+        else if (res.modifiedCount > 0) userStats.updated++;
+        else userStats.skipped++;
+      }
+    }
+    report.summary['users'] = userStats;
 
     logger.info('--- Seed Execution Summary ---');
     for (const [col, stats] of Object.entries(report.summary)) {

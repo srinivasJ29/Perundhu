@@ -15,17 +15,39 @@ import L from 'leaflet';
  */
 export function createBusStandIcon(
   isSelected = false,
-  code = ''
+  code = '',
+  role?: 'ORIGIN' | 'DESTINATION' | null
 ): L.DivIcon {
-  const size = isSelected ? 40 : 34;
-  const borderColor = isSelected ? '#F5BE99' : '#FFFFFF';
-  const borderWidth = isSelected ? '3px' : '2px';
-  const shadow = isSelected
-    ? '0 0 0 4px rgba(245, 190, 153, 0.4), 0 4px 12px rgba(7, 31, 33, 0.35)'
-    : '0 2px 8px rgba(7, 31, 33, 0.25)';
+  const isTerminalRole = role === 'ORIGIN' || role === 'DESTINATION';
+  const size = isTerminalRole ? 42 : isSelected ? 40 : 34;
+
+  let borderColor = '#FFFFFF';
+  let borderWidth = '2px';
+  let shadow = '0 2px 8px rgba(7, 31, 33, 0.25)';
+
+  if (role === 'ORIGIN') {
+    borderColor = '#10B981';
+    borderWidth = '3px';
+    shadow = '0 0 0 4px rgba(16, 185, 129, 0.45), 0 4px 14px rgba(7, 31, 33, 0.4)';
+  } else if (role === 'DESTINATION') {
+    borderColor = '#F22932';
+    borderWidth = '3px';
+    shadow = '0 0 0 4px rgba(242, 41, 50, 0.45), 0 4px 14px rgba(7, 31, 33, 0.4)';
+  } else if (isSelected) {
+    borderColor = '#F5BE99';
+    borderWidth = '3px';
+    shadow = '0 0 0 4px rgba(245, 190, 153, 0.4), 0 4px 12px rgba(7, 31, 33, 0.35)';
+  }
+
+  const roleBadgeHtml = role === 'ORIGIN'
+    ? `<span style="position: absolute; top: -11px; left: 50%; transform: translateX(-50%); background: #10B981; color: #FFFFFF; font-size: 9px; font-weight: 800; padding: 1px 5px; border-radius: 4px; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); white-space: nowrap; font-family: system-ui, sans-serif;">START</span>`
+    : role === 'DESTINATION'
+    ? `<span style="position: absolute; top: -11px; left: 50%; transform: translateX(-50%); background: #F22932; color: #FFFFFF; font-size: 9px; font-weight: 800; padding: 1px 5px; border-radius: 4px; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); white-space: nowrap; font-family: system-ui, sans-serif;">END</span>`
+    : '';
 
   const html = `
     <div style="
+      position: relative;
       width: ${size}px;
       height: ${size}px;
       background: #071F21;
@@ -39,7 +61,8 @@ export function createBusStandIcon(
       transition: transform 0.2s ease;
       cursor: pointer;
     " role="img" aria-label="Bus Stand ${code}">
-      <svg width="${size * 0.55}" height="${size * 0.55}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      ${roleBadgeHtml}
+      <svg width="${size * 0.52}" height="${size * 0.52}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M4 10h16v10H4z"/>
         <path d="m2 10 10-6 10 6"/>
         <path d="M9 14h6v6H9z"/>
@@ -65,12 +88,13 @@ export function createBusStopIcon(
   isFareStage = false
 ): L.DivIcon {
   const size = isSelected ? 32 : 26;
-  const bg = isSelected ? '#1D7772' : isFareStage ? '#071F21' : '#67958C';
-  const borderColor = isSelected ? '#F5BE99' : '#FFFFFF';
+  const bg = isSelected ? '#FACC15' : isFareStage ? '#0A0A0A' : '#18181B';
+  const textColor = isSelected ? '#0A0A0A' : '#FFFFFF';
+  const borderColor = isSelected ? '#0A0A0A' : '#FACC15';
   const borderWidth = isSelected ? '3px' : '2px';
   const shadow = isSelected
-    ? '0 0 0 3px rgba(245, 190, 153, 0.5), 0 3px 8px rgba(0,0,0,0.3)'
-    : '0 2px 5px rgba(0,0,0,0.2)';
+    ? '0 0 0 4px rgba(250, 204, 21, 0.6), 0 4px 10px rgba(0,0,0,0.4)'
+    : '0 2px 6px rgba(0,0,0,0.3)';
 
   const html = `
     <div style="
@@ -83,9 +107,9 @@ export function createBusStopIcon(
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #FFFFFF;
+      color: ${textColor};
       font-size: ${size * 0.42}px;
-      font-weight: 700;
+      font-weight: 800;
       font-family: 'Inter', system-ui, sans-serif;
       cursor: pointer;
     " role="img" aria-label="Stop ${sequence}">
@@ -111,13 +135,13 @@ export function createBusLocationIcon(
   isSimulated = true,
   isSelected = false
 ): L.DivIcon {
-  const width = 42;
-  const height = 42;
-  const bg = isSimulated ? '#1D7772' : '#F22932';
+  const width = 44;
+  const height = 44;
+  const bg = '#0A0A0A';
   const badgeText = isSimulated ? 'SIM' : 'LIVE';
-  const badgeBg = isSimulated ? '#F5BE99' : '#FFFFFF';
-  const badgeColor = '#071F21';
-  const borderColor = isSelected ? '#F5BE99' : '#FFFFFF';
+  const badgeBg = isSimulated ? '#FACC15' : '#22C55E';
+  const badgeColor = '#0A0A0A';
+  const borderColor = isSelected ? '#FFFFFF' : '#FACC15';
 
   const html = `
     <div style="position: relative; width: ${width}px; height: ${height}px;" role="img" aria-label="Bus ${fleetNumber}">
@@ -131,26 +155,26 @@ export function createBusLocationIcon(
         transform: rotate(${heading}deg);
         pointer-events: none;
       ">
-        <svg width="${width}" height="${height}" viewBox="0 0 42 42">
-          <polygon points="21,2 26,10 16,10" fill="${bg}" stroke="#FFFFFF" stroke-width="1.5" />
+        <svg width="${width}" height="${height}" viewBox="0 0 44 44">
+          <polygon points="22,2 28,10 16,10" fill="#FACC15" stroke="#0A0A0A" stroke-width="1.5" />
         </svg>
       </div>
 
       <!-- Main Bus Circle -->
       <div style="
         position: absolute;
-        top: 6px;
-        left: 6px;
+        top: 7px;
+        left: 7px;
         width: 30px;
         height: 30px;
         background: ${bg};
         border: 2px solid ${borderColor};
         border-radius: 50%;
-        box-shadow: 0 3px 8px rgba(7, 31, 33, 0.35);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45), 0 0 8px rgba(250, 204, 21, 0.4);
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #FFFFFF;
+        color: #FACC15;
       ">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M8 6v6"/>
@@ -166,20 +190,23 @@ export function createBusLocationIcon(
       <!-- Truthful Source Badge -->
       <span style="
         position: absolute;
-        bottom: -4px;
+        bottom: -2px;
         left: 50%;
         transform: translateX(-50%);
         background: ${badgeBg};
         color: ${badgeColor};
         font-size: 9px;
-        font-weight: 800;
-        padding: 1px 4px;
+        font-weight: 900;
+        padding: 1px 5px;
         border-radius: 4px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.25);
-        font-family: 'Inter', system-ui, sans-serif;
+        border: 1px solid #0A0A0A;
         letter-spacing: 0.5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.4);
         white-space: nowrap;
-      ">${badgeText}</span>
+        font-family: system-ui, sans-serif;
+      ">
+        ${badgeText}
+      </span>
     </div>
   `;
 

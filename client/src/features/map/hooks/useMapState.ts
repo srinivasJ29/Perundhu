@@ -284,6 +284,8 @@ export function useMapState() {
           hasVerifiedGeometry: hasGeometry,
           totalDistanceKm: detail.direction.totalDistanceKm,
           estimatedDurationMins: detail.direction.estimatedDurationMins,
+          originStand: detail.direction.originStand,
+          destinationStand: detail.direction.destinationStand,
           stops: detail.direction.stops || []
         };
 

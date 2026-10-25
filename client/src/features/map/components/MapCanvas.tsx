@@ -5,6 +5,7 @@
  */
 
 import React, { useEffect, useRef } from 'react';
+import type { Map as LeafletMap } from 'leaflet';
 import {
   MapContainer,
   TileLayer,
@@ -40,6 +41,7 @@ interface MapCanvasProps {
   onSelectEntity: (entity: SelectedMapEntity) => void;
   onClearSelection: () => void;
   onExploreStandRoutes?: (standId: string) => void;
+  onMapReady?: (map: LeafletMap) => void;
 }
 
 /**
@@ -48,13 +50,22 @@ interface MapCanvasProps {
  */
 function MapViewportController({
   viewportTrigger,
-  isPanelCollapsed
+  isPanelCollapsed,
+  onMapReady
 }: {
   viewportTrigger: MapCanvasProps['viewportTrigger'];
   isPanelCollapsed: boolean;
+  onMapReady?: (map: LeafletMap) => void;
 }) {
   const map = useMap();
   const lastTimestampRef = useRef<number>(viewportTrigger.timestamp);
+
+  // Notify parent of the map instance
+  useEffect(() => {
+    if (onMapReady) {
+      onMapReady(map);
+    }
+  }, [map, onMapReady]);
 
   // Invalidate size whenever panel toggle or layout animation completes
   useEffect(() => {
@@ -112,7 +123,8 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
   selectedEntity,
   onSelectEntity,
   onClearSelection,
-  onExploreStandRoutes
+  onExploreStandRoutes,
+  onMapReady
 }) => {
   const layerConfig = MAP_LAYERS[activeLayer] || MAP_LAYERS.street;
   const tileUrl = layerConfig.isAvailable
@@ -130,13 +142,13 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
         attributionControl={false}
         style={{ width: '100%', height: '100%' }}
       >
-        {/* Interactive Tile Layer (CARTO Voyager / Esri Satellite / CARTO Dark) */}
+        {/* Interactive Tile Layer (OSM Standard / Esri Satellite / Google Hybrid) */}
         <TileLayer
           key={layerConfig.id}
           url={tileUrl}
           attribution={layerConfig.attribution || MAP_LAYERS.street.attribution}
           maxZoom={layerConfig.maxZoom}
-          subdomains={['a', 'b', 'c', 'd']}
+          subdomains={layerConfig.id === 'hybrid' ? ['0', '1', '2', '3'] : ['a', 'b', 'c']}
         />
 
         <AttributionControl position="bottomright" prefix={false} />
@@ -145,6 +157,7 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
         <MapViewportController
           viewportTrigger={viewportTrigger}
           isPanelCollapsed={isPanelCollapsed}
+          onMapReady={onMapReady}
         />
         <MapClickHandler onClearSelection={onClearSelection} />
 
@@ -157,15 +170,31 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
         )}
 
         {/* 2. Bus Stand Terminals */}
-        {busStands.map((stand) => (
-          <BusStandMarker
-            key={`stand-${stand.id}`}
-            stand={stand}
-            isSelected={selectedEntity?.type === 'BUS_STAND' && selectedEntity?.id === stand.id}
-            onSelect={onSelectEntity}
-            onExploreRoutes={onExploreStandRoutes}
-          />
-        ))}
+        {busStands.map((stand) => {
+          let standRole: 'ORIGIN' | 'DESTINATION' | null = null;
+          if (
+            routeGeometry?.originStand &&
+            (routeGeometry.originStand.id === stand.id || routeGeometry.originStand.code === stand.code)
+          ) {
+            standRole = 'ORIGIN';
+          } else if (
+            routeGeometry?.destinationStand &&
+            (routeGeometry.destinationStand.id === stand.id || routeGeometry.destinationStand.code === stand.code)
+          ) {
+            standRole = 'DESTINATION';
+          }
+
+          return (
+            <BusStandMarker
+              key={`stand-${stand.id}`}
+              stand={stand}
+              role={standRole}
+              isSelected={selectedEntity?.type === 'BUS_STAND' && selectedEntity?.id === stand.id}
+              onSelect={onSelectEntity}
+              onExploreRoutes={onExploreStandRoutes}
+            />
+          );
+        })}
 
         {/* 3. Ordered Route Stops */}
         {routeGeometry?.stops.map((seq) => (

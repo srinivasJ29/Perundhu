@@ -122,7 +122,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@perundhu.tnstc.gov.in\",\n  \"password\": \"AdminTNSTC@2026!\"\n}"
+              "raw": "{\n  \"email\": \"admin@tnstc.perundhu.gov.in\",\n  \"password\": \"PerundhuAdmin@2026\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",

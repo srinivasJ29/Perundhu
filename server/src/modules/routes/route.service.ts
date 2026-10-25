@@ -28,6 +28,15 @@ export interface DirectionStopSequenceDto {
   stop: StopDetailDto;
 }
 
+export interface StandSummaryDto {
+  id: string;
+  code: string;
+  nameEn: string;
+  nameTa: string;
+  totalPlatforms?: number;
+  location?: GeoJsonPoint;
+}
+
 export interface RouteDirectionDetailDto {
   route: RouteSummaryDto;
   direction: {
@@ -35,6 +44,8 @@ export interface RouteDirectionDetailDto {
     directionCode: 'OUTBOUND' | 'INBOUND';
     totalDistanceKm: number;
     estimatedDurationMins: number;
+    originStand: StandSummaryDto | null;
+    destinationStand: StandSummaryDto | null;
     originStopId: string;
     destinationStopId: string;
     routePolyline: GeoJsonLineString | null;
@@ -69,7 +80,9 @@ export class RouteService {
       routeId: routeObjectId,
       isActive: true
     })
-      .select('_id directionCode totalDistanceKm estimatedDurationMins originStopId destinationStopId routePolyline')
+      .select('_id directionCode totalDistanceKm estimatedDurationMins originStandId destinationStandId originStopId destinationStopId routePolyline')
+      .populate('originStandId', '_id code nameEn nameTa totalPlatforms location')
+      .populate('destinationStandId', '_id code nameEn nameTa totalPlatforms location')
       .lean();
 
     if (!direction) {
@@ -122,6 +135,31 @@ export class RouteService {
         }
       : null;
 
+    const originStandDoc = direction.originStandId as any;
+    const destStandDoc = direction.destinationStandId as any;
+
+    const originStand: StandSummaryDto | null = originStandDoc
+      ? {
+          id: originStandDoc._id?.toString() || originStandDoc.toString(),
+          code: originStandDoc.code || '',
+          nameEn: originStandDoc.nameEn || '',
+          nameTa: originStandDoc.nameTa || '',
+          totalPlatforms: originStandDoc.totalPlatforms,
+          location: originStandDoc.location
+        }
+      : null;
+
+    const destinationStand: StandSummaryDto | null = destStandDoc
+      ? {
+          id: destStandDoc._id?.toString() || destStandDoc.toString(),
+          code: destStandDoc.code || '',
+          nameEn: destStandDoc.nameEn || '',
+          nameTa: destStandDoc.nameTa || '',
+          totalPlatforms: destStandDoc.totalPlatforms,
+          location: destStandDoc.location
+        }
+      : null;
+
     return {
       route: {
         id: route._id.toString(),
@@ -135,6 +173,8 @@ export class RouteService {
         directionCode: direction.directionCode,
         totalDistanceKm: direction.totalDistanceKm,
         estimatedDurationMins: direction.estimatedDurationMins,
+        originStand,
+        destinationStand,
         originStopId: direction.originStopId.toString(),
         destinationStopId: direction.destinationStopId.toString(),
         routePolyline,

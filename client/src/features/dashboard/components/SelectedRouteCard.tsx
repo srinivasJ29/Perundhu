@@ -9,7 +9,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Route,
-  ArrowRight,
   Clock,
   Compass,
   ListOrdered,
@@ -22,6 +21,7 @@ import { useLanguage } from '../../../hooks/useLanguage';
 import { Badge } from '../../../components/common/Badge';
 import { Button } from '../../../components/common/Button';
 import { DashboardDistrictInfo, DashboardRouteSummary } from '../types';
+import { AnimatedBusCorridor } from './AnimatedBusCorridor';
 
 interface SelectedRouteCardProps {
   district: DashboardDistrictInfo;
@@ -163,29 +163,16 @@ export const SelectedRouteCard: React.FC<SelectedRouteCardProps> = ({
           <div className="selected-route-subtitle">{secondaryTitle}</div>
         </div>
 
-        {/* Terminals Journey Vector */}
-        <div className="selected-route-terminals-card">
-          <div className="terminal-node">
-            <div className="terminal-dot origin" aria-hidden="true" />
-            <div className="terminal-info">
-              <span className="terminal-tag">{language === 'ta' ? 'புறப்படும் இடம்' : 'Origin Stop'}</span>
-              <strong className="terminal-name">{originStopName}</strong>
-            </div>
-          </div>
-
-          <div className="terminal-connector">
-            <ArrowRight size={18} className="terminal-arrow" aria-hidden="true" />
-            <span className="terminal-corridor-label">TNSTC Corridor</span>
-          </div>
-
-          <div className="terminal-node">
-            <div className="terminal-dot destination" aria-hidden="true" />
-            <div className="terminal-info">
-              <span className="terminal-tag">{language === 'ta' ? 'சேருமிடம்' : 'Destination Stop'}</span>
-              <strong className="terminal-name">{destStopName}</strong>
-            </div>
-          </div>
-        </div>
+        {/* Living Animated Transit Corridor */}
+        <AnimatedBusCorridor
+          originStopName={originStopName}
+          destStopName={destStopName}
+          routeNumber={selectedRoute.routeNumber}
+          language={language}
+          directionCode={selectedRoute.directionCode}
+          totalDistanceKm={selectedRoute.totalDistanceKm}
+          estimatedDurationMins={selectedRoute.estimatedDurationMins}
+        />
 
         {/* Metrics Grid */}
         <div className="selected-route-metrics-grid">

@@ -59,7 +59,9 @@ export const NearbyBusStands: React.FC<NearbyBusStandsProps> = ({
     <section className="nearby-stands-card" aria-labelledby="nearby-stands-title">
       <div className="nearby-stands-header">
         <div className="nearby-stands-title-box">
-          <div className="nearby-stands-icon" aria-hidden="true">
+          <div className="nearby-stands-icon radar-active" aria-hidden="true">
+            <span className="radar-wave-ring r1" />
+            <span className="radar-wave-ring r2" />
             <MapPin size={20} />
           </div>
           <div>

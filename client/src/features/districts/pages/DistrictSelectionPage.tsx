@@ -43,7 +43,7 @@ export const DistrictSelectionPage: React.FC = () => {
   return (
     <div className="districts-page">
       {/* Top Navigation & Status */}
-      <div className="districts-header-top">
+      <div className="districts-header-top page-stagger-1">
         <Link to="/" className="auth-back-link" aria-label={t('nav.back_home')}>
           <ArrowLeft size={16} aria-hidden="true" />
           <span>{t('nav.back_home')}</span>
@@ -60,7 +60,7 @@ export const DistrictSelectionPage: React.FC = () => {
       </div>
 
       {/* Main Header & Instruction */}
-      <header className="districts-header">
+      <header className="districts-header page-stagger-2">
         <div className="districts-title-group">
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
             <Badge variant="info">
@@ -110,23 +110,27 @@ export const DistrictSelectionPage: React.FC = () => {
       </header>
 
       {/* Search & Filtering Bar */}
-      <DistrictSearch
-        query={searchQuery}
-        onQueryChange={setSearchQuery}
-        statusFilter={statusFilter}
-        onStatusFilterChange={setStatusFilter}
-        filteredCount={filteredDistricts.length}
-        totalCount={districts.length}
-      />
+      <div className="page-stagger-3">
+        <DistrictSearch
+          query={searchQuery}
+          onQueryChange={setSearchQuery}
+          statusFilter={statusFilter}
+          onStatusFilterChange={setStatusFilter}
+          filteredCount={filteredDistricts.length}
+          totalCount={districts.length}
+        />
+      </div>
 
       {/* Responsive District Cards Grid */}
-      <DistrictGrid
-        districts={filteredDistricts}
-        selectedDistrict={selectedDistrict}
-        onSelectDistrict={handleSelectDistrict}
-        searchQuery={searchQuery}
-        onClearSearch={() => setSearchQuery('')}
-      />
+      <div className="page-stagger-4">
+        <DistrictGrid
+          districts={filteredDistricts}
+          selectedDistrict={selectedDistrict}
+          onSelectDistrict={handleSelectDistrict}
+          searchQuery={searchQuery}
+          onClearSearch={() => setSearchQuery('')}
+        />
+      </div>
     </div>
   );
 };

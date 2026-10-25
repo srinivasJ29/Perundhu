@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Mail, Phone, AlertCircle, CheckCircle2, UserPlus } from 'lucide-react';
+import { User, Mail, Phone, AlertCircle, CheckCircle2, UserPlus, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { useAuth } from '../authContext';
 import { signupSchema, SignupFormData } from '../schemas/authSchemas';
@@ -133,6 +133,9 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSuccess }) => {
     <>
       {/* Card Header */}
       <div className="auth-card-header">
+        <div className="auth-header-badge" aria-hidden="true">
+          <UserPlus size={22} />
+        </div>
         <h1 className="auth-card-title">
           {t('auth.signup_title')}
         </h1>
@@ -323,6 +326,10 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSuccess }) => {
           <Link to="/login" className="auth-switch-link">
             {t('auth.sign_in_link')}
           </Link>
+        </div>
+        <div className="auth-security-guarantee">
+          <ShieldCheck size={14} style={{ color: 'var(--color-primary-teal)' }} />
+          <span>TNSTC Citizen Transit Portal • 256-bit SSL Encrypted</span>
         </div>
       </div>
     </>

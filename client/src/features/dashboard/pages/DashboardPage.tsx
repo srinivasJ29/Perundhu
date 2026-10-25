@@ -51,20 +51,24 @@ export const DashboardPage: React.FC = () => {
   return (
     <div className="dashboard-page-wrapper">
       {/* 1. Header with branding, district/route pills, language, and user profile */}
-      <DashboardHeader district={district} selectedRoute={selectedRoute} />
+      <div className="page-stagger-1">
+        <DashboardHeader district={district} selectedRoute={selectedRoute} />
+      </div>
 
       {/* 2. Main Dashboard Content Grid */}
       <main className="dashboard-main-content" role="main">
         <div className="app-container dashboard-layout-container">
           {/* Welcome & Journey Quick Search */}
-          <JourneySearch
-            locationOptions={locationOptions}
-            districtRoutes={districtRoutes}
-            onSelectRoute={(routeId) => selectRoute(routeId)}
-          />
+          <div className="page-stagger-2">
+            <JourneySearch
+              locationOptions={locationOptions}
+              districtRoutes={districtRoutes}
+              onSelectRoute={(routeId) => selectRoute(routeId)}
+            />
+          </div>
 
           {/* Primary Two-Column Operations Layout */}
-          <div className="dashboard-grid-layout">
+          <div className="dashboard-grid-layout page-stagger-3">
             {/* Left Column: Active Route & Live Telemetry Overview */}
             <div className="dashboard-column primary">
               <SelectedRouteCard
@@ -100,7 +104,9 @@ export const DashboardPage: React.FC = () => {
           </div>
 
           {/* Passenger Guidance (5 Simple Steps in English & Tamil) */}
-          <PassengerGuidance />
+          <div className="page-stagger-4">
+            <PassengerGuidance />
+          </div>
         </div>
       </main>
 

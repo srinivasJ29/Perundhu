@@ -57,6 +57,7 @@ describe('GET /api/v1/routes/:routeId/directions/:directionId', () => {
 
     vi.spyOn(RouteDirection, 'findOne').mockReturnValue({
       select: vi.fn().mockReturnThis(),
+      populate: vi.fn().mockReturnThis(),
       lean: vi.fn().mockResolvedValue(null) // Not found for this routeId
     } as any);
 
@@ -87,6 +88,7 @@ describe('GET /api/v1/routes/:routeId/directions/:directionId', () => {
 
     vi.spyOn(RouteDirection, 'findOne').mockReturnValue({
       select: vi.fn().mockReturnThis(),
+      populate: vi.fn().mockReturnThis(),
       lean: vi.fn().mockResolvedValue({
         _id: directionId,
         directionCode: 'OUTBOUND',
@@ -182,6 +184,7 @@ describe('GET /api/v1/routes/:routeId/directions/:directionId', () => {
 
     vi.spyOn(RouteDirection, 'findOne').mockReturnValue({
       select: vi.fn().mockReturnThis(),
+      populate: vi.fn().mockReturnThis(),
       lean: vi.fn().mockResolvedValue({
         _id: directionId,
         directionCode: 'OUTBOUND',

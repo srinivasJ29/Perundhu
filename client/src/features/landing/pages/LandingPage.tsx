@@ -21,11 +21,19 @@ export const LandingPage: React.FC = () => {
 
   return (
     <div className="landing-container">
-      <LandingHeader />
+      <div className="page-stagger-1">
+        <LandingHeader />
+      </div>
       <main id="main-content" role="main">
-        <HeroSection />
-        <FeatureHighlights />
-        <PilotInformation />
+        <div className="page-stagger-2">
+          <HeroSection />
+        </div>
+        <div className="page-stagger-3">
+          <FeatureHighlights />
+        </div>
+        <div className="page-stagger-4">
+          <PilotInformation />
+        </div>
       </main>
       <LandingFooter />
     </div>

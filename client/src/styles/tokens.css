@@ -1,64 +1,119 @@
 /**
  * PERUNDHU (பேருந்து) — Design Tokens System
- * Strict compliance with approved color palette and accessible typography
+ * Premium Redesign: White Primary Background with Bold Black & Electric Yellow Palette
+ * High contrast, modern transit aesthetics with state-of-the-art accessibility.
  */
 
 :root {
-  /* Approved Brand Color Palette (Synchronized with User Spec) */
-  --color-primary-dark: #071F22;
-  --color-primary: #1D7873;
-  --color-secondary: #67958C;
-  --color-accent: #F5C096;
-  --color-danger: #EF2E33;
-  --color-background: #F6F8F6;
-  --color-surface: #FFFFFF;
+  /* ==============================================================================
+   * 1. Core Brand Colors: White, Black & Electric Yellow
+   * ============================================================================== */
+  
+  /* Primary White & Pure Surfaces */
+  --color-white: #FFFFFF;
+  --color-cream-50: #FFFFFF;
+  --color-cream-100: #FFFFFF;
+  --color-cream-200: #F8FAFC;
+  --color-cream-300: #E2E8F0;
+  --color-cream-400: #CBD5E1;
 
-  /* Brand Names (Backwards Compatible with Existing Components) */
-  --color-deep-teal: #071F22;
-  --color-primary-teal: #1D7873;
-  --color-primary-teal-hover: #16605C;
-  --color-primary-teal-active: #0F4441;
-  --color-sage: #67958C;
-  --color-sage-light: #D5E1DE;
-  --color-warm-peach: #F5C096;
-  --color-warm-peach-light: #FDF4ED;
-  --color-coral-red: #EF2E33;
-  --color-coral-red-light: #FDE8E9;
+  /* Black Family (Deep Onyx, Obsidian, Charcoal & Slate) */
+  --color-black-950: #0A0A0A;  /* True pitch onyx black */
+  --color-black-900: #121212;  /* Deep obsidian */
+  --color-black-850: #18181B;  /* Zinc black */
+  --color-black-800: #27272A;  /* Charcoal black */
+  --color-black-700: #3F3F46;  /* Slate dark */
+  --color-black-600: #52525B;  /* Muted dark */
 
-  /* Semantic Color Tokens */
-  --color-text: #071F22;
-  --color-text-primary: #071F22;
-  --color-text-secondary: #2C4B4A;
-  --color-text-muted: #577873;
+  /* Electric & Golden Yellow Family (High-Visibility Transit Palette) */
+  --color-yellow-50:  #FEFCE8;  /* Softest yellow shimmer */
+  --color-yellow-100: #FEF9C3;  /* Pale yellow tint */
+  --color-yellow-200: #FEF08A;  /* Light yellow badge */
+  --color-yellow-300: #FDE047;  /* Bright yellow hover */
+  --color-yellow-400: #FACC15;  /* Signature Electric Yellow */
+  --color-yellow-500: #EAB308;  /* Golden Amber Yellow */
+  --color-yellow-600: #CA8A04;  /* Deep Gold border/accent */
+  --color-yellow-700: #A16207;  /* High-contrast amber text */
+
+  /* Semantic Brand Tokens */
+  --color-primary-dark: #000000;
+  --color-primary: #0A0A0A;           /* Deep Onyx Black */
+  --color-secondary: #FACC15;         /* Electric Yellow */
+  --color-accent: #FACC15;            /* High-visibility yellow accent */
+  --color-accent-hover: #EAB308;
+  --color-accent-light: #FEF9C3;
+  --color-accent-text: #0A0A0A;
+  
+  --color-background: #FFFFFF;        /* Crisp Pure White */
+  --color-surface: #FFFFFF;           /* Crisp Pure White Surface */
+  --color-surface-subtle: #F8FAFC;    /* Subtle cool grey surface */
+  --color-surface-elevated: #FFFFFF;
+
+  /* Aliases for backwards compatibility with existing views */
+  --color-deep-teal: #0A0A0A;
+  --color-primary-teal: #0A0A0A;
+  --color-primary-teal-hover: #18181B;
+  --color-primary-teal-active: #000000;
+  --color-sage: #52525B;
+  --color-sage-light: #FEF9C3;
+  --color-warm-peach: #FACC15;
+  --color-warm-peach-light: #FEFCE8;
+  --color-coral-red: #DC2626;
+  --color-coral-red-light: #FEE2E2;
+
+  /* Aliases for brown palette mapping to black & yellow */
+  --color-brown-950: #0A0A0A;
+  --color-brown-900: #121212;
+  --color-brown-850: #18181B;
+  --color-brown-800: #27272A;
+  --color-brown-700: #3F3F46;
+  --color-brown-600: #52525B;
+  --color-brown-500: #CA8A04;
+  --color-brown-400: #EAB308;
+  --color-brown-300: #FACC15;
+  --color-brown-200: #FDE047;
+  --color-brown-100: #FEF08A;
+  --color-brown-50:  #FEFCE8;
+
+  /* Semantic Text Tokens */
+  --color-text: #0A0A0A;
+  --color-text-primary: #0A0A0A;
+  --color-text-secondary: #27272A;
+  --color-text-muted: #64748B;
   --color-text-inverse: #FFFFFF;
-  --color-muted: #577873;
+  --color-muted: #64748B;
 
-  --color-border: #D8E2E0;
-  --color-border-subtle: #E8EFEF;
-  --color-border-focus: #1D7873;
-  --color-focus: #1D7873;
+  /* Semantic Borders & Focus */
+  --color-border: #E2E8F0;
+  --color-border-subtle: #F1F5F9;
+  --color-border-focus: #FACC15;
+  --color-border-dark: #0A0A0A;
+  --color-focus: #FACC15;
 
-  --color-action-primary: #1D7873;
-  --color-action-primary-hover: #16605C;
-  --color-action-secondary: #F5C096;
-  --color-action-secondary-hover: #EEAE7E;
+  /* Actions & Buttons */
+  --color-action-primary: #0A0A0A;
+  --color-action-primary-hover: #18181B;
+  --color-action-secondary: #FACC15;
+  --color-action-secondary-hover: #EAB308;
 
-  --color-status-success: #15803D;
-  --color-status-success-bg: #E8F5E9;
-  --color-status-warning: #B45309;
-  --color-status-warning-bg: #FFF8E1;
-  --color-status-error: #EF2E33;
-  --color-status-error-bg: #FDE8E9;
-  --color-status-info: #0284C7;
-  --color-status-info-bg: #E0F2FE;
+  /* Curated Status Tokens */
+  --color-status-success: #16A34A;
+  --color-status-success-bg: #DCFCE7;
+  --color-status-warning: #CA8A04;
+  --color-status-warning-bg: #FEF9C3;
+  --color-status-error: #DC2626;
+  --color-status-error-bg: #FEE2E2;
+  --color-status-info: #0A0A0A;
+  --color-status-info-bg: #FEF9C3;
 
-  --color-disabled-text: #8E9E9B;
-  --color-disabled-bg: #EAEFEF;
-  --color-disabled-border: #D5DFDE;
+  /* Disabled States */
+  --color-disabled-text: #94A3B8;
+  --color-disabled-bg: #F1F5F9;
+  --color-disabled-border: #CBD5E1;
 
   /* Typography */
-  --font-family-base: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-family-tamil: 'Noto Sans Tamil', 'Inter', system-ui, sans-serif;
+  --font-family-base: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family-tamil: 'Noto Sans Tamil', 'Plus Jakarta Sans', system-ui, sans-serif;
 
   --font-size-xs: 0.75rem;    /* 12px */
   --font-size-sm: 0.875rem;   /* 14px */
@@ -67,17 +122,19 @@
   --font-size-xl: 1.25rem;    /* 20px */
   --font-size-2xl: 1.5rem;    /* 24px */
   --font-size-3xl: 1.875rem;  /* 30px */
+  --font-size-4xl: 2.25rem;   /* 36px */
 
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
 
-  --line-height-tight: 1.25;
+  --line-height-tight: 1.2;
   --line-height-normal: 1.5;
   --line-height-relaxed: 1.625;
 
-  /* Spacing Scale (8pt grid convention) */
+  /* Spacing Scale */
   --space-1: 0.25rem;  /* 4px */
   --space-2: 0.5rem;   /* 8px */
   --space-3: 0.75rem;  /* 12px */
@@ -89,24 +146,29 @@
   --space-12: 3rem;    /* 48px */
   --space-16: 4rem;    /* 64px */
 
-  /* Border Radii */
-  --radius-sm: 0.25rem;  /* 4px */
-  --radius-md: 0.5rem;   /* 8px */
-  --radius-lg: 0.75rem;  /* 12px */
-  --radius-xl: 1rem;     /* 16px */
+  /* Border Radii (Modern precision curves) */
+  --radius-sm: 0.375rem; /* 6px */
+  --radius-md: 0.625rem; /* 10px */
+  --radius-lg: 0.875rem; /* 14px */
+  --radius-xl: 1.25rem;  /* 20px */
+  --radius-2xl: 1.5rem;  /* 24px */
   --radius-full: 9999px;
 
-  /* Shadows (Elevations) */
-  --shadow-sm: 0 1px 2px 0 rgba(7, 31, 34, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(7, 31, 34, 0.08), 0 2px 4px -2px rgba(7, 31, 34, 0.04);
-  --shadow-lg: 0 10px 15px -3px rgba(7, 31, 34, 0.1), 0 4px 6px -4px rgba(7, 31, 34, 0.05);
+  /* High-Contrast Crisp Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.09), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  --shadow-yellow: 0 4px 14px rgba(250, 204, 21, 0.35);
 
-  /* Focus Rings */
-  --focus-ring: 0 0 0 3px rgba(29, 120, 115, 0.35);
+  /* High-Visibility Focus Rings */
+  --focus-ring: 0 0 0 3px rgba(250, 204, 21, 0.5);
 
   /* Transitions */
-  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 150ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --transition-smooth: 350ms cubic-bezier(0.16, 1, 0.3, 1);
 
   /* Z-Index Scales */
   --z-dropdown: 1000;

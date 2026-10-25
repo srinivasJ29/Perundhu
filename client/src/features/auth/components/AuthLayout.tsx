@@ -4,7 +4,6 @@ import { ArrowLeft, Radio, ShieldCheck, MapPin } from 'lucide-react';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { TNSTCLogo } from '../../landing/components/TNSTCLogo';
 import { LanguageSelector } from '../../landing/components/LanguageSelector';
-import { Badge } from '../../../components/common/Badge';
 import '../styles/auth.css';
 
 export interface AuthLayoutProps {
@@ -21,6 +20,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
          ==================================================================== */}
       <aside className="auth-brand-side" aria-label="PERUNDHU Transit Branding">
         <div className="auth-brand-bg-pattern" aria-hidden="true" />
+        <div className="auth-brand-orb-glow" aria-hidden="true" />
 
         <div className="auth-brand-content">
           {/* Top Brand & Logo */}
@@ -38,16 +38,17 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
             </div>
 
             <div>
-              <Badge variant="info">
-                {t('auth.brand_badge')}
-              </Badge>
+              <span className="auth-live-beacon-pill">
+                <span className="auth-beacon-dot" aria-hidden="true" />
+                <span>{t('auth.brand_badge')}</span>
+              </span>
             </div>
           </div>
 
           {/* Middle Value Proposition & Pilot Corridor Feature Highlights */}
           <div className="auth-brand-middle">
             <h2 className="auth-hero-heading">
-              {t('auth.side_title')}
+              <span className="auth-hero-heading-gradient">{t('auth.side_title')}</span>
             </h2>
             <p className="auth-hero-desc">
               {t('auth.side_desc')}

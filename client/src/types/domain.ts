@@ -112,6 +112,15 @@ export interface RouteSummaryDto {
   serviceCategory: string;
 }
 
+export interface StandSummaryDto {
+  id: string;
+  code: string;
+  nameEn: string;
+  nameTa: string;
+  totalPlatforms?: number;
+  location?: GeoJsonPoint;
+}
+
 export interface RouteDirectionDetailDto {
   route: RouteSummaryDto;
   direction: {
@@ -119,6 +128,8 @@ export interface RouteDirectionDetailDto {
     directionCode: 'OUTBOUND' | 'INBOUND';
     totalDistanceKm: number;
     estimatedDurationMins: number;
+    originStand?: StandSummaryDto | null;
+    destinationStand?: StandSummaryDto | null;
     originStopId: string;
     destinationStopId: string;
     routePolyline: GeoJsonLineString | null;

@@ -4,8 +4,9 @@
  * OpenStreetMap standard tiles, Socket.IO real-time telemetry, and responsive collapsible panels.
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import type { Map as LeafletMap } from 'leaflet';
 import {
   ArrowLeft,
   Navigation,
@@ -28,6 +29,19 @@ import '../styles/map.css';
 export const LiveMapPage: React.FC = () => {
   const { t, language, setLanguage } = useLanguage();
   const navigate = useNavigate();
+  const mapInstanceRef = useRef<LeafletMap | null>(null);
+
+  const handleMapReady = useCallback((map: LeafletMap) => {
+    mapInstanceRef.current = map;
+  }, []);
+
+  const handleZoomIn = useCallback(() => {
+    mapInstanceRef.current?.zoomIn();
+  }, []);
+
+  const handleZoomOut = useCallback(() => {
+    mapInstanceRef.current?.zoomOut();
+  }, []);
 
   const toggleLanguage = () => {
     setLanguage(language === 'ta' ? 'en' : 'ta');
@@ -96,7 +110,7 @@ export const LiveMapPage: React.FC = () => {
   return (
     <div className="live-map-page-wrapper">
       {/* 1. Header Navigation Bar */}
-      <header className="live-map-header" role="banner">
+      <header className="live-map-header page-stagger-1" role="banner">
         <div className="live-map-header-left">
           <Button
             type="button"
@@ -182,12 +196,14 @@ export const LiveMapPage: React.FC = () => {
           onSelectLayer={setActiveLayer}
         />
 
-        {/* Floating Action Controls (Location, Recenter) */}
+        {/* Floating Action Controls (Zoom +/-, Location, Recenter) */}
         <MapControls
           isLocatingUser={isLocatingUser}
           hasUserLocation={Boolean(userCoords)}
           onRequestUserLocation={handleRequestUserLocation}
           onRecenter={handleRecenter}
+          onZoomIn={handleZoomIn}
+          onZoomOut={handleZoomOut}
         />
 
         {/* Leaflet Map Canvas */}
@@ -204,6 +220,7 @@ export const LiveMapPage: React.FC = () => {
           selectedEntity={selectedEntity}
           onSelectEntity={handleSelectEntity}
           onClearSelection={handleClearSelectedEntity}
+          onMapReady={handleMapReady}
           onExploreStandRoutes={(standId) => {
             const stand = busStands.find((s) => s.id === standId);
             if (stand && stand.location?.coordinates) {

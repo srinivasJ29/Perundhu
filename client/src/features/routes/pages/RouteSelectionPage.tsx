@@ -60,7 +60,7 @@ export const RouteSelectionPage: React.FC = () => {
   return (
     <div className="routes-page">
       {/* 1. Top Navigation & User Context */}
-      <div className="routes-header-top">
+      <div className="routes-header-top page-stagger-1">
         <Link to="/districts" className="routes-back-link" aria-label={t('routes.back_to_districts')}>
           <ArrowLeft size={16} aria-hidden="true" />
           <span>{t('routes.back_to_districts')}</span>
@@ -77,7 +77,7 @@ export const RouteSelectionPage: React.FC = () => {
       </div>
 
       {/* 2. Header & Instruction */}
-      <header className="routes-header">
+      <header className="routes-header page-stagger-2">
         <div className="routes-title-group">
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
             <Badge variant="info">
@@ -103,7 +103,7 @@ export const RouteSelectionPage: React.FC = () => {
 
       {/* 3. Non-Pilot / Unsupported District Guard */}
       {!isMaduraiPilot && (
-        <div className="routes-error-card">
+        <div className="routes-error-card page-stagger-3">
           <AlertCircle size={32} color="var(--color-coral-red)" />
           <h2 className="routes-error-title">
             {language === 'ta'
@@ -130,14 +130,16 @@ export const RouteSelectionPage: React.FC = () => {
       {isMaduraiPilot && (
         <>
           {/* Search & Filtering Bar */}
-          <RouteSearch
-            query={searchQuery}
-            onQueryChange={setSearchQuery}
-            categoryFilter={categoryFilter}
-            onCategoryFilterChange={setCategoryFilter}
-            filteredCount={filteredRoutes.length}
-            totalCount={routes.length}
-          />
+          <div className="page-stagger-3">
+            <RouteSearch
+              query={searchQuery}
+              onQueryChange={setSearchQuery}
+              categoryFilter={categoryFilter}
+              onCategoryFilterChange={setCategoryFilter}
+              filteredCount={filteredRoutes.length}
+              totalCount={routes.length}
+            />
+          </div>
 
           {/* Loading Indicator */}
           {isLoading && (
@@ -204,7 +206,7 @@ export const RouteSelectionPage: React.FC = () => {
 
           {/* Route Cards List */}
           {!isLoading && !error && filteredRoutes.length > 0 && (
-            <div className="routes-grid" role="region" aria-label="Available bus routes list">
+            <div className="routes-grid page-stagger-4" role="region" aria-label="Available bus routes list">
               {filteredRoutes.map((route) => (
                 <RouteCard
                   key={route.id}

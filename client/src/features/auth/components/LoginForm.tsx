@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Mail, AlertCircle, LogIn } from 'lucide-react';
+import { Mail, AlertCircle, LogIn, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { useAuth } from '../authContext';
 import { loginSchema, LoginFormData } from '../schemas/authSchemas';
@@ -110,6 +110,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
     <>
       {/* Card Header */}
       <div className="auth-card-header">
+        <div className="auth-header-badge" aria-hidden="true">
+          <LogIn size={22} />
+        </div>
         <h1 className="auth-card-title">
           {t('auth.login_title')}
         </h1>
@@ -124,6 +127,37 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
           <span>{serverError}</span>
         </Alert>
       )}
+
+      {/* Quick Demo Credentials Autofill */}
+      <div className="auth-demo-credentials-box">
+        <span className="auth-demo-label">Demo Credentials:</span>
+        <div className="auth-demo-buttons">
+          <button
+            type="button"
+            className="auth-demo-chip"
+            onClick={() => {
+              setEmail('admin@tnstc.perundhu.gov.in');
+              setPassword('PerundhuAdmin@2026');
+              setErrors({});
+            }}
+            title="Fill Admin Credentials"
+          >
+            🛡️ Admin
+          </button>
+          <button
+            type="button"
+            className="auth-demo-chip"
+            onClick={() => {
+              setEmail('passenger@example.com');
+              setPassword('Passenger@123');
+              setErrors({});
+            }}
+            title="Fill Passenger Credentials"
+          >
+            👤 Passenger
+          </button>
+        </div>
+      </div>
 
       {/* Main Authentication Form */}
       <form onSubmit={handleSubmit} className="auth-form" noValidate>
@@ -202,6 +236,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
           <Link to="/signup" className="auth-switch-link">
             {t('auth.sign_up_link')}
           </Link>
+        </div>
+        <div className="auth-security-guarantee">
+          <ShieldCheck size={14} style={{ color: 'var(--color-primary-teal)' }} />
+          <span>TNSTC Citizen Transit Portal • 256-bit SSL Encrypted</span>
         </div>
       </div>
     </>

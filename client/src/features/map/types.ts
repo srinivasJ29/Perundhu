@@ -7,7 +7,8 @@
 import {
   DirectionStopSequenceDto,
   TrackingTelemetryStatus,
-  LocationTelemetrySource
+  LocationTelemetrySource,
+  StandSummaryDto
 } from '../../types/domain';
 
 export interface LatLngCoordinate {
@@ -40,10 +41,10 @@ export interface MapLayerConfig {
 export const MAP_LAYERS: Record<MapLayerId, MapLayerConfig> = {
   street: {
     id: 'street',
-    nameEn: 'CARTO Voyager (Clean Transit)',
-    nameTa: 'போக்குவரத்து வரைபடம் (CARTO)',
-    tileUrlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>',
+    nameEn: 'OpenStreetMap (Standard)',
+    nameTa: 'நிலையான வரைபடம் (OSM)',
+    tileUrlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
     maxZoom: 19,
     minZoom: 5,
     isAvailable: true
@@ -60,11 +61,11 @@ export const MAP_LAYERS: Record<MapLayerId, MapLayerConfig> = {
   },
   hybrid: {
     id: 'hybrid',
-    nameEn: 'Night Transit (Dark Matter)',
-    nameTa: 'இரவு முறை வரைபடம் (CARTO)',
-    tileUrlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png',
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>',
-    maxZoom: 19,
+    nameEn: 'Satellite Hybrid (Roads & Labels)',
+    nameTa: 'கலப்பு வரைபடம் (சாலைகள் & பெயர்கள்)',
+    tileUrlTemplate: 'https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+    attribution: '&copy; Google Maps &mdash; Imagery &copy; CNES / Airbus, Maxar Technologies',
+    maxZoom: 20,
     minZoom: 5,
     isAvailable: true
   }
@@ -134,6 +135,8 @@ export interface RouteGeometryState {
   hasVerifiedGeometry: boolean;
   totalDistanceKm: number;
   estimatedDurationMins: number;
+  originStand?: StandSummaryDto | null;
+  destinationStand?: StandSummaryDto | null;
   stops: DirectionStopSequenceDto[];
 }
 

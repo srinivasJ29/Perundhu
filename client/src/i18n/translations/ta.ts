@@ -317,6 +317,8 @@ export const taTranslations: Record<string, string> = {
   'map.my_location_locating': 'உங்கள் இருப்பிடம் கண்டறியப்படுகிறது...',
   'map.my_location_error': 'உங்கள் தற்போதைய இருப்பிடத்தைக் கண்டறிய முடியவில்லை.',
   'map.my_location_denied': 'உலாவியில் இருப்பிட அனுமதி மறுக்கப்பட்டது.',
+  'map.zoom_in': 'பெரிதாக்குக',
+  'map.zoom_out': 'சிறிதாக்குக',
   'map.recenter': 'வரைபடத்தை மீட்டமைக்க',
   'map.fit_route': 'முழு வழித்தடத்தையும் காட்டுக',
   'map.search_placeholder': 'பேருந்து நிலையங்கள், நிறுத்தங்கள் அல்லது வழித்தடங்களைத் தேடுக...',

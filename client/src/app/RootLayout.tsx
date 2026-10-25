@@ -1,6 +1,6 @@
-import React from 'react';
-import { Outlet, Link } from 'react-router-dom';
-import { Bus, Globe, Radio } from 'lucide-react';
+import React, { useState } from 'react';
+import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Bus, Globe, Compass, Sparkles, MapPin } from 'lucide-react';
 import { useLanguage } from '../hooks/useLanguage';
 import { useSocket } from '../hooks/useSocket';
 import { Badge } from '../components/common/Badge';
@@ -8,6 +8,8 @@ import { Badge } from '../components/common/Badge';
 export const RootLayout: React.FC = () => {
   const { language, setLanguage, t } = useLanguage();
   const { isConnected, isConnecting } = useSocket();
+  const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const toggleLanguage = () => {
     setLanguage(language === 'ta' ? 'en' : 'ta');
@@ -15,144 +17,165 @@ export const RootLayout: React.FC = () => {
 
   return (
     <div className="page-wrapper">
-      {/* Accessible Header */}
-      <header
-        style={{
-          backgroundColor: 'var(--color-surface)',
-          borderBottom: '1px solid var(--color-border)',
-          position: 'sticky',
-          top: 0,
-          zIndex: 'var(--z-sticky)'
-        }}
-      >
-        <div
-          className="app-container"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            height: '64px'
-          }}
-        >
-          {/* Logo / Brand Title */}
-          <Link
-            to="/"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-3)',
-              color: 'var(--color-deep-teal)'
-            }}
-          >
-            <div
-              style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: 'var(--radius-md)',
-                backgroundColor: 'var(--color-primary-teal)',
-                color: 'var(--color-surface)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              <Bus size={22} />
-            </div>
-            <div>
-              <div style={{ fontWeight: 'var(--font-weight-bold)', fontSize: 'var(--font-size-lg)', lineHeight: 1.1 }}>
-                {language === 'ta' ? 'பேருந்து' : 'PERUNDHU'}
-              </div>
-              <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
-                {language === 'ta' ? 'PERUNDHU • TNSTC' : 'தமிழ்நாடு அரசுப் போக்குவரத்து'}
-              </div>
-            </div>
-          </Link>
-
-          {/* Status & Language Controls */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+      {/* Ultra-Modern Glassmorphic Header */}
+      <header className="global-app-header" role="banner">
+        <div className="app-container">
+          <div className="global-app-header-inner">
+            {/* Logo / Brand Title */}
             <Link
-              to="/dashboard"
-              style={{
-                fontSize: 'var(--font-size-sm)',
-                color: 'var(--color-primary-teal)',
-                fontWeight: 'var(--font-weight-medium)',
-                textDecoration: 'none',
-                padding: 'var(--space-1) var(--space-2)',
-                borderRadius: 'var(--radius-sm)'
-              }}
+              to="/"
+              className="global-nav-brand"
+              aria-label="PERUNDHU Home"
             >
-              {language === 'ta' ? 'முகப்பு' : 'Dashboard'}
+              <div className="global-brand-icon-box" aria-hidden="true">
+                <Bus size={22} />
+              </div>
+              <div className="global-brand-text">
+                <div className="global-brand-name">
+                  {language === 'ta' ? 'பேருந்து' : 'PERUNDHU'}
+                </div>
+                <div className="global-brand-sub">
+                  {language === 'ta' ? 'PERUNDHU • TNSTC' : 'தமிழ்நாடு அரசுப் போக்குவரத்து'}
+                </div>
+              </div>
             </Link>
 
-            <Link
-              to="/districts"
-              style={{
-                fontSize: 'var(--font-size-sm)',
-                color: 'var(--color-primary-teal)',
-                fontWeight: 'var(--font-weight-medium)',
-                textDecoration: 'none',
-                padding: 'var(--space-1) var(--space-2)',
-                borderRadius: 'var(--radius-sm)'
-              }}
-            >
-              {language === 'ta' ? 'மாவட்டங்கள்' : 'Districts'}
-            </Link>
+            {/* Desktop Navigation Links */}
+            <div className="global-nav-links">
+              <Link
+                to="/map"
+                className={`global-nav-link ${location.pathname.startsWith('/map') ? 'is-active' : ''}`}
+              >
+                <Compass size={15} />
+                <span>{language === 'ta' ? 'நேரலை வரைபடம்' : 'Live Map'}</span>
+              </Link>
 
-            {/* Madurai Pilot Badge */}
-            <Badge variant="info" style={{ display: 'none' }} className="d-sm-flex">
-              {t('pilot.badge')}
-            </Badge>
+              <Link
+                to="/dashboard"
+                className={`global-nav-link ${location.pathname === '/dashboard' ? 'is-active' : ''}`}
+              >
+                <Sparkles size={15} />
+                <span>{language === 'ta' ? 'முகப்பு' : 'Dashboard'}</span>
+              </Link>
 
-            {/* Socket Status Indicator */}
-            <div
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                fontSize: 'var(--font-size-xs)',
-                color: isConnected
-                  ? 'var(--color-status-success)'
-                  : isConnecting
-                  ? 'var(--color-status-warning)'
-                  : 'var(--color-text-muted)'
-              }}
-              title={
-                isConnected
-                  ? t('socket.connected')
-                  : isConnecting
-                  ? t('socket.connecting')
-                  : t('socket.disconnected')
-              }
-            >
-              <Radio size={14} />
-              <span style={{ fontWeight: 'var(--font-weight-semibold)' }}>
-                {isConnected ? 'LIVE' : isConnecting ? 'CONNECTING' : 'IDLE'}
-              </span>
+              <Link
+                to="/districts"
+                className={`global-nav-link ${location.pathname.startsWith('/districts') ? 'is-active' : ''}`}
+              >
+                <MapPin size={15} />
+                <span>{language === 'ta' ? 'மாவட்டங்கள்' : 'Districts'}</span>
+              </Link>
             </div>
 
-            {/* One-Action Language Switcher */}
-            <button
-              onClick={toggleLanguage}
-              className="btn btn-outline"
-              style={{
-                minHeight: '36px',
-                padding: 'var(--space-1) var(--space-3)',
-                fontSize: 'var(--font-size-xs)',
-                fontWeight: 'var(--font-weight-semibold)'
-              }}
-              aria-label={`Switch to ${language === 'ta' ? 'English' : 'தமிழ்'}`}
-            >
-              <Globe size={14} />
-              <span>{language === 'ta' ? 'English' : 'தமிழ்'}</span>
-            </button>
+            {/* Status & Language Controls */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              {/* Madurai Pilot Badge */}
+              <Badge variant="info" style={{ display: 'none' }} className="d-sm-flex">
+                {t('pilot.badge')}
+              </Badge>
+
+              {/* Socket Status Indicator */}
+              <div
+                className={`global-socket-status ${isConnected ? 'status-live' : isConnecting ? 'status-connecting' : ''}`}
+                title={
+                  isConnected
+                    ? t('socket.connected')
+                    : isConnecting
+                    ? t('socket.connecting')
+                    : t('socket.disconnected')
+                }
+              >
+                <span className={isConnected ? 'global-socket-ping' : ''} aria-hidden="true" />
+                <span>
+                  {isConnected ? 'LIVE' : isConnecting ? 'CONNECTING' : 'IDLE'}
+                </span>
+              </div>
+
+              {/* One-Action Language Switcher */}
+              <button
+                type="button"
+                onClick={toggleLanguage}
+                className="global-lang-btn"
+                aria-label={`Switch to ${language === 'ta' ? 'English' : 'தமிழ்'}`}
+              >
+                <Globe size={14} />
+                <span>{language === 'ta' ? 'English' : 'தமிழ்'}</span>
+              </button>
+
+              {/* Mobile Hamburger Button */}
+              <button
+                type="button"
+                className={`landing-mobile-menu-btn ${mobileMenuOpen ? 'is-open' : ''}`}
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label="Toggle Navigation"
+                aria-expanded={mobileMenuOpen}
+              >
+                <span className="hamburger-line top-line" />
+                <span className="hamburger-line mid-line" />
+                <span className="hamburger-line bot-line" />
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Mobile Navigation Drawer */}
+        {mobileMenuOpen && (
+          <div className="landing-mobile-drawer" role="navigation">
+            <div className="landing-mobile-drawer-inner">
+              <nav className="landing-mobile-nav-list">
+                <Link
+                  to="/map"
+                  className="landing-mobile-nav-item"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <div className="mobile-nav-icon-box">
+                    <Compass size={18} />
+                  </div>
+                  <div className="mobile-nav-text">
+                    <span className="mobile-nav-title">{language === 'ta' ? 'நேரலை வரைபடம்' : 'Live Map'}</span>
+                    <span className="mobile-nav-sub">{language === 'ta' ? 'பேருந்து ஜிபிஎஸ் நகர்வு' : 'Real-time bus tracking'}</span>
+                  </div>
+                </Link>
+
+                <Link
+                  to="/dashboard"
+                  className="landing-mobile-nav-item"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <div className="mobile-nav-icon-box">
+                    <Sparkles size={18} />
+                  </div>
+                  <div className="mobile-nav-text">
+                    <span className="mobile-nav-title">{language === 'ta' ? 'முகப்பு பலகை' : 'Dashboard'}</span>
+                    <span className="mobile-nav-sub">{language === 'ta' ? 'பயண தேடல் & நேரம்' : 'Quick search & schedules'}</span>
+                  </div>
+                </Link>
+
+                <Link
+                  to="/districts"
+                  className="landing-mobile-nav-item"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <div className="mobile-nav-icon-box">
+                    <MapPin size={18} />
+                  </div>
+                  <div className="mobile-nav-text">
+                    <span className="mobile-nav-title">{language === 'ta' ? 'மாவட்டங்கள்' : 'Districts'}</span>
+                    <span className="mobile-nav-sub">{language === 'ta' ? '38 மாவட்டங்கள்' : 'All districts'}</span>
+                  </div>
+                </Link>
+              </nav>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Main Content Router Outlet */}
       <main className="main-content">
         <div className="app-container">
-          <Outlet />
+          <div key={location.pathname} className="nested-page-enter">
+            <Outlet />
+          </div>
         </div>
       </main>
 

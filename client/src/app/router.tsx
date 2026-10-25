@@ -1,4 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom';
+import { AppShell } from './AppShell';
 import { RootLayout } from './RootLayout';
 import { DevShell } from './DevShell';
 import { NotFound } from './NotFound';
@@ -13,71 +14,69 @@ import { LiveMapPage } from '../features/map';
 
 export const router = createBrowserRouter([
   {
-    path: '/',
-    element: <LandingPage />,
-    errorElement: <ErrorBoundary />
-  },
-  {
-    path: '/dashboard',
-    element: <DashboardPage />,
-    errorElement: <ErrorBoundary />
-  },
-  {
-    path: '/map',
-    element: <LiveMapPage />,
-    errorElement: <ErrorBoundary />
-  },
-  {
-    path: '/routes/:routeId',
-    element: <LiveMapPage />,
-    errorElement: <ErrorBoundary />
-  },
-  {
-    path: '/districts/:districtId/routes/:routeId',
-    element: <LiveMapPage />,
-    errorElement: <ErrorBoundary />
-  },
-  {
-    path: '/login',
-    element: <LoginPage />,
-    errorElement: <ErrorBoundary />
-  },
-  {
-    path: '/signup',
-    element: <SignupPage />,
-    errorElement: <ErrorBoundary />
-  },
-  {
-    element: <RootLayout />,
+    element: <AppShell />,
     errorElement: <ErrorBoundary />,
     children: [
       {
-        path: '/districts',
-        element: <DistrictSelectionPage />
+        path: '/',
+        element: <LandingPage />
       },
       {
-        path: '/districts/:districtId/routes',
-        element: <RouteSelectionPage />
+        path: '/dashboard',
+        element: <DashboardPage />
       },
       {
-        path: '/routes',
-        element: <RouteSelectionPage />
+        path: '/map',
+        element: <LiveMapPage />
       },
       {
-        path: '/live-tracking-preview',
-        element: <LiveTrackingPlaceholder />
+        path: '/routes/:routeId',
+        element: <LiveMapPage />
       },
       {
-        path: '/onboarding',
-        element: <OnboardingPage />
+        path: '/districts/:districtId/routes/:routeId',
+        element: <LiveMapPage />
       },
       {
-        path: '/dev',
-        element: <DevShell />
+        path: '/login',
+        element: <LoginPage />
       },
       {
-        path: '*',
-        element: <NotFound />
+        path: '/signup',
+        element: <SignupPage />
+      },
+      {
+        element: <RootLayout />,
+        children: [
+          {
+            path: '/districts',
+            element: <DistrictSelectionPage />
+          },
+          {
+            path: '/districts/:districtId/routes',
+            element: <RouteSelectionPage />
+          },
+          {
+            path: '/routes',
+            element: <RouteSelectionPage />
+          },
+          {
+            path: '/live-tracking-preview',
+            element: <LiveTrackingPlaceholder />
+          },
+          {
+            path: '/onboarding',
+            element: <OnboardingPage />
+          },
+          {
+            path: '/dev',
+            element: <DevShell />
+          },
+          {
+            path: '*',
+            element: <NotFound />
+          }
+        ]
       }
     ]
   }

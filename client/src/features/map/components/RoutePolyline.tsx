@@ -21,25 +21,25 @@ export const RoutePolyline: React.FC<RoutePolylineProps> = ({
 
   return (
     <>
-      {/* Outer casing shadow for map contrast */}
+      {/* Outer casing shadow for map contrast in pure black */}
       <Polyline
         positions={coordinates}
         pathOptions={{
-          color: '#071F21',
+          color: '#0A0A0A',
           weight: 7,
-          opacity: 0.25,
+          opacity: 0.7,
           lineCap: 'round',
           lineJoin: 'round'
         }}
       />
 
-      {/* Main route stroke in brand primary teal */}
+      {/* Main route stroke in high-visibility vibrant electric yellow */}
       <Polyline
         positions={coordinates}
         pathOptions={{
-          color: hasVerifiedGeometry ? '#1D7772' : '#67958C',
+          color: hasVerifiedGeometry ? '#FACC15' : '#EAB308',
           weight: 4.5,
-          opacity: 0.9,
+          opacity: 1,
           dashArray: hasVerifiedGeometry ? undefined : '6, 8',
           lineCap: 'round',
           lineJoin: 'round'
