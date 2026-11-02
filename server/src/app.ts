@@ -108,6 +108,15 @@ export function createApp(): Application {
       }
     })
   );
+  app.use(
+    express.text({
+      limit: '1mb',
+      type: ['text/*', 'application/csv'],
+      verify: (req, _res, buf) => {
+        (req as any).rawBody = buf;
+      }
+    })
+  );
   app.use(express.urlencoded({ extended: true, limit: '1mb' }));
   app.use(cookieParser());
 

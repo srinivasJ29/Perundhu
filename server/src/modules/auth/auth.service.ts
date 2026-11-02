@@ -117,7 +117,13 @@ const DUMMY_ARGON2_HASH =
       sub: user._id.toString(),
       email: user.email,
       role: user.role,
-      sessionId
+      sessionId,
+      organizationId: user.organizationId?.toString(),
+      divisionId: user.divisionId?.toString(),
+      depotId: user.depotId?.toString(),
+      workshopId: user.workshopId?.toString(),
+      crewMemberId: user.crewMemberId?.toString(),
+      badgeNumber: user.badgeNumber
     });
 
     logger.info({ userId: user._id, sessionId }, 'User logged in successfully');
@@ -244,7 +250,13 @@ const DUMMY_ARGON2_HASH =
       sub: user._id.toString(),
       email: user.email,
       role: user.role,
-      sessionId: newSessionId
+      sessionId: newSessionId,
+      organizationId: user.organizationId?.toString(),
+      divisionId: user.divisionId?.toString(),
+      depotId: user.depotId?.toString(),
+      workshopId: user.workshopId?.toString(),
+      crewMemberId: user.crewMemberId?.toString(),
+      badgeNumber: user.badgeNumber
     });
 
     logger.debug({ userId: user._id, newSessionId }, 'Refresh token rotated successfully');

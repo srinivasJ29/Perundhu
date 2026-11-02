@@ -12,6 +12,7 @@ import {
   TripEtaResponseDto
 } from './eta.types';
 import { NextStopService, nextStopService } from './nextStop.service';
+import { mlEtaService, MlEtaService } from './mlEta.service';
 
 export interface EtaServiceOptions {
   maxPositionAgeMs?: number;
@@ -29,11 +30,25 @@ export class EtaService {
   private defaultSpeedKmph: number;
   private defaultDwellSeconds: number;
   private clock: () => number;
+  private readonly nextStopDetector: NextStopService;
+  private readonly mlPredictor: MlEtaService;
 
   constructor(
-    private readonly nextStopDetector: NextStopService = nextStopService,
-    options?: EtaServiceOptions
+    nextStopDetector?: NextStopService,
+    optionsOrMlPredictor?: EtaServiceOptions | MlEtaService,
+    maybeOptions?: EtaServiceOptions
   ) {
+    this.nextStopDetector = nextStopDetector ?? nextStopService;
+
+    let options: EtaServiceOptions | undefined;
+    if (optionsOrMlPredictor && typeof (optionsOrMlPredictor as any).predict === 'function') {
+      this.mlPredictor = optionsOrMlPredictor as MlEtaService;
+      options = maybeOptions;
+    } else {
+      this.mlPredictor = mlEtaService;
+      options = optionsOrMlPredictor as EtaServiceOptions | undefined;
+    }
+
     this.maxPositionAgeMs =
       options?.maxPositionAgeMs ?? env.ETA_MAX_POSITION_AGE_MS;
     this.minEffectiveSpeedKmph =
@@ -115,6 +130,7 @@ export class EtaService {
         isRealTimePrediction: false,
         predictionSource: 'UNAVAILABLE',
         confidence: 0,
+        modelVersion: 'v1.0',
         generatedAt,
         downstreamStops: []
       };
@@ -151,6 +167,7 @@ export class EtaService {
         isRealTimePrediction: false,
         predictionSource: 'UNAVAILABLE',
         confidence: 0,
+        modelVersion: 'v1.0',
         generatedAt,
         downstreamStops: []
       };
@@ -168,38 +185,31 @@ export class EtaService {
       : Infinity;
     const isPositionFresh = positionAgeMs <= this.maxPositionAgeMs;
 
-    // Determine prediction source and truthfulness
-    let predictionSource: EtaPredictionSource;
-    let isRealTimePrediction = false;
+    // Determine baseline status and speed
     let trackingStatus = latestPosition?.trackingStatus ?? 'UNAVAILABLE';
     let source = latestPosition?.source ?? 'SIMULATOR';
     let confidence = 0.5;
+    let predictionSource: EtaPredictionSource;
+    let isRealTimePrediction = false;
 
     if (!latestPosition || !isPositionFresh) {
-      // Stale or missing telemetry: Fallback to scheduled timetable
       predictionSource = 'SCHEDULE_FALLBACK';
       isRealTimePrediction = false;
       confidence = 0.45;
     } else if (latestPosition.source === 'SIMULATOR') {
-      // Truthfulness: Simulated telemetry is NEVER labeled as LIVE real-time
       predictionSource = 'SIMULATED_MOVEMENT';
       isRealTimePrediction = false;
       confidence = 0.75;
     } else {
-      // Real physical GPS telemetry
       predictionSource = 'LIVE_MOVEMENT';
       isRealTimePrediction = true;
       confidence = 0.9;
     }
 
-    // 4. Calculate effective speed
     let effectiveSpeedKmph = this.defaultSpeedKmph;
-
     if (latestPosition && isPositionFresh) {
       const rollingSpeed = await this.getRollingAverageSpeedKmph(latestPosition.busId);
       const currentSpeed = latestPosition.speedKmph;
-
-      // Use rolling average if available, else current observed speed
       const candidateSpeed = rollingSpeed ?? currentSpeed;
 
       if (candidateSpeed > 5) {
@@ -207,20 +217,16 @@ export class EtaService {
           this.maxEffectiveSpeedKmph,
           Math.max(this.minEffectiveSpeedKmph, candidateSpeed)
         );
-      } else {
-        // Vehicle is dwelling at stop or stationary in traffic: use default transit speed
-        effectiveSpeedKmph = this.defaultSpeedKmph;
       }
     }
 
     const effectiveSpeedMetersPerSec = (effectiveSpeedKmph * 1000) / 3600;
 
-    // 5. Determine starting point along route
+    // 4. Determine starting point along route
     const busProgressMeters = latestPosition?.distanceAlongRouteMeters ?? 0;
     const isDwellingAtStop = nextStopDetection?.status === 'ARRIVED';
 
     // Filter to upcoming downstream stops (stops ahead of the bus)
-    // Find index of next stop in orderedStops
     let nextStopIndex = 0;
     if (nextStopDetection?.nextStop) {
       const foundIdx = orderedStops.findIndex(
@@ -239,9 +245,8 @@ export class EtaService {
     }
 
     const downstreamStopItems = orderedStops.slice(nextStopIndex);
-
-    // 6. Cumulative ETA calculation for all downstream stops
     const downstreamPredictions: StopEtaPrediction[] = [];
+
     let cumulativeEtaSeconds = 0;
     let prevStopDistance = busProgressMeters;
 
@@ -253,11 +258,8 @@ export class EtaService {
     for (let i = 0; i < downstreamStopItems.length; i++) {
       const stop = downstreamStopItems[i];
       const stopDistance = stop.distanceFromOriginMeters;
-
-      // Distance from bus to this stop
       const remainingDistanceMeters = Math.max(0, stopDistance - busProgressMeters);
 
-      // Distance segment from previous stop (or from bus for the first downstream stop)
       const segmentDistance = Math.max(0, stopDistance - prevStopDistance);
       const transitTimeSeconds =
         effectiveSpeedMetersPerSec > 0
@@ -266,16 +268,54 @@ export class EtaService {
 
       cumulativeEtaSeconds += transitTimeSeconds;
 
-      // Add intermediate dwell time for subsequent stops
       if (i > 0) {
         cumulativeEtaSeconds += this.defaultDwellSeconds;
       }
 
-      const etaSeconds = Math.max(0, cumulativeEtaSeconds);
-      const etaMinutes = Math.round((etaSeconds / 60) * 10) / 10;
-      const estimatedArrivalAt = new Date(nowMs + etaSeconds * 1000).toISOString();
+      let stopEtaSeconds = Math.max(0, cumulativeEtaSeconds);
+      let stopEtaMinutes = Math.round((stopEtaSeconds / 60) * 10) / 10;
+      let stopConfidence = confidence;
+      let stopPredSource: EtaPredictionSource = predictionSource;
+      let confInterval: [number, number] | undefined = undefined;
+      let fallbackReason: string | undefined = undefined;
 
-      prevStopDistance = stopDistance;
+      // If we have live movement with physical GPS, invoke ML prediction service
+      if (predictionSource === 'LIVE_MOVEMENT' && this.mlPredictor) {
+        try {
+          const mlRes = await this.mlPredictor.predict({
+            bus_id: trip.busId?.toString() || trip._id.toString(),
+            route_id: trip.routeDirectionId?.toString(),
+            route_number: routeNumber,
+            target_stop_code: stop.code,
+            distance_to_stop_meters: remainingDistanceMeters,
+            distance_along_route_meters: busProgressMeters,
+            current_speed_kmph: latestPosition?.speedKmph ?? 0,
+            rolling_speed_kmph: effectiveSpeedKmph,
+            heading: latestPosition?.heading ?? 0,
+            stops_remaining: i + 1,
+            segment_index: nextStopIndex + i,
+            scheduled_duration_seconds: stopEtaSeconds,
+            recorded_at: latestPosition?.recordedAt?.toISOString(),
+            is_deviated: latestPosition?.trackingStatus === 'DEVIATED',
+            tracking_status: latestPosition?.trackingStatus ?? 'UNAVAILABLE'
+          });
+
+          if (mlRes.prediction_source === 'ML_PREDICTION') {
+            stopPredSource = 'ML_PREDICTION';
+            stopEtaSeconds = Math.round(mlRes.predicted_seconds);
+            stopEtaMinutes = mlRes.predicted_minutes;
+            stopConfidence = mlRes.confidence;
+            confInterval = [mlRes.confidence_lower_seconds, mlRes.confidence_upper_seconds];
+          } else {
+            confInterval = [Math.round(stopEtaSeconds * 0.8), Math.round(stopEtaSeconds * 1.25)];
+            fallbackReason = mlRes.fallback_reason;
+          }
+        } catch {
+          // Keep physics-based live movement estimate
+        }
+      }
+
+      const estimatedArrivalAt = new Date(nowMs + stopEtaSeconds * 1000).toISOString();
 
       downstreamPredictions.push({
         stopId: stop.id,
@@ -285,19 +325,25 @@ export class EtaService {
         stopSequence: stop.sequence,
         location: stop.location,
         estimatedArrivalAt,
-        etaSeconds,
-        etaMinutes,
+        etaSeconds: stopEtaSeconds,
+        etaMinutes: stopEtaMinutes,
         remainingDistanceMeters: Math.round(remainingDistanceMeters),
         effectiveSpeedKmph,
         scheduledArrival: stop.scheduledArrival,
         scheduledDeparture: stop.scheduledDeparture,
-        predictionSource,
+        predictionSource: stopPredSource,
         isRealTimePrediction,
-        confidence
+        confidence: stopConfidence,
+        confidenceIntervalSeconds: confInterval,
+        fallbackReason
       });
+
+      prevStopDistance = stopDistance;
     }
 
     const nextStopPrediction = downstreamPredictions.length > 0 ? downstreamPredictions[0] : undefined;
+    const overallSource = nextStopPrediction?.predictionSource ?? predictionSource;
+    const overallConfidence = nextStopPrediction?.confidence ?? confidence;
 
     return {
       tripId: trip._id.toString(),
@@ -308,8 +354,9 @@ export class EtaService {
       trackingStatus,
       source,
       isRealTimePrediction,
-      predictionSource,
-      confidence,
+      predictionSource: overallSource,
+      confidence: overallConfidence,
+      modelVersion: 'v1.0',
       generatedAt,
       nextStop: nextStopPrediction,
       downstreamStops: downstreamPredictions

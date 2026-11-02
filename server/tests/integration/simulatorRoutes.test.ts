@@ -139,6 +139,9 @@ describe('Admin Simulator Operations & RBAC (Integration)', () => {
       };
 
       vi.spyOn(Bus, 'find').mockReturnValue({
+        limit: vi.fn().mockReturnValue({
+          lean: vi.fn().mockResolvedValue([mockBus])
+        }),
         lean: vi.fn().mockResolvedValue([mockBus])
       } as any);
 
@@ -168,6 +171,9 @@ describe('Admin Simulator Operations & RBAC (Integration)', () => {
     it('should exclude buses in MAINTENANCE or OFFLINE state from simulation', async () => {
       // Return empty because query filters status: 'IN_SERVICE'
       vi.spyOn(Bus, 'find').mockReturnValue({
+        limit: vi.fn().mockReturnValue({
+          lean: vi.fn().mockResolvedValue([])
+        }),
         lean: vi.fn().mockResolvedValue([])
       } as any);
 

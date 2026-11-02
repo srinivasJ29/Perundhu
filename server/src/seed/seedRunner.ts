@@ -11,7 +11,8 @@ import {
   Bus,
   ScheduledTrip,
   TripStopTime,
-  User
+  User,
+  ServiceAlert
 } from '../models';
 import { hashPassword } from '../modules/auth/auth.tokens';
 import {
@@ -23,7 +24,8 @@ import {
   seedStopSequences,
   seedBuses,
   seedTrips,
-  seedTripStopTimes
+  seedTripStopTimes,
+  seedServiceAlerts
 } from './maduraiSeedData';
 
 export interface SeedResultItem {
@@ -338,19 +340,24 @@ export async function runSeed(options: { dryRun?: boolean; uri?: string } = {}):
         isActive: true
       };
 
-      const existing = await Bus.findOne({ registrationNumber: b.registrationNumber });
+      const existing = await Bus.findOne({
+        $or: [{ registrationNumber: b.registrationNumber }, { fleetNumber: b.fleetNumber }]
+      });
       if (isDryRun) {
         if (!existing) busStats.inserted++;
         else busStats.skipped++;
         busMap.set(b.registrationNumber, existing ? existing._id : new Types.ObjectId());
       } else {
-        const res = await Bus.updateOne({ registrationNumber: b.registrationNumber }, { $set: payload }, { upsert: true });
-        if (res.upsertedCount > 0) busStats.inserted++;
-        else if (res.modifiedCount > 0) busStats.updated++;
-        else busStats.skipped++;
-
-        const saved = await Bus.findOne({ registrationNumber: b.registrationNumber });
-        if (saved) busMap.set(b.registrationNumber, saved._id);
+        if (existing) {
+          const res = await Bus.updateOne({ _id: existing._id }, { $set: payload });
+          if (res.modifiedCount > 0) busStats.updated++;
+          else busStats.skipped++;
+          busMap.set(b.registrationNumber, existing._id);
+        } else {
+          const created = await Bus.create(payload);
+          busStats.inserted++;
+          busMap.set(b.registrationNumber, created._id);
+        }
       }
     }
     report.summary['buses'] = busStats;
@@ -391,7 +398,12 @@ export async function runSeed(options: { dryRun?: boolean; uri?: string } = {}):
         else tripStats.skipped++;
 
         const saved = await ScheduledTrip.findOne({ tripCode: t.tripCode });
-        if (saved) tripMap.set(t.tripCode, saved._id);
+        if (saved) {
+          tripMap.set(t.tripCode, saved._id);
+          if (busId) {
+            await Bus.updateOne({ _id: busId }, { $set: { currentAssignedTripId: saved._id } });
+          }
+        }
       }
     }
     report.summary['scheduled_trips'] = tripStats;
@@ -486,6 +498,46 @@ export async function runSeed(options: { dryRun?: boolean; uri?: string } = {}):
       }
     }
     report.summary['users'] = userStats;
+
+    // ---------------------------------------------------------------------------
+    // 11. Verified Pilot Service Alerts
+    // ---------------------------------------------------------------------------
+    const alertStats = initItem('service_alerts', seedServiceAlerts.length);
+    for (const a of seedServiceAlerts) {
+      const payload = {
+        titleEn: a.titleEn,
+        titleTa: a.titleTa,
+        descriptionEn: a.descriptionEn,
+        descriptionTa: a.descriptionTa,
+        alertType: a.alertType,
+        severity: a.severity,
+        districtCode: a.districtCode,
+        affectedRouteNumbers: a.affectedRouteNumbers,
+        affectedStandCodes: a.affectedStandCodes || [],
+        effectiveFrom: a.effectiveFrom,
+        effectiveUntil: a.effectiveUntil,
+        isActive: true,
+        sourceOrganization: a.sourceOrganization,
+        sourceUrl: a.sourceUrl,
+        verifiedAt: new Date()
+      };
+
+      const existing = await ServiceAlert.findOne({ titleEn: a.titleEn });
+      if (isDryRun) {
+        if (!existing) alertStats.inserted++;
+        else alertStats.skipped++;
+      } else {
+        const res = await ServiceAlert.updateOne(
+          { titleEn: a.titleEn },
+          { $set: payload },
+          { upsert: true }
+        );
+        if (res.upsertedCount > 0) alertStats.inserted++;
+        else if (res.modifiedCount > 0) alertStats.updated++;
+        else alertStats.skipped++;
+      }
+    }
+    report.summary['service_alerts'] = alertStats;
 
     logger.info('--- Seed Execution Summary ---');
     for (const [col, stats] of Object.entries(report.summary)) {

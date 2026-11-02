@@ -3,7 +3,7 @@ import request from 'supertest';
 import crypto from 'crypto';
 import { Types } from 'mongoose';
 import { app } from '../../src/app';
-import { Bus } from '../../src/models';
+import { Bus, DeviceRegistry } from '../../src/models';
 import { env } from '../../src/config/env';
 import { locationRepository } from '../../src/modules/location/location.repository';
 import { clearNonceCacheForTesting } from '../../src/modules/location/ingestion.middleware';
@@ -17,6 +17,13 @@ describe('Phase 10 — External GPS Ingestion Endpoint & HMAC Integrity (Integra
     vi.restoreAllMocks();
     clearNonceCacheForTesting();
     (env as any).GPS_INGESTION_HMAC_SECRET = testSecret;
+
+    // Mock DeviceRegistry lookups
+    vi.spyOn(DeviceRegistry, 'findOne').mockReturnValue({
+      lean: vi.fn().mockResolvedValue(null)
+    } as any);
+    vi.spyOn(DeviceRegistry, 'findOneAndUpdate').mockResolvedValue(null as any);
+    vi.spyOn(DeviceRegistry, 'updateOne').mockResolvedValue({} as any);
 
     // Mock Bus lookup
     vi.spyOn(Bus, 'findById').mockReturnValue({

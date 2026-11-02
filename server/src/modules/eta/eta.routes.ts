@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { validate } from '../../common/validation';
 import { etaController } from './eta.controller';
-import { tripIdParamSchema, busIdParamSchema } from './eta.validation';
+import { tripIdParamSchema, busIdParamSchema, predictEtaSchema } from './eta.validation';
 
 const router = Router();
 
@@ -25,6 +25,21 @@ router.get(
   '/buses/:busId/eta',
   validate({ params: busIdParamSchema }),
   (req, res, next) => etaController.getBusEta(req, res, next)
+);
+
+// -----------------------------------------------------------------------------
+// Phase 9: AI/ML Bus Arrival Time Prediction (ETA) Endpoints
+// -----------------------------------------------------------------------------
+
+router.post(
+  '/eta/predict',
+  validate({ body: predictEtaSchema }),
+  (req, res, next) => etaController.predictEta(req, res, next)
+);
+
+router.get(
+  '/eta/model-info',
+  (req, res, next) => etaController.getModelInfo(req, res, next)
 );
 
 export const etaRoutes = router;

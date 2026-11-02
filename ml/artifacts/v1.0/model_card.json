@@ -1,0 +1,53 @@
+{
+  "model_details": {
+    "name": "PERUNDHU Madurai Pilot Corridor ETA Predictor",
+    "version": "v1.0",
+    "architecture": "XGBoostRegressor",
+    "license": "Proprietary - Government of Tamil Nadu (TNSTC)",
+    "developers": "PERUNDHU Architecture & AI/ML Engineering Team"
+  },
+  "intended_use": {
+    "primary_intended_uses": "Real-time estimated arrival time (ETA) prediction for passenger bus tracking in Madurai pilot corridors (Routes 70, 77).",
+    "primary_intended_users": "PERUNDHU passenger tracking application and TNSTC transit dispatchers.",
+    "out_of_scope_uses": "Not intended for emergency response routing, traffic signal preemption, or statewide non-surveyed corridors without validation."
+  },
+  "factors": {
+    "corridors": [
+      "Route 70: Periyar \u21c4 Mattuthavani",
+      "Route 77: Arappalayam \u21c4 Mattuthavani"
+    ],
+    "temporal_factors": [
+      "Hour of day (cyclical)",
+      "Day of week",
+      "Peak traffic hours"
+    ],
+    "telemetry_factors": [
+      "Distance to downstream stop",
+      "Distance along corridor",
+      "Current speed",
+      "Rolling speed"
+    ]
+  },
+  "metrics": {
+    "mae_seconds": 133.94,
+    "mae_minutes": 2.23,
+    "rmse_seconds": 191.0,
+    "rmse_minutes": 3.18,
+    "median_ae_seconds": 90.69,
+    "within_1min_pct": 39.03,
+    "within_2min_pct": 58.6,
+    "within_5min_pct": 88.87
+  },
+  "baseline_comparison": {
+    "baseline_type": "Corridor Physics & Time-of-Day Segment Average",
+    "baseline_mae": 163.15,
+    "ml_mae": 133.94,
+    "improvement_pct": 17.9
+  },
+  "data_readiness_and_limitations": {
+    "readiness_status": "BENCHMARK_CORRIDOR_VERIFIED",
+    "provenance": "VERIFIED_AUTHORIZED_FEED_MADURAI_CORRIDOR",
+    "hardware_gap_disclosure": "Physical ETM/GPS units in production are undergoing staged hardware rollout. Continuous multi-month physical historical GPS is currently being accumulated. Production fallback to baseline model is active.",
+    "environmental_conditions": "Predictions degrade if bus deviates significantly (>150m) from route polyline or GPS telemetry exceeds 120s age."
+  }
+}

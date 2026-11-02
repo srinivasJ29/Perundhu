@@ -20,7 +20,8 @@ import {
   TimetableModalState
 } from '../types';
 import { RouteListItem } from '../../routes/types';
-import { BusStandDto } from '../../../types/domain';
+import { BusStandDto, ServiceAlertDto } from '../../../types/domain';
+import { alertsService } from '../../../services/api/alerts.service';
 
 export function useDashboardData() {
   const [searchParams] = useSearchParams();
@@ -100,6 +101,11 @@ export function useDashboardData() {
     error: null
   });
 
+  // 8. Service alerts state
+  const [alerts, setAlerts] = useState<ServiceAlertDto[]>([]);
+  const [isLoadingAlerts, setIsLoadingAlerts] = useState<boolean>(true);
+  const [alertsError, setAlertsError] = useState<string | null>(null);
+
   const isMountedRef = useRef(true);
   useEffect(() => {
     isMountedRef.current = true;
@@ -107,6 +113,32 @@ export function useDashboardData() {
       isMountedRef.current = false;
     };
   }, []);
+
+  const loadAlerts = useCallback(async () => {
+    setIsLoadingAlerts(true);
+    setAlertsError(null);
+    try {
+      const activeAlerts = await alertsService.getAlerts({
+        districtCode: district?.code || 'MDU'
+      });
+      if (isMountedRef.current) {
+        setAlerts(activeAlerts);
+        setIsLoadingAlerts(false);
+      }
+    } catch (err: unknown) {
+      if (isMountedRef.current) {
+        setAlerts([]);
+        setIsLoadingAlerts(false);
+        setAlertsError(
+          err instanceof Error ? err.message : 'Unable to query transit advisories'
+        );
+      }
+    }
+  }, [district?.code]);
+
+  useEffect(() => {
+    loadAlerts();
+  }, [loadAlerts]);
 
   // Resolve District Backend ID and available routes
   const loadDistrictAndRoutes = useCallback(async () => {
@@ -420,6 +452,10 @@ export function useDashboardData() {
     liveOverview,
     nearbyStands,
     timetableModal,
+    alerts,
+    isLoadingAlerts,
+    alertsError,
+    refreshAlerts: loadAlerts,
     handleRequestLocation,
     handleBrowseDistrictStands,
     handleOpenTimetable,

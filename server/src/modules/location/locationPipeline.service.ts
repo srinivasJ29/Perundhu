@@ -18,7 +18,11 @@ import {
   MovementProgressService,
   movementProgressService
 } from './movementProgress.service';
-import { LocationRepository, locationRepository } from './location.repository';
+import {
+  LocationRepository,
+  locationRepository,
+  SOURCE_PRIORITY_RANK
+} from './location.repository';
 import { realtimeTrackingService } from '../realtime/realtime.service';
 
 export interface PipelineOptions {
@@ -149,6 +153,61 @@ export class LocationPipelineService {
     const previousAccepted = await this.repository.getLatestPositionByBusId(
       observation.busId
     );
+
+    // Source Priority & Simulator Protection Guard (Task 5)
+    if (previousAccepted) {
+      // 1. Simulator Protection: Simulated observation can NEVER overwrite physical or authorized telemetry
+      if (observation.source === 'SIMULATOR' && previousAccepted.source !== 'SIMULATOR') {
+        logger.warn(
+          { busId: busIdStr, activeSource: previousAccepted.source },
+          'Simulator observation rejected: physical/authorized telemetry is active on this bus'
+        );
+        return {
+          accepted: false,
+          observation,
+          validationResult: {
+            status: 'REJECTED',
+            isValid: false,
+            errors: ['Physical telemetry is active; simulator updates rejected'],
+            warnings: validationResult.warnings,
+            errorCode: 'SIMULATOR_REJECTED_ACTIVE_PHYSICAL_GPS'
+          },
+          freshness: { classification: freshnessEval.classification, ageMs: freshnessEval.ageMs },
+          persistedLatest: false,
+          persistedHistory: false,
+          rejectionReason: 'Physical telemetry is active; simulator updates rejected'
+        };
+      }
+
+      // 2. Source Priority Hierarchy: Lower priority source cannot displace recent higher priority source
+      const incomingRank = SOURCE_PRIORITY_RANK[observation.source] ?? 0;
+      const existingRank = SOURCE_PRIORITY_RANK[previousAccepted.source] ?? 0;
+      if (incomingRank < existingRank) {
+        const existingAgeMs = observation.recordedAt.getTime() - previousAccepted.recordedAt.getTime();
+        const ACTIVE_SOURCE_WINDOW_MS = 10 * 60 * 1000;
+        if (existingAgeMs < ACTIVE_SOURCE_WINDOW_MS) {
+          logger.debug(
+            { busId: busIdStr, incomingSource: observation.source, activeSource: previousAccepted.source },
+            'Observation rejected by source priority: higher priority telemetry is active'
+          );
+          return {
+            accepted: false,
+            observation,
+            validationResult: {
+              status: 'REJECTED',
+              isValid: false,
+              errors: [`Higher-priority telemetry source '${previousAccepted.source}' is active`],
+              warnings: validationResult.warnings,
+              errorCode: 'SOURCE_PRIORITY_REJECTED'
+            },
+            freshness: { classification: freshnessEval.classification, ageMs: freshnessEval.ageMs },
+            persistedLatest: false,
+            persistedHistory: false,
+            rejectionReason: `Higher-priority telemetry source '${previousAccepted.source}' is active`
+          };
+        }
+      }
+    }
 
     // -------------------------------------------------------------------------
     // Stage 4: Geospatial Route Matching & Snapping

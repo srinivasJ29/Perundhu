@@ -1,0 +1,396 @@
+/**
+ * PERUNDHU (பேருந்து) — Phase 2 Management Feature Styles
+ * White Base Canvas, Shining Jet Black Typography & Electric Yellow Highlights
+ */
+
+.mgmt-page-container {
+  padding-top: var(--space-6);
+  padding-bottom: var(--space-12);
+  width: 100%;
+}
+
+.mgmt-header {
+  margin-bottom: var(--space-6);
+}
+
+.mgmt-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-bottom: var(--space-2);
+}
+
+.mgmt-title {
+  font-size: var(--font-size-3xl);
+  font-weight: 900;
+  margin: 0;
+}
+
+.mgmt-subtitle {
+  color: var(--color-black-600);
+  font-size: var(--font-size-base);
+  margin: 0;
+}
+
+/* Tab Navigation */
+.mgmt-nav-bar {
+  display: flex;
+  gap: var(--space-2);
+  border-bottom: 2px solid var(--color-cream-300);
+  margin-bottom: var(--space-6);
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.mgmt-nav-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-black-700);
+  text-decoration: none;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  border-bottom: 3px solid transparent;
+  transition: all var(--duration-fast) var(--ease-out);
+  white-space: nowrap;
+}
+
+.mgmt-nav-tab:hover {
+  color: var(--color-black-900);
+  background-color: var(--color-bg-subtle);
+}
+
+.mgmt-nav-tab.active {
+  color: var(--color-black-950);
+  border-bottom-color: var(--color-yellow-400);
+  background-color: var(--color-yellow-50);
+}
+
+/* Metric / Stats Grid */
+.mgmt-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.mgmt-stat-card {
+  background: var(--color-white);
+  border: 1px solid var(--color-cream-300);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4) var(--space-5);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform var(--duration-fast), box-shadow var(--duration-fast);
+}
+
+.mgmt-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(250, 204, 21, 0.15), var(--shadow-md);
+  border-color: var(--color-yellow-400);
+}
+
+.mgmt-stat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+}
+
+.mgmt-stat-label {
+  font-size: var(--font-size-xs);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-black-600);
+}
+
+.mgmt-stat-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-yellow-100);
+  color: var(--color-black-900);
+}
+
+.mgmt-stat-value {
+  font-size: var(--font-size-3xl);
+  font-weight: 900;
+  color: var(--color-black-950);
+  line-height: 1.1;
+  margin-bottom: var(--space-1);
+}
+
+.mgmt-stat-desc {
+  font-size: var(--font-size-xs);
+  color: var(--color-black-500);
+}
+
+/* Filter & Controls Bar */
+.mgmt-controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+  background: var(--color-bg-subtle);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-cream-300);
+}
+
+.mgmt-filter-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.mgmt-search-input {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-cream-300);
+  background: var(--color-white);
+  color: var(--color-black-900);
+  font-size: var(--font-size-sm);
+  min-width: 240px;
+}
+
+.mgmt-search-input:focus {
+  outline: none;
+  border-color: var(--color-yellow-500);
+  box-shadow: 0 0 0 2px var(--color-yellow-200);
+}
+
+.mgmt-select {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-cream-300);
+  background: var(--color-white);
+  color: var(--color-black-900);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.mgmt-select:focus {
+  outline: none;
+  border-color: var(--color-yellow-500);
+  box-shadow: 0 0 0 2px var(--color-yellow-200);
+}
+
+/* Tables */
+.mgmt-table-wrapper {
+  background: var(--color-white);
+  border: 1px solid var(--color-cream-300);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.mgmt-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: var(--font-size-sm);
+}
+
+.mgmt-table th {
+  background: var(--color-cream-100);
+  color: var(--color-black-800);
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.05em;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-cream-300);
+}
+
+.mgmt-table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-cream-200);
+  color: var(--color-black-800);
+  vertical-align: middle;
+}
+
+.mgmt-table tr:last-child td {
+  border-bottom: none;
+}
+
+.mgmt-table tr:hover td {
+  background-color: var(--color-yellow-50);
+}
+
+/* Status Badges / Pills */
+.mgmt-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.mgmt-pill-active,
+.mgmt-pill-ready,
+.mgmt-pill-completed,
+.mgmt-pill-approved {
+  background: #DCFCE7;
+  color: #166534;
+  border: 1px solid #86EFAC;
+}
+
+.mgmt-pill-inactive,
+.mgmt-pill-cancelled,
+.mgmt-pill-rejected {
+  background: #FEE2E2;
+  color: #991B1B;
+  border: 1px solid #FCA5A5;
+}
+
+.mgmt-pill-maintenance,
+.mgmt-pill-breakdown {
+  background: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FCD34D;
+}
+
+.mgmt-pill-transit,
+.mgmt-pill-requested {
+  background: #E0E7FF;
+  color: #3730A3;
+  border: 1px solid #A5B4FC;
+}
+
+.mgmt-pill-primary {
+  background: #FEF08A;
+  color: #854D0E;
+  border: 1px solid #FACC15;
+}
+
+.mgmt-pill-secondary {
+  background: #F4F4F5;
+  color: #3F3F46;
+  border: 1px solid #D4D4D8;
+}
+
+.mgmt-pill-backup {
+  background: #F3E8FF;
+  color: #6B21A8;
+  border: 1px solid #D8B4FE;
+}
+
+/* Modals */
+.mgmt-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--space-4);
+}
+
+.mgmt-modal {
+  background: var(--color-white);
+  border-radius: var(--radius-2xl);
+  border: 2px solid var(--color-yellow-400);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.25);
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.mgmt-modal-header {
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-cream-300);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mgmt-modal-title {
+  font-size: var(--font-size-xl);
+  font-weight: 900;
+  margin: 0;
+}
+
+.mgmt-modal-body {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.mgmt-modal-footer {
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--color-cream-300);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  background: var(--color-bg-subtle);
+  border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
+}
+
+.mgmt-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.mgmt-form-label {
+  font-size: var(--font-size-xs);
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--color-black-800);
+}
+
+.mgmt-form-input,
+.mgmt-form-textarea {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-cream-300);
+  background: var(--color-white);
+  color: var(--color-black-900);
+  font-size: var(--font-size-sm);
+}
+
+.mgmt-form-input:focus,
+.mgmt-form-textarea:focus {
+  outline: none;
+  border-color: var(--color-yellow-500);
+  box-shadow: 0 0 0 2px var(--color-yellow-200);
+}
+
+.mgmt-empty-state {
+  padding: var(--space-10) var(--space-4);
+  text-align: center;
+  color: var(--color-black-600);
+}
+
+.mgmt-empty-icon {
+  margin: 0 auto var(--space-3) auto;
+  color: var(--color-yellow-500);
+}
+

@@ -23,6 +23,11 @@ export interface LocationObservation {
   heading: number; // 0 - 360 degrees
   speedKmph: number;
   accuracyMeters: number;
+  satellitesCount?: number;
+  altitudeMeters?: number;
+  gpsFixStatus?: string;
+  batteryPercent?: number;
+  networkSignalDbm?: number;
   source: LocationSource;
   sourceDeviceId?: string;
   trackingStatus: TrackingStatus;

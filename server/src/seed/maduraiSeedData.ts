@@ -953,20 +953,79 @@ export const seedStopSequences: SeedStopSequence[] = [
 // 7. Buses (Fleet Assets Across Depots)
 // -----------------------------------------------------------------------------
 export const seedBuses: SeedBus[] = [
+  // Route 77 Fleet (Mattuthavani <-> Thirumangalam via Periyar) - 10 buses
   {
     registrationNumber: 'TN-58-N-2144',
     fleetNumber: 'MDU-MGR-084',
+    depotName: 'Madurai Central Depot',
+    vehicleType: 'DELUXE',
+    status: 'IN_SERVICE'
+  },
+  {
+    registrationNumber: 'TN-58-N-2150',
+    fleetNumber: 'MDU-MGR-085',
     depotName: 'Madurai Central Depot',
     vehicleType: 'ORDINARY_NON_AC',
     status: 'IN_SERVICE'
   },
   {
-    registrationNumber: 'TN-58-N-2311',
-    fleetNumber: 'MDU-MGR-092',
+    registrationNumber: 'TN-58-N-2158',
+    fleetNumber: 'MDU-MGR-086',
     depotName: 'Madurai Central Depot',
     vehicleType: 'DELUXE',
     status: 'IN_SERVICE'
   },
+  {
+    registrationNumber: 'TN-58-N-2165',
+    fleetNumber: 'MDU-TMG-021',
+    depotName: 'Thirumangalam Depot',
+    vehicleType: 'ORDINARY_NON_AC',
+    status: 'IN_SERVICE'
+  },
+  {
+    registrationNumber: 'TN-58-N-2172',
+    fleetNumber: 'MDU-TMG-022',
+    depotName: 'Thirumangalam Depot',
+    vehicleType: 'ULTRA_DELUXE',
+    status: 'IN_SERVICE'
+  },
+  {
+    registrationNumber: 'TN-58-N-2180',
+    fleetNumber: 'MDU-TMG-023',
+    depotName: 'Thirumangalam Depot',
+    vehicleType: 'ORDINARY_NON_AC',
+    status: 'IN_SERVICE'
+  },
+  {
+    registrationNumber: 'TN-58-N-2188',
+    fleetNumber: 'MDU-TMG-024',
+    depotName: 'Thirumangalam Depot',
+    vehicleType: 'DELUXE',
+    status: 'IN_SERVICE'
+  },
+  {
+    registrationNumber: 'TN-58-N-2195',
+    fleetNumber: 'MDU-MGR-087',
+    depotName: 'Madurai Central Depot',
+    vehicleType: 'ORDINARY_NON_AC',
+    status: 'IN_SERVICE'
+  },
+  {
+    registrationNumber: 'TN-58-N-2202',
+    fleetNumber: 'MDU-MGR-088',
+    depotName: 'Madurai Central Depot',
+    vehicleType: 'ULTRA_DELUXE',
+    status: 'IN_SERVICE'
+  },
+  {
+    registrationNumber: 'TN-58-N-2210',
+    fleetNumber: 'MDU-MGR-089',
+    depotName: 'Madurai Central Depot',
+    vehicleType: 'ORDINARY_NON_AC',
+    status: 'IN_SERVICE'
+  },
+
+  // Route 70 Fleet (Mattuthavani <-> Periyar) - 8 buses
   {
     registrationNumber: 'TN-58-N-1980',
     fleetNumber: 'MDU-PRY-045',
@@ -975,12 +1034,100 @@ export const seedBuses: SeedBus[] = [
     status: 'IN_SERVICE'
   },
   {
+    registrationNumber: 'TN-58-N-1988',
+    fleetNumber: 'MDU-PRY-046',
+    depotName: 'Periyar Depot',
+    vehicleType: 'DELUXE',
+    status: 'IN_SERVICE'
+  },
+  {
+    registrationNumber: 'TN-58-N-1995',
+    fleetNumber: 'MDU-MGR-090',
+    depotName: 'Madurai Central Depot',
+    vehicleType: 'ORDINARY_NON_AC',
+    status: 'IN_SERVICE'
+  },
+  {
+    registrationNumber: 'TN-58-N-2003',
+    fleetNumber: 'MDU-MGR-091',
+    depotName: 'Madurai Central Depot',
+    vehicleType: 'DELUXE',
+    status: 'IN_SERVICE'
+  },
+  {
+    registrationNumber: 'TN-58-N-2012',
+    fleetNumber: 'MDU-PRY-047',
+    depotName: 'Periyar Depot',
+    vehicleType: 'ORDINARY_NON_AC',
+    status: 'IN_SERVICE'
+  },
+  {
+    registrationNumber: 'TN-58-N-2020',
+    fleetNumber: 'MDU-PRY-048',
+    depotName: 'Periyar Depot',
+    vehicleType: 'DELUXE',
+    status: 'IN_SERVICE'
+  },
+  {
+    registrationNumber: 'TN-58-N-2028',
+    fleetNumber: 'MDU-MGR-092',
+    depotName: 'Madurai Central Depot',
+    vehicleType: 'ORDINARY_NON_AC',
+    status: 'IN_SERVICE'
+  },
+  {
+    registrationNumber: 'TN-58-N-2035',
+    fleetNumber: 'MDU-MGR-093',
+    depotName: 'Madurai Central Depot',
+    vehicleType: 'ORDINARY_NON_AC',
+    status: 'IN_SERVICE'
+  },
+
+  // Route 48P Fleet (Arappalayam <-> Thirumangalam) - 6 buses
+  {
     registrationNumber: 'TN-58-N-2450',
     fleetNumber: 'MDU-ARP-112',
     depotName: 'Arappalayam Depot',
     vehicleType: 'DELUXE',
     status: 'IN_SERVICE'
   },
+  {
+    registrationNumber: 'TN-58-N-2458',
+    fleetNumber: 'MDU-ARP-113',
+    depotName: 'Arappalayam Depot',
+    vehicleType: 'ORDINARY_NON_AC',
+    status: 'IN_SERVICE'
+  },
+  {
+    registrationNumber: 'TN-58-N-2465',
+    fleetNumber: 'MDU-TMG-025',
+    depotName: 'Thirumangalam Depot',
+    vehicleType: 'DELUXE',
+    status: 'IN_SERVICE'
+  },
+  {
+    registrationNumber: 'TN-58-N-2472',
+    fleetNumber: 'MDU-TMG-026',
+    depotName: 'Thirumangalam Depot',
+    vehicleType: 'ORDINARY_NON_AC',
+    status: 'IN_SERVICE'
+  },
+  {
+    registrationNumber: 'TN-58-N-2480',
+    fleetNumber: 'MDU-ARP-114',
+    depotName: 'Arappalayam Depot',
+    vehicleType: 'DELUXE',
+    status: 'IN_SERVICE'
+  },
+  {
+    registrationNumber: 'TN-58-N-2488',
+    fleetNumber: 'MDU-ARP-115',
+    depotName: 'Arappalayam Depot',
+    vehicleType: 'ORDINARY_NON_AC',
+    status: 'IN_SERVICE'
+  },
+
+  // Route 22P Fleet (Periyar <-> Thirunagar) - 4 buses
   {
     registrationNumber: 'TN-58-N-2512',
     fleetNumber: 'MDU-PRY-078',
@@ -989,12 +1136,44 @@ export const seedBuses: SeedBus[] = [
     status: 'IN_SERVICE'
   },
   {
+    registrationNumber: 'TN-58-N-2520',
+    fleetNumber: 'MDU-PRY-079',
+    depotName: 'Periyar Depot',
+    vehicleType: 'DELUXE',
+    status: 'IN_SERVICE'
+  },
+  {
+    registrationNumber: 'TN-58-N-2528',
+    fleetNumber: 'MDU-PRY-080',
+    depotName: 'Periyar Depot',
+    vehicleType: 'ORDINARY_NON_AC',
+    status: 'IN_SERVICE'
+  },
+  {
+    registrationNumber: 'TN-58-N-2535',
+    fleetNumber: 'MDU-PRY-081',
+    depotName: 'Periyar Depot',
+    vehicleType: 'DELUXE',
+    status: 'IN_SERVICE'
+  },
+
+  // Route 4A Fleet (Arappalayam <-> Anna Nagar) - 2 buses
+  {
     registrationNumber: 'TN-58-N-2601',
     fleetNumber: 'MDU-ARP-125',
     depotName: 'Arappalayam Depot',
     vehicleType: 'ORDINARY_NON_AC',
     status: 'IN_SERVICE'
   },
+  {
+    registrationNumber: 'TN-58-N-2608',
+    fleetNumber: 'MDU-ARP-126',
+    depotName: 'Arappalayam Depot',
+    vehicleType: 'DELUXE',
+    status: 'IN_SERVICE'
+  },
+
+  // Route 44 Fleet (Mattuthavani <-> AIIMS / Thoppur) - 2 buses
   {
     registrationNumber: 'TN-58-N-2788',
     fleetNumber: 'MDU-PRY-094',
@@ -1003,6 +1182,15 @@ export const seedBuses: SeedBus[] = [
     status: 'IN_SERVICE'
   },
   {
+    registrationNumber: 'TN-58-N-2795',
+    fleetNumber: 'MDU-PRY-095',
+    depotName: 'Periyar Depot',
+    vehicleType: 'ORDINARY_NON_AC',
+    status: 'IN_SERVICE'
+  },
+
+  // Route 10A Fleet (Periyar <-> Madurai Airport) - 2 buses
+  {
     registrationNumber: 'TN-58-N-2830',
     fleetNumber: 'MDU-AIR-015',
     depotName: 'Periyar Depot',
@@ -1010,39 +1198,127 @@ export const seedBuses: SeedBus[] = [
     status: 'IN_SERVICE'
   },
   {
+    registrationNumber: 'TN-58-N-2838',
+    fleetNumber: 'MDU-AIR-016',
+    depotName: 'Periyar Depot',
+    vehicleType: 'ULTRA_DELUXE',
+    status: 'IN_SERVICE'
+  },
+
+  // Route 2G Fleet (Periyar <-> Goripalayam) - 2 buses
+  {
     registrationNumber: 'TN-58-N-2915',
     fleetNumber: 'MDU-MGR-108',
     depotName: 'Madurai Central Depot',
     vehicleType: 'ORDINARY_NON_AC',
     status: 'IN_SERVICE'
+  },
+  {
+    registrationNumber: 'TN-58-N-2922',
+    fleetNumber: 'MDU-MGR-109',
+    depotName: 'Madurai Central Depot',
+    vehicleType: 'DELUXE',
+    status: 'IN_SERVICE'
   }
 ];
 
 // -----------------------------------------------------------------------------
-// 8. Scheduled Trips & Timetable (Every Route has an Active Scheduled Trip)
+// 8. Scheduled Trips & Timetable (Every Route has Multiple Active Trips)
 // -----------------------------------------------------------------------------
 export const seedTrips: SeedTrip[] = [
-  // Route 77
+  // Route 77 (10 Scheduled Trips - 5 OUTBOUND, 5 INBOUND)
+  {
+    tripCode: 'TRIP-77-OUT-0800',
+    routeNumber: '77',
+    directionCode: 'OUTBOUND',
+    busRegistrationNumber: 'TN-58-N-2144',
+    departureTime: '08:00',
+    arrivalTime: '08:55',
+    operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+  },
+  {
+    tripCode: 'TRIP-77-OUT-0815',
+    routeNumber: '77',
+    directionCode: 'OUTBOUND',
+    busRegistrationNumber: 'TN-58-N-2150',
+    departureTime: '08:15',
+    arrivalTime: '09:10',
+    operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+  },
   {
     tripCode: 'TRIP-77-OUT-0830',
     routeNumber: '77',
     directionCode: 'OUTBOUND',
-    busRegistrationNumber: 'TN-58-N-2144',
+    busRegistrationNumber: 'TN-58-N-2158',
     departureTime: '08:30',
     arrivalTime: '09:25',
     operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
   },
   {
-    tripCode: 'TRIP-77-IN-0945',
+    tripCode: 'TRIP-77-OUT-0845',
+    routeNumber: '77',
+    directionCode: 'OUTBOUND',
+    busRegistrationNumber: 'TN-58-N-2165',
+    departureTime: '08:45',
+    arrivalTime: '09:40',
+    operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+  },
+  {
+    tripCode: 'TRIP-77-OUT-0900',
+    routeNumber: '77',
+    directionCode: 'OUTBOUND',
+    busRegistrationNumber: 'TN-58-N-2172',
+    departureTime: '09:00',
+    arrivalTime: '09:55',
+    operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+  },
+  {
+    tripCode: 'TRIP-77-IN-0805',
     routeNumber: '77',
     directionCode: 'INBOUND',
-    busRegistrationNumber: 'TN-58-N-2144',
-    departureTime: '09:45',
-    arrivalTime: '10:40',
+    busRegistrationNumber: 'TN-58-N-2180',
+    departureTime: '08:05',
+    arrivalTime: '09:00',
+    operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+  },
+  {
+    tripCode: 'TRIP-77-IN-0820',
+    routeNumber: '77',
+    directionCode: 'INBOUND',
+    busRegistrationNumber: 'TN-58-N-2188',
+    departureTime: '08:20',
+    arrivalTime: '09:15',
+    operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+  },
+  {
+    tripCode: 'TRIP-77-IN-0835',
+    routeNumber: '77',
+    directionCode: 'INBOUND',
+    busRegistrationNumber: 'TN-58-N-2195',
+    departureTime: '08:35',
+    arrivalTime: '09:30',
+    operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+  },
+  {
+    tripCode: 'TRIP-77-IN-0850',
+    routeNumber: '77',
+    directionCode: 'INBOUND',
+    busRegistrationNumber: 'TN-58-N-2202',
+    departureTime: '08:50',
+    arrivalTime: '09:45',
+    operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+  },
+  {
+    tripCode: 'TRIP-77-IN-0905',
+    routeNumber: '77',
+    directionCode: 'INBOUND',
+    busRegistrationNumber: 'TN-58-N-2210',
+    departureTime: '09:05',
+    arrivalTime: '10:00',
     operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
   },
 
-  // Route 70
+  // Route 70 (8 Scheduled Trips - 4 OUTBOUND, 4 INBOUND)
   {
     tripCode: 'TRIP-70-OUT-0800',
     routeNumber: '70',
@@ -1053,56 +1329,164 @@ export const seedTrips: SeedTrip[] = [
     operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
   },
   {
-    tripCode: 'TRIP-70-IN-0845',
+    tripCode: 'TRIP-70-OUT-0815',
     routeNumber: '70',
-    directionCode: 'INBOUND',
-    busRegistrationNumber: 'TN-58-N-1980',
+    directionCode: 'OUTBOUND',
+    busRegistrationNumber: 'TN-58-N-1988',
+    departureTime: '08:15',
+    arrivalTime: '08:39',
+    operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+  },
+  {
+    tripCode: 'TRIP-70-OUT-0830',
+    routeNumber: '70',
+    directionCode: 'OUTBOUND',
+    busRegistrationNumber: 'TN-58-N-1995',
+    departureTime: '08:30',
+    arrivalTime: '08:54',
+    operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+  },
+  {
+    tripCode: 'TRIP-70-OUT-0845',
+    routeNumber: '70',
+    directionCode: 'OUTBOUND',
+    busRegistrationNumber: 'TN-58-N-2003',
     departureTime: '08:45',
     arrivalTime: '09:09',
     operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
   },
-
-  // Route 48P
   {
-    tripCode: 'TRIP-48P-OUT-0815',
+    tripCode: 'TRIP-70-IN-0810',
+    routeNumber: '70',
+    directionCode: 'INBOUND',
+    busRegistrationNumber: 'TN-58-N-2012',
+    departureTime: '08:10',
+    arrivalTime: '08:34',
+    operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+  },
+  {
+    tripCode: 'TRIP-70-IN-0825',
+    routeNumber: '70',
+    directionCode: 'INBOUND',
+    busRegistrationNumber: 'TN-58-N-2020',
+    departureTime: '08:25',
+    arrivalTime: '08:49',
+    operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+  },
+  {
+    tripCode: 'TRIP-70-IN-0840',
+    routeNumber: '70',
+    directionCode: 'INBOUND',
+    busRegistrationNumber: 'TN-58-N-2028',
+    departureTime: '08:40',
+    arrivalTime: '09:04',
+    operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+  },
+  {
+    tripCode: 'TRIP-70-IN-0855',
+    routeNumber: '70',
+    directionCode: 'INBOUND',
+    busRegistrationNumber: 'TN-58-N-2035',
+    departureTime: '08:55',
+    arrivalTime: '09:19',
+    operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+  },
+
+  // Route 48P (6 Scheduled Trips - 3 OUTBOUND, 3 INBOUND)
+  {
+    tripCode: 'TRIP-48P-OUT-0800',
     routeNumber: '48P',
     directionCode: 'OUTBOUND',
     busRegistrationNumber: 'TN-58-N-2450',
-    departureTime: '08:15',
-    arrivalTime: '09:07',
+    departureTime: '08:00',
+    arrivalTime: '08:52',
     operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
   },
   {
-    tripCode: 'TRIP-48P-IN-0930',
+    tripCode: 'TRIP-48P-OUT-0820',
+    routeNumber: '48P',
+    directionCode: 'OUTBOUND',
+    busRegistrationNumber: 'TN-58-N-2458',
+    departureTime: '08:20',
+    arrivalTime: '09:12',
+    operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+  },
+  {
+    tripCode: 'TRIP-48P-OUT-0840',
+    routeNumber: '48P',
+    directionCode: 'OUTBOUND',
+    busRegistrationNumber: 'TN-58-N-2465',
+    departureTime: '08:40',
+    arrivalTime: '09:32',
+    operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+  },
+  {
+    tripCode: 'TRIP-48P-IN-0810',
     routeNumber: '48P',
     directionCode: 'INBOUND',
-    busRegistrationNumber: 'TN-58-N-2450',
-    departureTime: '09:30',
-    arrivalTime: '10:22',
+    busRegistrationNumber: 'TN-58-N-2472',
+    departureTime: '08:10',
+    arrivalTime: '09:02',
+    operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+  },
+  {
+    tripCode: 'TRIP-48P-IN-0830',
+    routeNumber: '48P',
+    directionCode: 'INBOUND',
+    busRegistrationNumber: 'TN-58-N-2480',
+    departureTime: '08:30',
+    arrivalTime: '09:22',
+    operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+  },
+  {
+    tripCode: 'TRIP-48P-IN-0850',
+    routeNumber: '48P',
+    directionCode: 'INBOUND',
+    busRegistrationNumber: 'TN-58-N-2488',
+    departureTime: '08:50',
+    arrivalTime: '09:42',
     operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
   },
 
-  // Route 22P
+  // Route 22P (4 Scheduled Trips - 2 OUTBOUND, 2 INBOUND)
   {
-    tripCode: 'TRIP-22P-OUT-0820',
+    tripCode: 'TRIP-22P-OUT-0810',
     routeNumber: '22P',
     directionCode: 'OUTBOUND',
     busRegistrationNumber: 'TN-58-N-2512',
+    departureTime: '08:10',
+    arrivalTime: '08:36',
+    operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+  },
+  {
+    tripCode: 'TRIP-22P-OUT-0835',
+    routeNumber: '22P',
+    directionCode: 'OUTBOUND',
+    busRegistrationNumber: 'TN-58-N-2520',
+    departureTime: '08:35',
+    arrivalTime: '09:01',
+    operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+  },
+  {
+    tripCode: 'TRIP-22P-IN-0820',
+    routeNumber: '22P',
+    directionCode: 'INBOUND',
+    busRegistrationNumber: 'TN-58-N-2528',
     departureTime: '08:20',
     arrivalTime: '08:46',
     operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
   },
   {
-    tripCode: 'TRIP-22P-IN-0900',
+    tripCode: 'TRIP-22P-IN-0845',
     routeNumber: '22P',
     directionCode: 'INBOUND',
-    busRegistrationNumber: 'TN-58-N-2512',
-    departureTime: '09:00',
-    arrivalTime: '09:26',
+    busRegistrationNumber: 'TN-58-N-2535',
+    departureTime: '08:45',
+    arrivalTime: '09:11',
     operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
   },
 
-  // Route 4A
+  // Route 4A (2 Scheduled Trips - 1 OUTBOUND, 1 INBOUND)
   {
     tripCode: 'TRIP-4A-OUT-0810',
     routeNumber: '4A',
@@ -1113,16 +1497,16 @@ export const seedTrips: SeedTrip[] = [
     operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
   },
   {
-    tripCode: 'TRIP-4A-IN-0850',
+    tripCode: 'TRIP-4A-IN-0845',
     routeNumber: '4A',
     directionCode: 'INBOUND',
-    busRegistrationNumber: 'TN-58-N-2601',
-    departureTime: '08:50',
-    arrivalTime: '09:18',
+    busRegistrationNumber: 'TN-58-N-2608',
+    departureTime: '08:45',
+    arrivalTime: '09:13',
     operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
   },
 
-  // Route 44
+  // Route 44 (2 Scheduled Trips - 1 OUTBOUND, 1 INBOUND)
   {
     tripCode: 'TRIP-44-OUT-0745',
     routeNumber: '44',
@@ -1133,16 +1517,16 @@ export const seedTrips: SeedTrip[] = [
     operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
   },
   {
-    tripCode: 'TRIP-44-IN-0900',
+    tripCode: 'TRIP-44-IN-0845',
     routeNumber: '44',
     directionCode: 'INBOUND',
-    busRegistrationNumber: 'TN-58-N-2788',
-    departureTime: '09:00',
-    arrivalTime: '09:48',
+    busRegistrationNumber: 'TN-58-N-2795',
+    departureTime: '08:45',
+    arrivalTime: '09:33',
     operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
   },
 
-  // Route 10A
+  // Route 10A (2 Scheduled Trips - 1 OUTBOUND, 1 INBOUND)
   {
     tripCode: 'TRIP-10A-OUT-0805',
     routeNumber: '10A',
@@ -1156,13 +1540,13 @@ export const seedTrips: SeedTrip[] = [
     tripCode: 'TRIP-10A-IN-0915',
     routeNumber: '10A',
     directionCode: 'INBOUND',
-    busRegistrationNumber: 'TN-58-N-2830',
+    busRegistrationNumber: 'TN-58-N-2838',
     departureTime: '09:15',
     arrivalTime: '09:45',
     operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
   },
 
-  // Route 2G
+  // Route 2G (2 Scheduled Trips - 1 OUTBOUND, 1 INBOUND)
   {
     tripCode: 'TRIP-2G-OUT-0825',
     routeNumber: '2G',
@@ -1176,7 +1560,7 @@ export const seedTrips: SeedTrip[] = [
     tripCode: 'TRIP-2G-IN-0905',
     routeNumber: '2G',
     directionCode: 'INBOUND',
-    busRegistrationNumber: 'TN-58-N-2915',
+    busRegistrationNumber: 'TN-58-N-2922',
     departureTime: '09:05',
     arrivalTime: '09:25',
     operationalDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
@@ -1220,11 +1604,11 @@ export const seedTripStopTimes: SeedTripStopTime[] = [
     };
   }),
 
-  // TRIP-48P-OUT-0815
+  // TRIP-48P-OUT-0820
   ...r48PStops.map((item, idx) => {
-    const arrTime = addMinutesToHHMM('08:15', item.mins);
+    const arrTime = addMinutesToHHMM('08:20', item.mins);
     return {
-      tripCode: 'TRIP-48P-OUT-0815',
+      tripCode: 'TRIP-48P-OUT-0820',
       stopCode: item.code,
       stopSequence: idx + 1,
       scheduledArrivalTime: arrTime,
@@ -1232,11 +1616,11 @@ export const seedTripStopTimes: SeedTripStopTime[] = [
     };
   }),
 
-  // TRIP-22P-OUT-0820
+  // TRIP-22P-OUT-0810
   ...r22PStops.map((item, idx) => {
-    const arrTime = addMinutesToHHMM('08:20', item.mins);
+    const arrTime = addMinutesToHHMM('08:10', item.mins);
     return {
-      tripCode: 'TRIP-22P-OUT-0820',
+      tripCode: 'TRIP-22P-OUT-0810',
       stopCode: item.code,
       stopSequence: idx + 1,
       scheduledArrivalTime: arrTime,
@@ -1291,4 +1675,56 @@ export const seedTripStopTimes: SeedTripStopTime[] = [
       scheduledDepartureTime: idx === 0 ? arrTime : addMinutesToHHMM(arrTime, 1)
     };
   })
+];
+
+// -----------------------------------------------------------------------------
+// 12. Verified Pilot Service Alerts
+// -----------------------------------------------------------------------------
+export interface SeedAlert {
+  titleEn: string;
+  titleTa: string;
+  descriptionEn: string;
+  descriptionTa: string;
+  alertType: 'ADVISORY' | 'DISRUPTION' | 'ROUTE_DIVERSION' | 'FESTIVAL_SPECIAL' | 'WEATHER_NOTICE';
+  severity: 'INFO' | 'WARNING' | 'CRITICAL';
+  districtCode: string;
+  affectedRouteNumbers: string[];
+  affectedStandCodes?: string[];
+  effectiveFrom: Date;
+  effectiveUntil: Date;
+  sourceOrganization: string;
+  sourceUrl?: string;
+}
+
+export const seedServiceAlerts: SeedAlert[] = [
+  {
+    titleEn: 'Chithirai Festival Transit Operations Advisory',
+    titleTa: 'சித்திரைத் திருவிழா சிறப்புப் பேருந்து இயக்கம் அறிவிப்பு',
+    descriptionEn: 'TNSTC Madurai operates verified high-frequency special town services between Mattuthavani (MIBT) and Periyar Bus Stand. Verified corridor routes 70 and 77 operate 24/7 during the festival.',
+    descriptionTa: 'மாட்டுத்தாவணி மற்றும் பெரியார் பேருந்து நிலையங்களுக்கு இடையே அரசுப் போக்குவரத்துக் கழகம் சார்பில் கூடுதல் பேருந்துகள் இயக்கப்படுகின்றன. தடம் 70 மற்றும் 77 24 மணி நேரமும் செயல்படும்.',
+    alertType: 'FESTIVAL_SPECIAL',
+    severity: 'INFO',
+    districtCode: 'MDU',
+    affectedRouteNumbers: ['70', '77'],
+    affectedStandCodes: ['MDU-MGR', 'MDU-PERIYAR'],
+    effectiveFrom: new Date('2026-01-01T00:00:00Z'),
+    effectiveUntil: new Date('2028-12-31T23:59:59Z'),
+    sourceOrganization: 'TNSTC (Madurai) Limited',
+    sourceUrl: 'https://www.tnstc.in'
+  },
+  {
+    titleEn: 'Goripalayam Junction Road Maintenance Advisory',
+    titleTa: 'கோரிப்பாளையம் சந்திப்பு சாலை பராமரிப்பு எச்சரிக்கை',
+    descriptionEn: 'Minor lane restrictions near Goripalayam junction due to flyover construction. Corridors 70 & 70B maintain standard bus-bay stops with up to 3-5 minute peak dwell variations.',
+    descriptionTa: 'கோரிப்பாளையம் மேம்பாலப் பணிகளால் தடம் 70 & 70B பேருந்துகள் கூடுதல் கவனத்துடன் இயக்கப்படுகின்றன. பேருந்து நிறுத்தங்கள் வழக்கம்போல் செயல்படும்.',
+    alertType: 'ADVISORY',
+    severity: 'INFO',
+    districtCode: 'MDU',
+    affectedRouteNumbers: ['70', '70B'],
+    affectedStandCodes: ['MDU-PERIYAR', 'MDU-MGR'],
+    effectiveFrom: new Date('2026-01-01T00:00:00Z'),
+    effectiveUntil: new Date('2028-12-31T23:59:59Z'),
+    sourceOrganization: 'Madurai City Traffic Police & Highways Department',
+    sourceUrl: 'https://maduraicorporation.co.in'
+  }
 ];

@@ -9,19 +9,26 @@ import {
   RealtimeEvents,
   getBusRoom,
   getRouteRoom,
+  FLEET_ROOM,
+  getFleetDepotRoom,
   SubscribeBusPayload,
   SubscribeRoutePayload,
+  SubscribeFleetPayload,
+  UnsubscribeFleetPayload,
   SubscriptionAckPayload,
   SubscriptionErrorPayload,
   UnsubscriptionAckPayload,
   BusPositionBroadcastPayload,
-  RouteTrackingSnapshot
+  RouteTrackingSnapshot,
+  FleetTrackingSnapshot
 } from './realtime.types';
 import {
   subscribeBusSchema,
   subscribeRouteSchema,
   unsubscribeBusSchema,
-  unsubscribeRouteSchema
+  unsubscribeRouteSchema,
+  subscribeFleetSchema,
+  unsubscribeFleetSchema
 } from './realtime.validation';
 import { realtimeTrackingService } from './realtime.service';
 
@@ -32,6 +39,8 @@ export interface SocketUserData {
   userId: string;
   email: string;
   role: UserRole;
+  depotId?: string;
+  crewMemberId?: string;
 }
 
 export interface SocketData {
@@ -152,7 +161,9 @@ export function initSocketServer(
       socket.data.user = {
         userId: payload.sub,
         email: payload.email,
-        role: payload.role
+        role: payload.role,
+        depotId: payload.depotId,
+        crewMemberId: payload.crewMemberId
       };
       socket.data.subscribedRooms = new Set<string>();
       return next();
@@ -432,7 +443,168 @@ export function initSocketServer(
     });
 
     // =========================================================================
-    // 5. disconnect
+    // 5. subscribe:fleet
+    // =========================================================================
+    socket.on(RealtimeEvents.SUBSCRIBE_FLEET, async (rawPayload: unknown) => {
+      if (!rateLimiter.isAllowed()) {
+        const errorPayload: SubscriptionErrorPayload = {
+          error: 'Rate limit exceeded for subscription requests. Please throttle.',
+          code: 'RATE_LIMITED',
+          timestamp: new Date().toISOString()
+        };
+        socket.emit(RealtimeEvents.SUBSCRIPTION_ERROR, errorPayload);
+        return;
+      }
+
+      const parseResult = subscribeFleetSchema.safeParse(rawPayload ?? {});
+      if (!parseResult.success) {
+        const errorPayload: SubscriptionErrorPayload = {
+          error: parseResult.error.errors.map((e) => e.message).join('; '),
+          code: 'MALFORMED_PAYLOAD',
+          timestamp: new Date().toISOString()
+        };
+        socket.emit(RealtimeEvents.SUBSCRIPTION_ERROR, errorPayload);
+        return;
+      }
+
+      const { depotId, includeRestricted } = parseResult.data as SubscribeFleetPayload;
+
+      // Authorization guard: Subscribing to restricted fleet data requires administrative role
+      const isAdminRole = [
+        'ADMIN',
+        'SUPER_ADMIN',
+        'TRANSPORT_ADMIN',
+        'REGIONAL_ADMIN',
+        'DIVISION_ADMIN',
+        'DEPOT_MANAGER',
+        'DISPATCHER'
+      ].includes(socket.data.user?.role ?? '');
+      if (includeRestricted && !isAdminRole) {
+        const errorPayload: SubscriptionErrorPayload = {
+          error: 'Administrator credentials required to subscribe to restricted fleet data',
+          code: 'UNAUTHORIZED',
+          timestamp: new Date().toISOString()
+        };
+        socket.emit(RealtimeEvents.SUBSCRIPTION_ERROR, errorPayload);
+        return;
+      }
+
+      // Scope isolation: Depot managers & dispatchers are isolated to their authorized depot
+      if (
+        depotId &&
+        ['DEPOT_MANAGER', 'DISPATCHER'].includes(socket.data.user?.role ?? '') &&
+        socket.data.user?.depotId &&
+        socket.data.user.depotId !== depotId
+      ) {
+        const errorPayload: SubscriptionErrorPayload = {
+          error: 'Access denied: You are only authorized to subscribe to your assigned depot',
+          code: 'UNAUTHORIZED',
+          timestamp: new Date().toISOString()
+        };
+        socket.emit(RealtimeEvents.SUBSCRIPTION_ERROR, errorPayload);
+        return;
+      }
+
+      const room = depotId ? getFleetDepotRoom(depotId) : FLEET_ROOM;
+
+      // Enforce per-socket concurrent subscription limit
+      if ((socket.data.subscribedRooms?.size ?? 0) >= MAX_ROOMS_PER_SOCKET) {
+        const errorPayload: SubscriptionErrorPayload = {
+          channel: room,
+          error: `Maximum subscriptions limit (${MAX_ROOMS_PER_SOCKET}) exceeded for this connection.`,
+          code: 'MAX_SUBSCRIPTIONS_EXCEEDED',
+          timestamp: new Date().toISOString()
+        };
+        socket.emit(RealtimeEvents.SUBSCRIPTION_ERROR, errorPayload);
+        return;
+      }
+
+      try {
+        await socket.join(room);
+        socket.data.subscribedRooms?.add(room);
+
+        // Fetch initial fleet snapshot
+        let queryFilter: any = { trackingStatus: { $ne: 'OFFLINE' } };
+        if (depotId) {
+          const matchingBuses = await Bus.find({ depotId }).select('_id').lean();
+          const busIds = matchingBuses.map((b) => b._id);
+          queryFilter.busId = { $in: busIds };
+        }
+
+        const activeDocs = await LatestBusPosition.find(queryFilter)
+          .sort({ recordedAt: -1 })
+          .limit(100)
+          .lean();
+
+        const activeBuses = activeDocs.map(formatPositionSnapshot);
+
+        const fleetSnapshot: FleetTrackingSnapshot = {
+          totalBusesCount: activeBuses.length,
+          buses: activeBuses,
+          timestamp: new Date().toISOString()
+        };
+
+        const ackPayload: SubscriptionAckPayload<FleetTrackingSnapshot> = {
+          channel: room,
+          status: 'SUBSCRIBED',
+          timestamp: new Date().toISOString(),
+          snapshot: fleetSnapshot
+        };
+
+        socket.emit(RealtimeEvents.SUBSCRIPTION_ACK, ackPayload);
+      } catch (err) {
+        logger.error({ err, room }, 'Error handling subscribe:fleet');
+        const errorPayload: SubscriptionErrorPayload = {
+          channel: room,
+          error: 'Internal server error processing fleet subscription',
+          code: 'INTERNAL_ERROR',
+          timestamp: new Date().toISOString()
+        };
+        socket.emit(RealtimeEvents.SUBSCRIPTION_ERROR, errorPayload);
+      }
+    });
+
+    // =========================================================================
+    // 6. unsubscribe:fleet
+    // =========================================================================
+    socket.on(RealtimeEvents.UNSUBSCRIBE_FLEET, async (rawPayload: unknown) => {
+      if (!rateLimiter.isAllowed()) {
+        const errorPayload: SubscriptionErrorPayload = {
+          error: 'Rate limit exceeded for requests. Please throttle.',
+          code: 'RATE_LIMITED',
+          timestamp: new Date().toISOString()
+        };
+        socket.emit(RealtimeEvents.SUBSCRIPTION_ERROR, errorPayload);
+        return;
+      }
+
+      const parseResult = unsubscribeFleetSchema.safeParse(rawPayload ?? {});
+      if (!parseResult.success) {
+        const errorPayload: SubscriptionErrorPayload = {
+          error: parseResult.error.errors.map((e) => e.message).join('; '),
+          code: 'MALFORMED_PAYLOAD',
+          timestamp: new Date().toISOString()
+        };
+        socket.emit(RealtimeEvents.SUBSCRIPTION_ERROR, errorPayload);
+        return;
+      }
+
+      const { depotId } = parseResult.data as UnsubscribeFleetPayload;
+      const room = depotId ? getFleetDepotRoom(depotId) : FLEET_ROOM;
+
+      await socket.leave(room);
+      socket.data.subscribedRooms?.delete(room);
+
+      const ack: UnsubscriptionAckPayload = {
+        channel: room,
+        status: 'UNSUBSCRIBED',
+        timestamp: new Date().toISOString()
+      };
+      socket.emit(RealtimeEvents.UNSUBSCRIPTION_ACK, ack);
+    });
+
+    // =========================================================================
+    // 7. disconnect
     // =========================================================================
     socket.on('disconnect', (reason) => {
       logger.debug(

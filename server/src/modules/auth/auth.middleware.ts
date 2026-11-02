@@ -31,7 +31,13 @@ export function authenticate(req: Request, _res: Response, next: NextFunction): 
       email: payload.email,
       role: payload.role,
       status: 'ACTIVE',
-      sessionId: payload.sessionId
+      sessionId: payload.sessionId,
+      organizationId: payload.organizationId,
+      divisionId: payload.divisionId,
+      depotId: payload.depotId,
+      workshopId: payload.workshopId,
+      crewMemberId: payload.crewMemberId,
+      badgeNumber: payload.badgeNumber
     };
 
     next();
@@ -55,4 +61,39 @@ export function requireRole(...allowedRoles: UserRole[]) {
 
     next();
   };
+}
+
+/**
+ * Optional authentication middleware that attaches user if Bearer token present and valid,
+ * but allows unauthenticated requests to proceed.
+ */
+export function optionalAuthenticate(req: Request, _res: Response, next: NextFunction): void {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return next();
+  }
+
+  const parts = authHeader.split(' ');
+  if (parts.length === 2 && parts[0] === 'Bearer') {
+    try {
+      const payload = verifyAccessToken(parts[1]);
+      req.user = {
+        id: payload.sub,
+        email: payload.email,
+        role: payload.role,
+        status: 'ACTIVE',
+        sessionId: payload.sessionId,
+        organizationId: payload.organizationId,
+        divisionId: payload.divisionId,
+        depotId: payload.depotId,
+        workshopId: payload.workshopId,
+        crewMemberId: payload.crewMemberId,
+        badgeNumber: payload.badgeNumber
+      };
+    } catch {
+      // Ignored for optional authentication
+    }
+  }
+
+  next();
 }

@@ -30,6 +30,33 @@ export const subscribeRouteSchema = z.object({
 
 export const unsubscribeRouteSchema = subscribeRouteSchema;
 
+export const subscribeFleetSchema = z
+  .object({
+    depotId: z
+      .string()
+      .trim()
+      .regex(OBJECT_ID_REGEX, {
+        message: 'depotId must be a 24-character hexadecimal ObjectId'
+      })
+      .optional(),
+    includeRestricted: z.boolean().optional()
+  })
+  .optional()
+  .default({});
+
+export const unsubscribeFleetSchema = z
+  .object({
+    depotId: z
+      .string()
+      .trim()
+      .regex(OBJECT_ID_REGEX, {
+        message: 'depotId must be a 24-character hexadecimal ObjectId'
+      })
+      .optional()
+  })
+  .optional()
+  .default({});
+
 export function isValidObjectId(id: string): boolean {
   return OBJECT_ID_REGEX.test(id);
 }

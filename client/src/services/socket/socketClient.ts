@@ -16,12 +16,22 @@ import {
 } from '../../types/realtime';
 
 export type StateListener = (state: SocketConnectionState) => void;
+export type ReconcileListener = () => void;
+
+interface ActiveSubscription {
+  type: 'bus' | 'route' | 'fleet';
+  id?: string;
+  options?: any;
+}
 
 class SocketClientManager {
   private socket: Socket | null = null;
   private connectionState: SocketConnectionState = 'DISCONNECTED';
   private stateListeners: Set<StateListener> = new Set();
+  private reconcileListeners: Set<ReconcileListener> = new Set();
   private tokenProvider: (() => string | null) | null = null;
+  private activeSubscriptions: Map<string, ActiveSubscription> = new Map();
+  private hasConnectedBefore = false;
 
   public setTokenProvider(provider: () => string | null): void {
     this.tokenProvider = provider;
@@ -37,6 +47,23 @@ class SocketClientManager {
     return () => {
       this.stateListeners.delete(listener);
     };
+  }
+
+  public onReconcile(listener: ReconcileListener): () => void {
+    this.reconcileListeners.add(listener);
+    return () => {
+      this.reconcileListeners.delete(listener);
+    };
+  }
+
+  private triggerReconciliation(): void {
+    for (const listener of this.reconcileListeners) {
+      try {
+        listener();
+      } catch (err) {
+        logger.error('Error in socket reconciliation listener', err);
+      }
+    }
   }
 
   private setConnectionState(newState: SocketConnectionState): void {
@@ -77,6 +104,22 @@ class SocketClientManager {
       this.socket.on('connect', () => {
         logger.info(`Socket.IO connected [socketId: ${this.socket?.id}]`);
         this.setConnectionState('CONNECTED');
+
+        // Handle auto-resubscription and state reconciliation on reconnect
+        if (this.hasConnectedBefore) {
+          logger.info('Socket reconnected: resubscribing and triggering reconciliation');
+          for (const sub of this.activeSubscriptions.values()) {
+            if (sub.type === 'bus' && sub.id) {
+              this.socket?.emit(SocketEvents.SUBSCRIBE_BUS, { busId: sub.id });
+            } else if (sub.type === 'route' && sub.id) {
+              this.socket?.emit(SocketEvents.SUBSCRIBE_ROUTE, { routeId: sub.id });
+            } else if (sub.type === 'fleet') {
+              this.socket?.emit(SocketEvents.SUBSCRIBE_FLEET, sub.options || {});
+            }
+          }
+          this.triggerReconciliation();
+        }
+        this.hasConnectedBefore = true;
       });
 
       this.socket.on('disconnect', (reason) => {
@@ -107,6 +150,7 @@ class SocketClientManager {
       this.socket.disconnect();
       this.socket = null;
       this.setConnectionState('DISCONNECTED');
+      this.activeSubscriptions.clear();
       logger.info('Socket.IO connection explicitly closed');
     }
   }
@@ -117,11 +161,13 @@ class SocketClientManager {
 
   public subscribeBus(busId: string): void {
     const s = this.connect();
+    this.activeSubscriptions.set(`bus:${busId}`, { type: 'bus', id: busId });
     s.emit(SocketEvents.SUBSCRIBE_BUS, { busId });
     logger.debug(`Emitted ${SocketEvents.SUBSCRIBE_BUS} for bus ${busId}`);
   }
 
   public unsubscribeBus(busId: string): void {
+    this.activeSubscriptions.delete(`bus:${busId}`);
     if (this.socket && this.socket.connected) {
       this.socket.emit(SocketEvents.UNSUBSCRIBE_BUS, { busId });
       logger.debug(`Emitted ${SocketEvents.UNSUBSCRIBE_BUS} for bus ${busId}`);
@@ -130,14 +176,33 @@ class SocketClientManager {
 
   public subscribeRoute(routeId: string): void {
     const s = this.connect();
+    this.activeSubscriptions.set(`route:${routeId}`, { type: 'route', id: routeId });
     s.emit(SocketEvents.SUBSCRIBE_ROUTE, { routeId });
     logger.debug(`Emitted ${SocketEvents.SUBSCRIBE_ROUTE} for route ${routeId}`);
   }
 
   public unsubscribeRoute(routeId: string): void {
+    this.activeSubscriptions.delete(`route:${routeId}`);
     if (this.socket && this.socket.connected) {
       this.socket.emit(SocketEvents.UNSUBSCRIBE_ROUTE, { routeId });
       logger.debug(`Emitted ${SocketEvents.UNSUBSCRIBE_ROUTE} for route ${routeId}`);
+    }
+  }
+
+  public subscribeFleet(options?: { depotId?: string; includeRestricted?: boolean }): void {
+    const s = this.connect();
+    const key = options?.depotId ? `fleet:${options.depotId}` : 'fleet:all';
+    this.activeSubscriptions.set(key, { type: 'fleet', options });
+    s.emit(SocketEvents.SUBSCRIBE_FLEET, options || {});
+    logger.debug(`Emitted ${SocketEvents.SUBSCRIBE_FLEET} with options`, options);
+  }
+
+  public unsubscribeFleet(options?: { depotId?: string }): void {
+    const key = options?.depotId ? `fleet:${options.depotId}` : 'fleet:all';
+    this.activeSubscriptions.delete(key);
+    if (this.socket && this.socket.connected) {
+      this.socket.emit(SocketEvents.UNSUBSCRIBE_FLEET, options || {});
+      logger.debug(`Emitted ${SocketEvents.UNSUBSCRIBE_FLEET} with options`, options);
     }
   }
 

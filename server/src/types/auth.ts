@@ -1,4 +1,17 @@
-export type UserRole = 'PASSENGER' | 'ADMIN';
+export type UserRole =
+  | 'PASSENGER'
+  | 'ADMIN'
+  | 'SUPER_ADMIN'
+  | 'TRANSPORT_ADMIN'
+  | 'REGIONAL_ADMIN'
+  | 'DIVISION_ADMIN'
+  | 'DEPOT_MANAGER'
+  | 'WORKSHOP_MANAGER'
+  | 'DISPATCHER'
+  | 'DRIVER'
+  | 'CONDUCTOR'
+  | 'ANALYST';
+
 export type UserStatus = 'ACTIVE' | 'DISABLED';
 
 export interface SafeUser {
@@ -8,6 +21,12 @@ export interface SafeUser {
   role: UserRole;
   status: UserStatus;
   phone?: string;
+  organizationId?: string;
+  divisionId?: string;
+  depotId?: string;
+  workshopId?: string;
+  crewMemberId?: string;
+  badgeNumber?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -18,6 +37,12 @@ export interface AuthenticatedUser {
   role: UserRole;
   status: UserStatus;
   sessionId: string;
+  organizationId?: string;
+  divisionId?: string;
+  depotId?: string;
+  workshopId?: string;
+  crewMemberId?: string;
+  badgeNumber?: string;
 }
 
 export interface AccessTokenPayload {
@@ -25,6 +50,12 @@ export interface AccessTokenPayload {
   email: string;
   role: UserRole;
   sessionId: string;
+  organizationId?: string;
+  divisionId?: string;
+  depotId?: string;
+  workshopId?: string;
+  crewMemberId?: string;
+  badgeNumber?: string;
   iss?: string;
   aud?: string;
   iat?: number;

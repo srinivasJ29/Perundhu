@@ -1,8 +1,8 @@
 import { Types, PipelineStage } from 'mongoose';
 import { BusStand, Stop, RouteDirection, RouteStopSequence, RouteDocument } from '../../models';
-import { NotFoundError } from '../../common/errors';
+import { NotFoundError, ConflictError } from '../../common/errors';
 import { buildPaginationMeta, PaginatedResult } from '../../common/validation';
-import { NearbyBusStandsQuery } from './busStand.validation';
+import { NearbyBusStandsQuery, ListBusStandsQuery, CreateBusStandBody, UpdateBusStandBody } from './busStand.validation';
 
 export interface NearbyBusStandDto {
   id: string;
@@ -217,6 +217,92 @@ export class BusStandService {
       data: paginatedData,
       pagination: buildPaginationMeta(total, page, limit)
     };
+  }
+
+  /**
+   * Lists bus stands with pagination, search, and district/type filtering.
+   */
+  public async listBusStands(query: ListBusStandsQuery): Promise<PaginatedResult<any>> {
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    const filter: Record<string, unknown> = {};
+    if (query.districtId) filter.districtId = new Types.ObjectId(query.districtId);
+    if (query.standType) filter.standType = query.standType;
+    if (query.isActive !== undefined) filter.isActive = query.isActive;
+    if (query.q) {
+      filter.$or = [
+        { nameEn: { $regex: query.q, $options: 'i' } },
+        { nameTa: { $regex: query.q, $options: 'i' } },
+        { code: { $regex: query.q, $options: 'i' } }
+      ];
+    }
+
+    const [total, data] = await Promise.all([
+      BusStand.countDocuments(filter),
+      BusStand.find(filter)
+        .populate('districtId', 'nameEn nameTa code')
+        .sort({ nameEn: 1 })
+        .skip(skip)
+        .limit(limit)
+        .lean()
+    ]);
+
+    return {
+      data,
+      pagination: buildPaginationMeta(total, page, limit)
+    };
+  }
+
+  /**
+   * Retrieves single bus stand with full details.
+   */
+  public async getBusStandById(standId: string) {
+    const stand = await BusStand.findById(standId)
+      .populate('districtId', 'nameEn nameTa code')
+      .populate('depotIds', 'nameEn nameTa code')
+      .lean();
+
+    if (!stand) {
+      throw new NotFoundError(`Bus stand with ID '${standId}' not found`);
+    }
+
+    return stand;
+  }
+
+  /**
+   * Creates a new bus stand (Admin operation).
+   */
+  public async createBusStand(data: CreateBusStandBody) {
+    const existing = await BusStand.findOne({ code: data.code }).lean();
+    if (existing) {
+      throw new ConflictError(`Bus stand with code '${data.code}' already exists`);
+    }
+
+    const stand = await BusStand.create(data);
+    return stand.toObject();
+  }
+
+  /**
+   * Updates an existing bus stand (Admin operation).
+   */
+  public async updateBusStand(standId: string, data: UpdateBusStandBody) {
+    const stand = await BusStand.findById(standId);
+    if (!stand) {
+      throw new NotFoundError(`Bus stand with ID '${standId}' not found`);
+    }
+
+    if (data.code && data.code !== stand.code) {
+      const existing = await BusStand.findOne({ code: data.code }).lean();
+      if (existing) {
+        throw new ConflictError(`Bus stand with code '${data.code}' already exists`);
+      }
+    }
+
+    Object.assign(stand, data);
+    await stand.save();
+    return stand.toObject();
   }
 }
 

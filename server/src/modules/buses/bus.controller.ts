@@ -4,7 +4,9 @@ import {
   ListBusesQuery,
   BusTripsQuery,
   CreateBusBody,
-  UpdateBusStatusBody
+  UpdateBusStatusBody,
+  UpdateBusBody,
+  AssignBusDepotBody
 } from './bus.validation';
 
 export class BusController {
@@ -54,6 +56,39 @@ export class BusController {
       const { busId } = req.params;
       const body = req.body as UpdateBusStatusBody;
       const result = await busService.updateBusStatus(busId, body);
+      res.status(200).json({ data: result });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async updateBus(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { busId } = req.params;
+      const body = req.body as UpdateBusBody;
+      const result = await busService.updateBus(busId, body);
+      res.status(200).json({ data: result });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async assignBusDepot(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { busId } = req.params;
+      const body = req.body as AssignBusDepotBody;
+      const assignedBy = (req as any).user?.id || (req as any).user?.email || 'SYSTEM_ADMIN';
+      const result = await busService.assignBusDepot(busId, body, assignedBy);
+      res.status(200).json({ data: result });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async getBusAssignments(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { busId } = req.params;
+      const result = await busService.getBusAssignments(busId);
       res.status(200).json({ data: result });
     } catch (err) {
       next(err);

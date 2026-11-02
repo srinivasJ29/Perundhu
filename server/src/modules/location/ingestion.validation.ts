@@ -33,7 +33,14 @@ export const ingestLocationBodySchema = z.object({
     .string()
     .datetime({ message: 'recordedAt must be a valid ISO 8601 UTC timestamp' }),
   source: z
-    .enum(['VEHICLE_HARDWARE_GPS', 'AUTHORIZED_MOBILE_GPS', 'OFFICIAL_FLEET_FEED'])
+    .enum([
+      'VEHICLE_HARDWARE_GPS',
+      'AUTHORIZED_MOBILE_GPS',
+      'OFFICIAL_FLEET_FEED',
+      'ETM_GPS',
+      'MANUAL_DISPATCH',
+      'SIMULATOR'
+    ])
     .default('VEHICLE_HARDWARE_GPS'),
   tripId: z
     .string()
@@ -46,7 +53,41 @@ export const ingestLocationBodySchema = z.object({
   directionId: z
     .string()
     .regex(objectIdRegex, { message: 'directionId must be a valid 24-character hexadecimal ObjectId' })
+    .optional(),
+  satellitesCount: z
+    .number()
+    .int()
+    .min(0, { message: 'satellitesCount must be non-negative' })
+    .max(50, { message: 'satellitesCount cannot exceed 50' })
+    .optional(),
+  altitudeMeters: z
+    .number()
+    .optional(),
+  gpsFixStatus: z
+    .enum(['NO_FIX', '2D', '3D', 'DGPS', 'UNKNOWN'])
+    .optional(),
+  batteryPercent: z
+    .number()
+    .min(0, { message: 'batteryPercent cannot be below 0' })
+    .max(100, { message: 'batteryPercent cannot exceed 100' })
+    .optional(),
+  networkSignalDbm: z
+    .number()
     .optional()
 });
 
+export const ingestBatchLocationBodySchema = z.object({
+  batchId: z
+    .string()
+    .trim()
+    .min(1, { message: 'batchId must not be empty' })
+    .max(100, { message: 'batchId cannot exceed 100 characters' })
+    .optional(),
+  records: z
+    .array(ingestLocationBodySchema)
+    .min(1, { message: 'Batch must contain at least 1 record' })
+    .max(100, { message: 'Batch size exceeds maximum limit of 100 records' })
+});
+
 export type IngestLocationBody = z.infer<typeof ingestLocationBodySchema>;
+export type IngestBatchLocationBody = z.infer<typeof ingestBatchLocationBodySchema>;

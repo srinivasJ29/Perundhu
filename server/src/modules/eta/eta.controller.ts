@@ -3,6 +3,7 @@ import { NotFoundError } from '../../common/errors';
 import { Bus } from '../../models';
 import { nextStopService } from './nextStop.service';
 import { etaService } from './eta.service';
+import { mlEtaService } from './mlEta.service';
 
 export class EtaController {
   /**
@@ -87,7 +88,7 @@ export class EtaController {
             trackingStatus: 'UNAVAILABLE',
             source: 'SIMULATOR',
             isRealTimePrediction: false,
-            predictionSource: 'UNAVAILABLE',
+            predictionSource: 'ETA_UNAVAILABLE',
             message: 'Vehicle currently has no active scheduled trip',
             downstreamStops: []
           }
@@ -98,6 +99,46 @@ export class EtaController {
       res.status(200).json({
         success: true,
         data: result
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  /**
+   * POST /api/v1/eta/predict
+   * Direct ML / baseline ETA inference endpoint for downstream stop query.
+   */
+  public async predictEta(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const result = await mlEtaService.predict(req.body);
+      res.status(200).json({
+        success: true,
+        data: result
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  /**
+   * GET /api/v1/eta/model-info
+   * Returns current ML model metadata, metrics, and data readiness status.
+   */
+  public async getModelInfo(
+    _req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const info = await mlEtaService.getModelInfo();
+      res.status(200).json({
+        success: true,
+        data: info
       });
     } catch (err) {
       next(err);

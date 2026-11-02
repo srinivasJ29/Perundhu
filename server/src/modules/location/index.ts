@@ -6,6 +6,7 @@ export * from './simulator.validation';
 export * from './locationPipeline.service';
 export * from './simulator.controller';
 export * from './simulator.routes';
+export * from './telemetryMetrics.service';
 export * from './ingestion.validation';
 export * from './ingestion.middleware';
 export * from './ingestion.controller';

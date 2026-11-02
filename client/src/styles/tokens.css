@@ -1,119 +1,201 @@
 /**
- * PERUNDHU (பேருந்து) — Design Tokens System
- * Premium Redesign: White Primary Background with Bold Black & Electric Yellow Palette
- * High contrast, modern transit aesthetics with state-of-the-art accessibility.
+ * PERUNDHU (பேருந்து) — Luxury Cyber-Transit Design Tokens
+ * Signature White Canvas, Shining Onyx Black Typography & Electric Cyber Yellow
+ * High-Contrast, Pristine White Glassmorphism & Metallic Black Shimmer
  */
 
 :root {
   /* ==============================================================================
-   * 1. Core Brand Colors: White, Black & Electric Yellow
+   * 1. Core Palette: Pristine White Canvas, Shining Black & Electric Yellow
    * ============================================================================== */
-  
-  /* Primary White & Pure Surfaces */
+
+  /* Pristine White & Luminous Surfaces */
   --color-white: #FFFFFF;
+  --color-white-pure: #FFFFFF;
+  --color-bg-base: #FFFFFF;               /* Primary clean white canvas */
+  --color-bg-subtle: #F8F9FA;             /* Secondary soft white */
+  --color-bg-surface: #FFFFFF;            /* Card & elevated base */
+  --color-bg-card: #FFFFFF;
+  --color-bg-glass: rgba(255, 255, 255, 0.88);
+  --color-bg-glass-elevated: rgba(255, 255, 255, 0.96);
+
+  /* Deep Glossy Onyx & Shining Jet Black */
+  --color-black: #000000;
+  --color-black-pure: #000000;
+  --color-black-950: #000000;
+  --color-black-900: #09090B;
+  --color-black-850: #121216;
+  --color-black-800: #18181B;
+  --color-black-700: #27272A;
+  --color-black-600: #3F3F46;
+  --color-black-500: #52525B;
+
+  /* Signature Electric Cyber Yellow & Radiant Gold */
+  --color-yellow-50:  rgba(250, 204, 21, 0.1);
+  --color-yellow-100: rgba(250, 204, 21, 0.2);
+  --color-yellow-200: #FEF08A;
+  --color-yellow-300: #FDE047;
+  --color-yellow-400: #FACC15;            /* Core Cyber Yellow */
+  --color-yellow-500: #EAB308;            /* Rich Amber Gold */
+  --color-yellow-600: #CA8A04;
+  --color-yellow-700: #A16207;
+  --color-yellow-neon: #FFE600;           /* High-Voltage Fluorescent Yellow */
+  --color-yellow-glow: rgba(250, 204, 21, 0.45);
+  --color-yellow-bright: #FFFF00;
+
+  /* Cream & Soft Grey Contrast Layers */
   --color-cream-50: #FFFFFF;
-  --color-cream-100: #FFFFFF;
-  --color-cream-200: #F8FAFC;
-  --color-cream-300: #E2E8F0;
-  --color-cream-400: #CBD5E1;
+  --color-cream-100: #FAFAFA;
+  --color-cream-200: #F4F4F5;
+  --color-cream-300: #E4E4E7;
+  --color-cream-400: #D4D4D8;
 
-  /* Black Family (Deep Onyx, Obsidian, Charcoal & Slate) */
-  --color-black-950: #0A0A0A;  /* True pitch onyx black */
-  --color-black-900: #121212;  /* Deep obsidian */
-  --color-black-850: #18181B;  /* Zinc black */
-  --color-black-800: #27272A;  /* Charcoal black */
-  --color-black-700: #3F3F46;  /* Slate dark */
-  --color-black-600: #52525B;  /* Muted dark */
-
-  /* Electric & Golden Yellow Family (High-Visibility Transit Palette) */
-  --color-yellow-50:  #FEFCE8;  /* Softest yellow shimmer */
-  --color-yellow-100: #FEF9C3;  /* Pale yellow tint */
-  --color-yellow-200: #FEF08A;  /* Light yellow badge */
-  --color-yellow-300: #FDE047;  /* Bright yellow hover */
-  --color-yellow-400: #FACC15;  /* Signature Electric Yellow */
-  --color-yellow-500: #EAB308;  /* Golden Amber Yellow */
-  --color-yellow-600: #CA8A04;  /* Deep Gold border/accent */
-  --color-yellow-700: #A16207;  /* High-contrast amber text */
-
-  /* Semantic Brand Tokens */
-  --color-primary-dark: #000000;
-  --color-primary: #0A0A0A;           /* Deep Onyx Black */
-  --color-secondary: #FACC15;         /* Electric Yellow */
-  --color-accent: #FACC15;            /* High-visibility yellow accent */
-  --color-accent-hover: #EAB308;
-  --color-accent-light: #FEF9C3;
-  --color-accent-text: #0A0A0A;
-  
-  --color-background: #FFFFFF;        /* Crisp Pure White */
-  --color-surface: #FFFFFF;           /* Crisp Pure White Surface */
-  --color-surface-subtle: #F8FAFC;    /* Subtle cool grey surface */
+  /* Core Semantic Tokens (White / Shining Black / Yellow) */
+  --color-background: #FFFFFF;
+  --color-surface: #FFFFFF;
+  --color-surface-subtle: #F8F9FA;
   --color-surface-elevated: #FFFFFF;
 
-  /* Aliases for backwards compatibility with existing views */
-  --color-deep-teal: #0A0A0A;
-  --color-primary-teal: #0A0A0A;
-  --color-primary-teal-hover: #18181B;
-  --color-primary-teal-active: #000000;
-  --color-sage: #52525B;
-  --color-sage-light: #FEF9C3;
+  --color-primary: #FACC15;               /* Electric Cyber Yellow */
+  --color-primary-dark: #EAB308;
+  --color-primary-light: #FEF08A;
+  --color-primary-neon: #FFE600;
+  --color-primary-glow: rgba(250, 204, 21, 0.45);
+
+  --color-secondary: #000000;             /* Shining Jet Black */
+  --color-accent: #FACC15;
+  --color-accent-hover: #FFE600;
+  --color-accent-light: rgba(250, 204, 21, 0.15);
+  --color-accent-text: #000000;
+
+  /* Semantic Aliases mapped cleanly to White / Black / Yellow */
+  --color-cyan-neon: #FACC15;
+  --color-cyan-glow: rgba(250, 204, 21, 0.35);
+  --color-cyan-400: #FDE047;
+  --color-cyan-500: #FACC15;
+  --color-deep-teal: #000000;             /* Mapped to shining jet black */
+  --color-primary-teal: #CA8A04;          /* Deep golden yellow / dark amber */
+  --color-primary-teal-hover: #A16207;
+  --color-primary-teal-active: #854D0E;
+  --color-sage: #71717A;
+  --color-sage-light: rgba(250, 204, 21, 0.12);
   --color-warm-peach: #FACC15;
-  --color-warm-peach-light: #FEFCE8;
-  --color-coral-red: #DC2626;
-  --color-coral-red-light: #FEE2E2;
+  --color-warm-peach-light: rgba(250, 204, 21, 0.15);
+  --color-coral-red: #EF4444;
+  --color-coral-red-light: rgba(239, 68, 68, 0.12);
 
-  /* Aliases for brown palette mapping to black & yellow */
-  --color-brown-950: #0A0A0A;
-  --color-brown-900: #121212;
-  --color-brown-850: #18181B;
-  --color-brown-800: #27272A;
-  --color-brown-700: #3F3F46;
+  /* AI Agent & Telemetry Semantics in Black & Yellow Theme */
+  --color-ai-violet: #000000;
+  --color-ai-indigo: #18181B;
+  --color-ai-glow: rgba(250, 204, 21, 0.45);
+  --color-ai-bg: rgba(250, 204, 21, 0.15);
+
+  /* Emerald Telemetry (Live Moving Buses & Confirmed Status) */
+  --color-emerald-neon: #10B981;
+  --color-emerald-glow: rgba(16, 185, 129, 0.4);
+  --color-emerald-bg: rgba(16, 185, 129, 0.12);
+
+  /* Radiant Amber & Gold (Timetables, Fares & Priority Alerts) */
+  --color-amber-neon: #FACC15;
+  --color-amber-glow: rgba(250, 204, 21, 0.45);
+  --color-amber-bg: rgba(250, 204, 21, 0.15);
+
+  /* Brown aliases mapped to rich charcoal black & amber gold */
+  --color-brown-950: #000000;
+  --color-brown-900: #09090B;
+  --color-brown-850: #121216;
+  --color-brown-800: #18181B;
+  --color-brown-700: #27272A;
   --color-brown-600: #52525B;
-  --color-brown-500: #CA8A04;
-  --color-brown-400: #EAB308;
-  --color-brown-300: #FACC15;
-  --color-brown-200: #FDE047;
-  --color-brown-100: #FEF08A;
-  --color-brown-50:  #FEFCE8;
+  --color-brown-500: #EAB308;
+  --color-brown-400: #FACC15;
+  --color-brown-300: #FDE047;
+  --color-brown-200: #FEF08A;
+  --color-brown-100: #FEFCE8;
+  --color-brown-50:  rgba(250, 204, 21, 0.08);
 
-  /* Semantic Text Tokens */
-  --color-text: #0A0A0A;
-  --color-text-primary: #0A0A0A;
-  --color-text-secondary: #27272A;
-  --color-text-muted: #64748B;
-  --color-text-inverse: #FFFFFF;
-  --color-muted: #64748B;
+  /* Semantic Text Tokens: High-Contrast Black on White Canvas */
+  --color-text: #18181B;                  /* Rich obsidian text */
+  --color-text-primary: #000000;          /* Pure Shining Jet Black */
+  --color-text-secondary: #3F3F46;        /* Refined Charcoal */
+  --color-text-muted: #71717A;            /* Slate */
+  --color-text-inverse: #FFFFFF;          /* Pure White on Black/Dark elements */
+  --color-muted: #71717A;
 
-  /* Semantic Borders & Focus */
-  --color-border: #E2E8F0;
-  --color-border-subtle: #F1F5F9;
+  /* Semantic Borders & Glass Dividers */
+  --color-border: rgba(0, 0, 0, 0.1);
+  --color-border-subtle: rgba(0, 0, 0, 0.05);
+  --color-border-yellow: rgba(250, 204, 21, 0.4);
   --color-border-focus: #FACC15;
-  --color-border-dark: #0A0A0A;
-  --color-focus: #FACC15;
+  --color-border-dark: #000000;
+  --color-focus: #FFE600;
+  --focus-ring: 0 0 0 3px rgba(250, 204, 21, 0.45);
 
-  /* Actions & Buttons */
-  --color-action-primary: #0A0A0A;
-  --color-action-primary-hover: #18181B;
-  --color-action-secondary: #FACC15;
-  --color-action-secondary-hover: #EAB308;
+  /* Actions & Interactive Elements */
+  --color-action-primary: #FFE600;
+  --color-action-primary-hover: #FACC15;
+  --color-action-secondary: #000000;
+  --color-action-secondary-hover: #18181B;
 
-  /* Curated Status Tokens */
-  --color-status-success: #16A34A;
-  --color-status-success-bg: #DCFCE7;
+  /* Status Colors */
+  --color-status-success: #10B981;
+  --color-status-success-bg: rgba(16, 185, 129, 0.14);
   --color-status-warning: #CA8A04;
-  --color-status-warning-bg: #FEF9C3;
-  --color-status-error: #DC2626;
-  --color-status-error-bg: #FEE2E2;
-  --color-status-info: #0A0A0A;
-  --color-status-info-bg: #FEF9C3;
+  --color-status-warning-bg: rgba(250, 204, 21, 0.2);
+  --color-status-error: #EF4444;
+  --color-status-error-bg: rgba(239, 68, 68, 0.12);
+  --color-status-info: #000000;
+  --color-status-info-bg: rgba(250, 204, 21, 0.16);
+
+  /* Tamil Nadu Transit Semantics */
+  --color-tn-green: #10B981;
+  --color-tn-green-hover: #059669;
+  --color-tn-green-light: rgba(16, 185, 129, 0.14);
+  --color-tn-green-border: rgba(16, 185, 129, 0.4);
+
+  --color-tn-pink: #E11D48;
+  --color-tn-pink-hover: #BE123C;
+  --color-tn-pink-light: rgba(244, 63, 94, 0.12);
+  --color-tn-pink-border: rgba(244, 63, 94, 0.35);
+
+  --color-tn-maroon: #991B1B;
+  --color-tn-maroon-hover: #7F1D1D;
+  --color-tn-maroon-light: rgba(185, 28, 28, 0.12);
+  --color-tn-maroon-border: rgba(185, 28, 28, 0.35);
+
+  --color-tn-led-amber: #FFE600;
+  --color-tn-led-amber-dim: #CA8A04;
+  --color-tn-led-amber-glow: rgba(250, 204, 21, 0.6);
+  --color-tn-led-bg: #000000;
+  --color-tn-led-chassis: #0A0A0C;
+  --color-tn-led-border: rgba(250, 204, 21, 0.4);
+
+  --color-tn-bay-blue: #000000;
+  --color-tn-bay-blue-light: rgba(250, 204, 21, 0.18);
+  --color-tn-bay-blue-border: rgba(250, 204, 21, 0.4);
+
+  /* Luminous White Glassmorphism Tokens */
+  --glass-surface: rgba(255, 255, 255, 0.9);
+  --glass-surface-subtle: rgba(255, 255, 255, 0.8);
+  --glass-surface-dark: #000000;
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-border-yellow: rgba(250, 204, 21, 0.45);
+  --glass-blur: blur(20px);
+  --glass-glow: 0 0 24px rgba(250, 204, 21, 0.2);
 
   /* Disabled States */
-  --color-disabled-text: #94A3B8;
-  --color-disabled-bg: #F1F5F9;
-  --color-disabled-border: #CBD5E1;
+  --color-disabled-text: #A1A1AA;
+  --color-disabled-bg: #F4F4F5;
+  --color-disabled-border: #E4E4E7;
 
-  /* Typography */
-  --font-family-base: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* ==============================================================================
+   * Shining Fonts & Display Typography Hierarchy
+   * ============================================================================== */
+  --font-family-display: 'Syne', 'Outfit', system-ui, -apple-system, sans-serif;
+  --font-family-tech: 'Orbitron', 'JetBrains Mono', monospace;
+  --font-family-base: 'Outfit', 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
   --font-family-tamil: 'Noto Sans Tamil', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
   --font-size-xs: 0.75rem;    /* 12px */
   --font-size-sm: 0.875rem;   /* 14px */
@@ -122,17 +204,28 @@
   --font-size-xl: 1.25rem;    /* 20px */
   --font-size-2xl: 1.5rem;    /* 24px */
   --font-size-3xl: 1.875rem;  /* 30px */
-  --font-size-4xl: 2.25rem;   /* 36px */
+  --font-size-4xl: 2.375rem;  /* 38px */
+  --font-size-5xl: 3.25rem;   /* 52px */
 
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
   --font-weight-extrabold: 800;
+  --font-weight-black: 900;
 
-  --line-height-tight: 1.2;
+  --line-height-tight: 1.15;
   --line-height-normal: 1.5;
   --line-height-relaxed: 1.625;
+
+  /* ==============================================================================
+   * Shining Gradients & Specular Shimmers (Black Fonts & Yellow Highlights)
+   * ============================================================================== */
+  --grad-shining-black: linear-gradient(135deg, #000000 0%, #18181B 30%, #52525B 50%, #000000 70%, #18181B 100%);
+  --grad-shining-black-gold: linear-gradient(135deg, #000000 0%, #18181B 35%, #CA8A04 55%, #FACC15 70%, #000000 90%);
+  --grad-shining-yellow: linear-gradient(135deg, #FFE600 0%, #FACC15 45%, #EAB308 100%);
+  --grad-shining-yellow-hover: linear-gradient(135deg, #FFFFFF 0%, #FFE600 30%, #FACC15 100%);
+  --grad-border-gold: linear-gradient(135deg, rgba(250, 204, 21, 0.6) 0%, rgba(0, 0, 0, 0.1) 50%, rgba(250, 204, 21, 0.4) 100%);
 
   /* Spacing Scale */
   --space-1: 0.25rem;  /* 4px */
@@ -146,33 +239,40 @@
   --space-12: 3rem;    /* 48px */
   --space-16: 4rem;    /* 64px */
 
-  /* Border Radii (Modern precision curves) */
-  --radius-sm: 0.375rem; /* 6px */
-  --radius-md: 0.625rem; /* 10px */
-  --radius-lg: 0.875rem; /* 14px */
-  --radius-xl: 1.25rem;  /* 20px */
-  --radius-2xl: 1.5rem;  /* 24px */
+  /* Borders & Radius */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
   --radius-full: 9999px;
 
-  /* High-Contrast Crisp Shadows */
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.09), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-  --shadow-yellow: 0 4px 14px rgba(250, 204, 21, 0.35);
+  /* Elevated Shadows with Crisp Floating Depth & Golden Halos */
+  --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.12), 0 0 24px rgba(250, 204, 21, 0.15);
+  --shadow-neon-yellow: 0 0 24px rgba(250, 204, 21, 0.5), 0 4px 16px rgba(0, 0, 0, 0.1);
+  --shadow-neon-cyan: 0 0 24px rgba(250, 204, 21, 0.5);
 
-  /* High-Visibility Focus Rings */
-  --focus-ring: 0 0 0 3px rgba(250, 204, 21, 0.5);
+  /* Transitions & Animation Easing */
+  --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-normal: 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow: 400ms cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* Transitions */
-  --transition-fast: 150ms cubic-bezier(0.2, 0.8, 0.2, 1);
-  --transition-normal: 250ms cubic-bezier(0.2, 0.8, 0.2, 1);
-  --transition-smooth: 350ms cubic-bezier(0.16, 1, 0.3, 1);
-
-  /* Z-Index Scales */
+  /* Z-Index Hierarchy */
   --z-dropdown: 1000;
   --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
   --z-modal: 1050;
-  --z-toast: 1100;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+
+  /* Layout Constants */
+  --container-max-width: 1240px;
+  --header-height: 72px;
+  --sidebar-width: 380px;
 }

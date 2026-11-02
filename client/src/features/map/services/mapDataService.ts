@@ -8,16 +8,48 @@ import { busStandsService } from '../../../services/api/busStands.service';
 import { routesService } from '../../../services/api/routes.service';
 import { tripsService } from '../../../services/api/trips.service';
 import { busesService } from '../../../services/api/buses.service';
+import { httpClient } from '../../../services/api/client';
 import {
   BusStandDto,
   NearbyBusStandDto,
   RouteDirectionDetailDto,
   StandRouteDto,
   ScheduledTripDto,
-  BusDto
+  BusDto,
+  BusLiveDetailDto
 } from '../../../types/domain';
 
 export const mapDataService = {
+  /**
+   * Fetches live positions for all active fleet buses.
+   */
+  async getFleetPositions(params: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    source?: string;
+    routeId?: string;
+    depotId?: string;
+    isSimulated?: boolean;
+    bbox?: string;
+    search?: string;
+  } = {}): Promise<{ data: any[]; pagination: any }> {
+    try {
+      const res = await httpClient.get<any>('/fleet/positions', { params });
+      return res;
+    } catch (err) {
+      console.warn('Failed to fetch fleet positions:', err);
+      return { data: [], pagination: { total: 0, page: 1, limit: 50, totalPages: 0, hasNextPage: false, hasPrevPage: false } };
+    }
+  },
+
+  /**
+   * Fetches detailed live state and route geometry for a single selected bus.
+   */
+  async getBusLiveDetails(busId: string): Promise<BusLiveDetailDto> {
+    const res = await httpClient.get<{ success: boolean; data: BusLiveDetailDto }>(`/fleet/buses/${busId}/live`);
+    return res.data;
+  },
   /**
    * Fetches bus stands for a specified district.
    */

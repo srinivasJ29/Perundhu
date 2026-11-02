@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ArrowRight, Compass, MapPin, Sparkles, Radio, Play } from 'lucide-react';
+import { ArrowRight, Compass, MapPin, Sparkles, Radio, Brain } from 'lucide-react';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { useAuth } from '../../auth';
+import { useAiCopilot } from '../../ai-copilot';
 import { TNSTCLogo } from './TNSTCLogo';
 import { LanguageSelector } from './LanguageSelector';
 
@@ -21,6 +22,7 @@ import { LanguageSelector } from './LanguageSelector';
 export const LandingHeader: React.FC = () => {
   const { t, language } = useLanguage();
   const { isAuthenticated } = useAuth();
+  const { openCopilot } = useAiCopilot();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -98,17 +100,17 @@ export const LandingHeader: React.FC = () => {
             </a>
           </nav>
 
-          {/* Actions: Language & CTA Button */}
+          {/* Actions: AI Copilot, Language & CTA Button */}
           <div className="landing-header-actions">
             <button
               type="button"
-              className="btn-replay-opening"
-              onClick={() => window.dispatchEvent(new CustomEvent('perundhu:replay-opening'))}
-              title={language === 'ta' ? 'அறிமுக அனிமேஷனை இயக்கு' : 'Replay Opening Animation'}
-              aria-label="Replay Opening Animation"
+              className="btn-ai-copilot-header"
+              onClick={() => openCopilot()}
+              title={language === 'ta' ? 'AI வழிகாட்டியைத் திற' : 'Open AI Transit Copilot (LangGraph)'}
+              aria-label="Open AI Copilot"
             >
-              <Play size={12} fill="currentColor" />
-              <span>{language === 'ta' ? 'அறிமுகம்' : 'Intro'}</span>
+              <Brain size={14} />
+              <span>AI Copilot</span>
             </button>
 
             <LanguageSelector />

@@ -35,6 +35,13 @@ import {
   SocketConnectionState
 } from '../../../types/realtime';
 
+function getCompassDirection(heading?: number): string {
+  if (heading === undefined || heading === null || isNaN(heading)) return 'N';
+  const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+  const index = Math.round(((heading % 360) + 360) % 360 / 45) % 8;
+  return directions[index];
+}
+
 export function useMapState() {
   const navigate = useNavigate();
   const { routeId: paramRouteId, districtId: paramDistrictId } = useParams();
@@ -84,7 +91,31 @@ export function useMapState() {
   const [activeLayer, setActiveLayer] = useState<MapLayerId>('street');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isPanelCollapsed, setIsPanelCollapsed] = useState<boolean>(false);
-  const [activePanelTab, setActivePanelTab] = useState<'route' | 'stops' | 'buses' | 'nearby'>('route');
+  const [activePanelTab, setActivePanelTab] = useState<'route' | 'stops' | 'buses' | 'nearby' | 'table'>('route');
+
+  // 8. Fleet Sidebar Filter, Search & Details States
+  const [fleetFilter, setFleetFilter] = useState<
+    'ALL' | 'MOVING' | 'STATIONARY' | 'DELAYED_STALE' | 'OFFLINE' | 'REAL_GPS' | 'SIMULATOR'
+  >('ALL');
+  const [fleetSearch, setFleetSearch] = useState<string>('');
+  const [selectedBusLiveDetails, setSelectedBusLiveDetails] = useState<any | null>(null);
+  const [isLoadingBusDetails, setIsLoadingBusDetails] = useState<boolean>(false);
+
+  const selectedBusIdRef = useRef<string | null>(null);
+  const lastEtaCalculationRef = useRef<{ timestamp: number; distanceAlongRouteMeters?: number }>({
+    timestamp: 0,
+    distanceAlongRouteMeters: undefined
+  });
+  const isEtaFetchingRef = useRef<boolean>(false);
+
+  // Synchronize selectedBusIdRef with selectedEntity
+  useEffect(() => {
+    if (selectedEntity?.type === 'BUS') {
+      selectedBusIdRef.current = selectedEntity.id;
+    } else {
+      selectedBusIdRef.current = null;
+    }
+  }, [selectedEntity]);
 
   // Viewport trigger for programmatic pan/zoom
   const [viewportTrigger, setViewportTrigger] = useState<{
@@ -334,63 +365,122 @@ export function useMapState() {
     routeNumberRef.current = routeGeometry?.routeNumber;
   }, [routeGeometry?.routeNumber]);
 
-  // Real-time Socket.IO Route Subscription Lifecycle
-  useEffect(() => {
-    if (!selectedRouteId) {
-      setLiveBusesMap(new Map());
-      setSubscribedRoom(null);
-      return;
+  // Load fleet positions from verified backend REST API
+  const loadFleetPositions = useCallback(async () => {
+    try {
+      const res = await mapDataService.getFleetPositions({ limit: 100 });
+      if (!isMountedRef.current || !res.data) return;
+      setLiveBusesMap((prev) => {
+        const next = new Map(prev);
+        for (const item of res.data) {
+          if (
+            item.location?.coordinates &&
+            Array.isArray(item.location.coordinates) &&
+            item.location.coordinates.length === 2 &&
+            !isNaN(item.location.coordinates[0]) &&
+            !isNaN(item.location.coordinates[1])
+          ) {
+            next.set(item.busId, {
+              busId: item.busId,
+              tripId: item.tripId,
+              routeId: item.route?.id,
+              directionId: item.direction?.id,
+              fleetNumber: item.fleetNumber || 'TNSTC Bus',
+              registrationNumber: item.registrationNumber || '',
+              routeNumber: item.route?.routeNumber || '70',
+              displayTitleEn: item.route?.displayTitleEn,
+              displayTitleTa: item.route?.displayTitleTa,
+              depotName: item.depot?.name,
+              depotCode: item.depot?.code,
+              vehicleType: item.vehicleType,
+              operationalStatus: item.operationalStatus,
+              lat: item.location.coordinates[1],
+              lng: item.location.coordinates[0],
+              heading: item.heading || 0,
+              speedKmph: item.speedKmph || 0,
+              progressRatio: item.progressRatio,
+              distanceAlongRouteMeters: item.distanceAlongRouteMeters,
+              totalRouteDistanceMeters: item.totalRouteDistanceMeters,
+              trackingStatus: item.trackingStatus || (item.isSimulated ? 'SIMULATED' : 'LIVE'),
+              source: item.source || (item.isSimulated ? 'SIMULATOR' : 'VEHICLE_HARDWARE_GPS'),
+              isSimulated: Boolean(item.isSimulated),
+              freshness: item.freshness,
+              satellitesCount: item.satellitesCount,
+              altitudeMeters: item.altitudeMeters,
+              gpsFixStatus: item.gpsFixStatus,
+              batteryPercent: item.batteryPercent,
+              networkSignalDbm: item.networkSignalDbm,
+              deviceHealth: item.deviceHealth,
+              recordedAt: item.recordedAt || new Date().toISOString(),
+              lastReceivedAt: Date.now()
+            });
+          }
+        }
+        return next;
+      });
+    } catch (err) {
+      console.warn('Failed to load fleet positions:', err);
     }
+  }, []);
 
-    // Reset live buses map when switching routes
-    setLiveBusesMap(new Map());
-
-    // Connect socket
+  // Real-time Socket.IO Route & Fleet Subscription Lifecycle
+  useEffect(() => {
+    // Connect shared socket client
     socketClientManager.connect();
-    socketClientManager.subscribeRoute(selectedRouteId);
-    setSubscribedRoom(`route:${selectedRouteId}`);
+
+    if (selectedRouteId) {
+      setLiveBusesMap(new Map());
+      socketClientManager.subscribeRoute(selectedRouteId);
+      setSubscribedRoom(`route:${selectedRouteId}`);
+    } else {
+      loadFleetPositions();
+      socketClientManager.subscribeFleet?.();
+      setSubscribedRoom('fleet:all');
+    }
 
     // Handle subscription acknowledgment and initial snapshot
     const unsubAck = socketClientManager.onSubscriptionAck((ack: SubscriptionAckPayload<any>) => {
       if (!isMountedRef.current) return;
       if (ack.snapshot && Array.isArray(ack.snapshot.buses)) {
-        const busMap = new Map<string, LiveBusMarkerData>();
-        for (const raw of ack.snapshot.buses) {
-          if (
-            raw.coordinates &&
-            Array.isArray(raw.coordinates) &&
-            raw.coordinates.length === 2 &&
-            typeof raw.coordinates[0] === 'number' &&
-            typeof raw.coordinates[1] === 'number' &&
-            !isNaN(raw.coordinates[0]) &&
-            !isNaN(raw.coordinates[1])
-          ) {
-            const isSim =
-              raw.source === 'SIMULATOR' || raw.trackingStatus === 'SIMULATED';
-            busMap.set(raw.busId, {
-              busId: raw.busId,
-              tripId: raw.tripId,
-              routeId: raw.routeId,
-              directionId: raw.directionId,
-              fleetNumber: raw.fleetNumber || 'TNSTC Bus',
-              registrationNumber: raw.registrationNumber || '',
-              routeNumber: routeNumberRef.current || '70',
-              lat: raw.coordinates[1],
-              lng: raw.coordinates[0],
-              heading: raw.heading || 0,
-              speedKmph: raw.speedKmph || 0,
-              progressRatio: raw.progressRatio,
-              distanceAlongRouteMeters: raw.distanceAlongRouteMeters,
-              totalRouteDistanceMeters: raw.totalRouteDistanceMeters,
-              trackingStatus: raw.trackingStatus || (isSim ? 'SIMULATED' : 'LIVE'),
-              source: raw.source || (isSim ? 'SIMULATOR' : 'VEHICLE_HARDWARE_GPS'),
-              isSimulated: isSim,
-              recordedAt: raw.recordedAt || new Date().toISOString(),
-              lastReceivedAt: Date.now()
-            });
+        setLiveBusesMap((prev) => {
+          const next = new Map(prev);
+          for (const raw of ack.snapshot.buses) {
+            if (
+              raw.coordinates &&
+              Array.isArray(raw.coordinates) &&
+              raw.coordinates.length === 2 &&
+              typeof raw.coordinates[0] === 'number' &&
+              typeof raw.coordinates[1] === 'number' &&
+              !isNaN(raw.coordinates[0]) &&
+              !isNaN(raw.coordinates[1])
+            ) {
+              const isSim =
+                raw.source === 'SIMULATOR' || raw.trackingStatus === 'SIMULATED';
+              next.set(raw.busId, {
+                busId: raw.busId,
+                tripId: raw.tripId,
+                routeId: raw.routeId,
+                directionId: raw.directionId,
+                fleetNumber: raw.fleetNumber || 'TNSTC Bus',
+                registrationNumber: raw.registrationNumber || '',
+                routeNumber: raw.routeNumber || routeNumberRef.current || '70',
+                lat: raw.coordinates[1],
+                lng: raw.coordinates[0],
+                heading: raw.heading || 0,
+                speedKmph: raw.speedKmph || 0,
+                progressRatio: raw.progressRatio,
+                distanceAlongRouteMeters: raw.distanceAlongRouteMeters,
+                totalRouteDistanceMeters: raw.totalRouteDistanceMeters,
+                trackingStatus: raw.trackingStatus || (isSim ? 'SIMULATED' : 'LIVE'),
+                source: raw.source || (isSim ? 'SIMULATOR' : 'VEHICLE_HARDWARE_GPS'),
+                isSimulated: isSim,
+                recordedAt: raw.recordedAt || new Date().toISOString(),
+                lastReceivedAt: Date.now()
+              });
+            }
           }
-        }
-        setLiveBusesMap(busMap);
+          return next;
+        });
       }
     });
 
@@ -479,6 +569,89 @@ export function useMapState() {
           }
           return prevEntity;
         });
+
+        // Keep selected bus live details and telemetry in sync
+        if (selectedBusIdRef.current === pos.busId) {
+          setSelectedBusLiveDetails((prevDetails: any) => {
+            if (!prevDetails) return prevDetails;
+            const heading = pos.heading ?? prevDetails.latestPosition?.heading ?? 0;
+            const speed = pos.speedKmph ?? prevDetails.latestPosition?.speedKmph ?? 0;
+            const movementStatus = (speed > 2)
+              ? 'MOVING'
+              : (prevDetails.intelligence?.movementStatus === 'DWELLING' ? 'DWELLING' : 'STATIONARY');
+
+            const updatedLatestPos = {
+              ...prevDetails.latestPosition,
+              coordinates: [lng, lat],
+              heading,
+              speedKmph: speed,
+              distanceAlongRouteMeters: pos.distanceAlongRouteMeters ?? prevDetails.latestPosition?.distanceAlongRouteMeters,
+              progressRatio: pos.progressRatio ?? prevDetails.latestPosition?.progressRatio,
+              trackingStatus: pos.trackingStatus || prevDetails.latestPosition?.trackingStatus || 'LIVE',
+              recordedAt: pos.recordedAt || prevDetails.latestPosition?.recordedAt || new Date().toISOString(),
+              receivedAt: new Date().toISOString()
+            };
+
+            const updatedIntelligence = prevDetails.intelligence ? {
+              ...prevDetails.intelligence,
+              movementStatus,
+              currentSpeedKmph: speed,
+              compassHeading: {
+                degrees: heading,
+                direction: getCompassDirection(heading)
+              },
+              routeProgress: prevDetails.intelligence.routeProgress ? {
+                ...prevDetails.intelligence.routeProgress,
+                distanceTraveledKm: pos.distanceAlongRouteMeters !== undefined
+                  ? +(pos.distanceAlongRouteMeters / 1000).toFixed(2)
+                  : prevDetails.intelligence.routeProgress.distanceTraveledKm,
+                progressPercent: pos.progressRatio !== undefined
+                  ? Math.round(pos.progressRatio * 100)
+                  : prevDetails.intelligence.routeProgress.progressPercent
+              } : null
+            } : prevDetails.intelligence;
+
+            return {
+              ...prevDetails,
+              latestPosition: updatedLatestPos,
+              intelligence: updatedIntelligence
+            };
+          });
+
+          // Throttle ETA recalculations:
+          // Live location updates arrive every 2-5s, but ETA recalculation (ML / baseline)
+          // only triggers if the bus has progressed >= 100 meters along route OR >= 20 seconds have elapsed
+          const now = Date.now();
+          const lastCalc = lastEtaCalculationRef.current;
+          const timeSinceLast = now - lastCalc.timestamp;
+          const distDiff = pos.distanceAlongRouteMeters !== undefined && lastCalc.distanceAlongRouteMeters !== undefined
+            ? Math.abs(pos.distanceAlongRouteMeters - lastCalc.distanceAlongRouteMeters)
+            : 0;
+
+          const shouldRecalculateEta =
+            !isEtaFetchingRef.current &&
+            (timeSinceLast >= 20000 || (distDiff >= 100 && timeSinceLast >= 5000));
+
+          if (shouldRecalculateEta) {
+            isEtaFetchingRef.current = true;
+            lastEtaCalculationRef.current = {
+              timestamp: now,
+              distanceAlongRouteMeters: pos.distanceAlongRouteMeters
+            };
+            mapDataService.getBusLiveDetails(pos.busId)
+              .then((fresh) => {
+                if (isMountedRef.current && fresh && selectedBusIdRef.current === pos.busId) {
+                  setSelectedBusLiveDetails(fresh);
+                }
+              })
+              .catch((err) => {
+                console.warn('Failed to refresh throttled bus ETA:', err);
+              })
+              .finally(() => {
+                isEtaFetchingRef.current = false;
+              });
+          }
+        }
       }
     });
 
@@ -538,14 +711,39 @@ export function useMapState() {
       });
     });
 
+    // Reconcile missed events after reconnection so map state is never outdated
+    const unsubReconcile = socketClientManager.onReconcile
+      ? socketClientManager.onReconcile(() => {
+          if (!isMountedRef.current) return;
+          if (selectedRouteId) {
+            socketClientManager.subscribeRoute(selectedRouteId);
+          } else {
+            loadFleetPositions();
+            socketClientManager.subscribeFleet?.();
+          }
+          if (selectedBusIdRef.current) {
+            mapDataService.getBusLiveDetails(selectedBusIdRef.current).then((live) => {
+              if (isMountedRef.current && live && selectedBusIdRef.current === live.bus?.id) {
+                setSelectedBusLiveDetails(live);
+              }
+            }).catch(console.warn);
+          }
+        })
+      : () => {};
+
     return () => {
-      socketClientManager.unsubscribeRoute(selectedRouteId);
+      if (selectedRouteId) {
+        socketClientManager.unsubscribeRoute(selectedRouteId);
+      } else {
+        socketClientManager.unsubscribeFleet?.();
+      }
       setSubscribedRoom(null);
       unsubAck();
       unsubPosition();
       unsubStatus();
+      unsubReconcile();
     };
-  }, [selectedRouteId]);
+  }, [selectedRouteId, loadFleetPositions]);
 
   // On-demand user geolocation
   const handleRequestUserLocation = useCallback(async () => {
@@ -665,20 +863,136 @@ export function useMapState() {
     [setSearchParams]
   );
 
-  // Focus a specific marker on the map
-  const handleSelectEntity = useCallback((entity: SelectedMapEntity) => {
-    setSelectedEntity(entity);
-    setViewportTrigger({
-      center: [entity.lat, entity.lng],
-      zoom: 15,
-      timestamp: Date.now()
-    });
-  }, []);
+  // Focus a specific marker on the map and fetch comprehensive live bus details if entity is BUS
+  const handleSelectEntity = useCallback(
+    async (entity: SelectedMapEntity) => {
+      setSelectedEntity(entity);
+      setViewportTrigger({
+        center: [entity.lat, entity.lng],
+        zoom: 15,
+        timestamp: Date.now()
+      });
+
+      if (entity.type === 'BUS') {
+        selectedBusIdRef.current = entity.id;
+        lastEtaCalculationRef.current = {
+          timestamp: Date.now(),
+          distanceAlongRouteMeters: undefined
+        };
+        setIsLoadingBusDetails(true);
+        try {
+          const liveDetails = await mapDataService.getBusLiveDetails(entity.id);
+          if (isMountedRef.current && liveDetails) {
+            setSelectedBusLiveDetails(liveDetails);
+
+            // If the selected bus is assigned to a route, dynamically load route geometry & stops
+            if (liveDetails.routeDetails?.direction) {
+              const rd = liveDetails.routeDetails;
+              let polylineCoords: [number, number][] = [];
+              let hasGeom = false;
+              if (
+                rd.direction.routePolyline &&
+                Array.isArray(rd.direction.routePolyline.coordinates) &&
+                rd.direction.routePolyline.coordinates.length > 1
+              ) {
+                polylineCoords = rd.direction.routePolyline.coordinates.map((c: any) => [c[1], c[0]]);
+                hasGeom = true;
+              } else if (rd.direction.stops && rd.direction.stops.length > 0) {
+                polylineCoords = rd.direction.stops
+                  .filter((s: any) => s.stop?.location?.coordinates)
+                  .map((s: any) => [s.stop.location.coordinates[1], s.stop.location.coordinates[0]]);
+              }
+
+              setRouteGeometry({
+                routeId: rd.route.id,
+                directionId: rd.direction.id,
+                routeNumber: rd.route.routeNumber,
+                displayTitleEn: rd.route.displayTitleEn,
+                displayTitleTa: rd.route.displayTitleTa,
+                directionCode: rd.direction.directionCode,
+                polylineCoordinates: polylineCoords,
+                hasVerifiedGeometry: hasGeom,
+                totalDistanceKm: rd.direction.totalDistanceKm,
+                estimatedDurationMins: rd.direction.estimatedDurationMins,
+                originStand: rd.direction.originStand,
+                destinationStand: rd.direction.destinationStand,
+                stops: rd.direction.stops || []
+              });
+            }
+          }
+        } catch (err) {
+          console.warn('Failed to load bus live details:', err);
+        } finally {
+          if (isMountedRef.current) {
+            setIsLoadingBusDetails(false);
+          }
+        }
+      } else {
+        setSelectedBusLiveDetails(null);
+      }
+    },
+    []
+  );
 
   // Clear selected entity
   const handleClearSelectedEntity = useCallback(() => {
     setSelectedEntity(null);
+    setSelectedBusLiveDetails(null);
+    selectedBusIdRef.current = null;
   }, []);
+
+  // Fit map viewport to include all live fleet buses
+  const handleFitToFleet = useCallback(() => {
+    const buses = Array.from(liveBusesMap.values());
+    if (buses.length === 0) return;
+    const lats = buses.map((b) => b.lat).filter((l) => typeof l === 'number' && !isNaN(l));
+    const lngs = buses.map((b) => b.lng).filter((l) => typeof l === 'number' && !isNaN(l));
+    if (lats.length === 0 || lngs.length === 0) return;
+
+    const minLat = Math.min(...lats);
+    const maxLat = Math.max(...lats);
+    const minLng = Math.min(...lngs);
+    const maxLng = Math.max(...lngs);
+
+    if (minLat === maxLat && minLng === maxLng) {
+      setViewportTrigger({
+        center: [minLat, minLng],
+        zoom: 14,
+        timestamp: Date.now()
+      });
+    } else {
+      setViewportTrigger({
+        center: [(minLat + maxLat) / 2, (minLng + maxLng) / 2],
+        zoom: 13,
+        bounds: [
+          [minLat - 0.005, minLng - 0.005],
+          [maxLat + 0.005, maxLng + 0.005]
+        ],
+        timestamp: Date.now()
+      });
+    }
+  }, [liveBusesMap]);
+
+  // Fit map viewport to selected route polyline
+  const handleFitToRoute = useCallback(() => {
+    if (!routeGeometry || routeGeometry.polylineCoordinates.length < 2) return;
+    const lats = routeGeometry.polylineCoordinates.map((c) => c[0]);
+    const lngs = routeGeometry.polylineCoordinates.map((c) => c[1]);
+    const minLat = Math.min(...lats);
+    const maxLat = Math.max(...lats);
+    const minLng = Math.min(...lngs);
+    const maxLng = Math.max(...lngs);
+
+    setViewportTrigger({
+      center: [(minLat + maxLat) / 2, (minLng + maxLng) / 2],
+      zoom: 13,
+      bounds: [
+        [minLat - 0.005, minLng - 0.005],
+        [maxLat + 0.005, maxLng + 0.005]
+      ],
+      timestamp: Date.now()
+    });
+  }, [routeGeometry]);
 
   // Return to dashboard
   const handleReturnToDashboard = useCallback(() => {
@@ -764,6 +1078,48 @@ export function useMapState() {
     return Array.from(liveBusesMap.values());
   }, [liveBusesMap]);
 
+  // Filtered live buses according to selected fleet category and search keyword
+  const filteredBuses = useMemo(() => {
+    let list = Array.from(liveBusesMap.values());
+    if (fleetSearch.trim()) {
+      const q = fleetSearch.toLowerCase().trim();
+      list = list.filter(
+        (b) =>
+          b.fleetNumber?.toLowerCase().includes(q) ||
+          b.registrationNumber?.toLowerCase().includes(q) ||
+          b.routeNumber?.toLowerCase().includes(q)
+      );
+    }
+
+    switch (fleetFilter) {
+      case 'MOVING':
+        return list.filter((b) => (b.speedKmph || 0) > 5);
+      case 'STATIONARY':
+        return list.filter((b) => (b.speedKmph || 0) <= 5);
+      case 'DELAYED_STALE':
+        return list.filter(
+          (b) =>
+            b.trackingStatus === 'DELAYED' ||
+            b.trackingStatus === 'STALE' ||
+            b.freshness === 'DELAYED' ||
+            b.freshness === 'STALE'
+        );
+      case 'OFFLINE':
+        return list.filter(
+          (b) =>
+            b.trackingStatus === 'OFFLINE' ||
+            b.trackingStatus === 'UNAVAILABLE' ||
+            b.freshness === 'OFFLINE'
+        );
+      case 'REAL_GPS':
+        return list.filter((b) => !b.isSimulated && b.source !== 'SIMULATOR');
+      case 'SIMULATOR':
+        return list.filter((b) => b.isSimulated || b.source === 'SIMULATOR');
+      default:
+        return list;
+    }
+  }, [liveBusesMap, fleetFilter, fleetSearch]);
+
   return {
     districtInfo,
     districtBackendRecord,
@@ -782,6 +1138,13 @@ export function useMapState() {
     nearbyStands,
     isLoadingNearby,
     liveBuses,
+    filteredBuses,
+    fleetFilter,
+    setFleetFilter,
+    fleetSearch,
+    setFleetSearch,
+    selectedBusLiveDetails,
+    isLoadingBusDetails,
     socketStatus,
     subscribedRoom,
     selectedEntity,
@@ -801,6 +1164,8 @@ export function useMapState() {
     handleSwitchDirection,
     handleSelectEntity,
     handleClearSelectedEntity,
-    handleReturnToDashboard
+    handleReturnToDashboard,
+    handleFitToFleet,
+    handleFitToRoute
   };
 }

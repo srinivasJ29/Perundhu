@@ -1,10 +1,30 @@
 import { z } from 'zod';
 import { paginationQuerySchema, objectIdSchema } from '../../common/validation';
 
+export const busOperationalStatusEnum = z.enum([
+  'IN_SERVICE',
+  'MAINTENANCE',
+  'OFFLINE',
+  'AVAILABLE',
+  'RESERVED',
+  'UNDER_MAINTENANCE',
+  'BREAKDOWN',
+  'INACTIVE'
+]);
+
+export const fuelTypeEnum = z.enum(['DIESEL', 'CNG', 'ELECTRIC', 'HYBRID']);
+
 export const listBusesQuerySchema = paginationQuerySchema.extend({
-  status: z.enum(['IN_SERVICE', 'MAINTENANCE', 'OFFLINE']).optional(),
+  status: busOperationalStatusEnum.optional(),
   vehicleType: z.enum(['ORDINARY_NON_AC', 'DELUXE', 'ULTRA_DELUXE']).optional(),
   depotName: z.string().trim().min(1).optional(),
+  depotId: objectIdSchema.optional(),
+  isReserveFleet: z
+    .enum(['true', 'false'])
+    .transform((val) => val === 'true')
+    .optional(),
+  manufacturer: z.string().trim().min(1).optional(),
+  fuelType: fuelTypeEnum.optional(),
   isActive: z
     .enum(['true', 'false'])
     .transform((val) => val === 'true')
@@ -49,17 +69,47 @@ export const createBusBodySchema = z.object({
   vehicleType: z
     .enum(['ORDINARY_NON_AC', 'DELUXE', 'ULTRA_DELUXE'])
     .default('ORDINARY_NON_AC'),
-  status: z
-    .enum(['IN_SERVICE', 'MAINTENANCE', 'OFFLINE'])
-    .default('IN_SERVICE')
+  status: busOperationalStatusEnum.default('IN_SERVICE'),
+  depotId: objectIdSchema.optional(),
+  homeDepotId: objectIdSchema.optional(),
+  isReserveFleet: z.boolean().default(false).optional(),
+  manufacturer: z.string().trim().min(1).max(100).optional(),
+  vehicleModel: z.string().trim().min(1).max(100).optional(),
+  fuelType: fuelTypeEnum.default('DIESEL').optional(),
+  seatingCapacity: z.number().int().min(1).max(120).optional(),
+  chassisNumber: z.string().trim().max(50).optional(),
+  engineNumber: z.string().trim().max(50).optional(),
+  registrationDate: z.string().datetime().optional()
 });
 
 export type CreateBusBody = z.infer<typeof createBusBodySchema>;
 
+export const updateBusBodySchema = z.object({
+  manufacturer: z.string().trim().min(1).max(100).optional(),
+  vehicleModel: z.string().trim().min(1).max(100).optional(),
+  vehicleType: z.enum(['ORDINARY_NON_AC', 'DELUXE', 'ULTRA_DELUXE']).optional(),
+  fuelType: fuelTypeEnum.optional(),
+  seatingCapacity: z.number().int().min(1).max(120).optional(),
+  chassisNumber: z.string().trim().max(50).optional(),
+  engineNumber: z.string().trim().max(50).optional(),
+  depotName: z.string().trim().min(2).optional(),
+  depotId: objectIdSchema.optional(),
+  homeDepotId: objectIdSchema.optional(),
+  isReserveFleet: z.boolean().optional(),
+  currentOdometerKm: z.number().min(0).optional()
+});
+
+export type UpdateBusBody = z.infer<typeof updateBusBodySchema>;
+
+export const assignBusDepotBodySchema = z.object({
+  depotId: objectIdSchema,
+  notes: z.string().trim().max(500).optional()
+});
+
+export type AssignBusDepotBody = z.infer<typeof assignBusDepotBodySchema>;
+
 export const updateBusStatusBodySchema = z.object({
-  status: z.enum(['IN_SERVICE', 'MAINTENANCE', 'OFFLINE'], {
-    required_error: 'Status is required'
-  })
+  status: busOperationalStatusEnum
 });
 
 export type UpdateBusStatusBody = z.infer<typeof updateBusStatusBodySchema>;

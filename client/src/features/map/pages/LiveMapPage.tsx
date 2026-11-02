@@ -12,9 +12,11 @@ import {
   Navigation,
   Compass,
   AlertCircle,
-  Globe
+  Globe,
+  Brain
 } from 'lucide-react';
 import { useLanguage } from '../../../hooks/useLanguage';
+import { useAiCopilot } from '../../ai-copilot';
 import { useMapState } from '../hooks/useMapState';
 import { MapCanvas } from '../components/MapCanvas';
 import { MapSearch } from '../components/MapSearch';
@@ -28,6 +30,7 @@ import '../styles/map.css';
 
 export const LiveMapPage: React.FC = () => {
   const { t, language, setLanguage } = useLanguage();
+  const { openCopilot } = useAiCopilot();
   const navigate = useNavigate();
   const mapInstanceRef = useRef<LeafletMap | null>(null);
 
@@ -78,7 +81,16 @@ export const LiveMapPage: React.FC = () => {
     handleSwitchDirection,
     handleSelectEntity,
     handleClearSelectedEntity,
-    handleReturnToDashboard
+    handleReturnToDashboard,
+    filteredBuses,
+    fleetFilter,
+    setFleetFilter,
+    fleetSearch,
+    setFleetSearch,
+    selectedBusLiveDetails,
+    isLoadingBusDetails,
+    handleFitToFleet,
+    handleFitToRoute
   } = useMapState();
 
   useEffect(() => {
@@ -157,6 +169,18 @@ export const LiveMapPage: React.FC = () => {
         </div>
 
         <div className="live-map-header-right">
+          {/* AI Copilot Button */}
+          <button
+            type="button"
+            className="global-ai-copilot-btn"
+            onClick={() => openCopilot()}
+            title={language === 'ta' ? 'AI வழிகாட்டியைத் திற (LangGraph)' : 'Open AI Transit Copilot (LangGraph)'}
+            aria-label="Open AI Copilot"
+          >
+            <Brain size={14} />
+            <span>AI Copilot</span>
+          </button>
+
           {/* Language Switcher */}
           <button
             type="button"
@@ -204,6 +228,8 @@ export const LiveMapPage: React.FC = () => {
           onRecenter={handleRecenter}
           onZoomIn={handleZoomIn}
           onZoomOut={handleZoomOut}
+          onFitFleet={handleFitToFleet}
+          onFitRoute={routeGeometry ? handleFitToRoute : undefined}
         />
 
         {/* Leaflet Map Canvas */}
@@ -293,6 +319,15 @@ export const LiveMapPage: React.FC = () => {
           onSelectRoute={handleSelectRoute}
           onSwitchDirection={handleSwitchDirection}
           liveBuses={liveBuses}
+          filteredBuses={filteredBuses}
+          fleetFilter={fleetFilter}
+          onFleetFilterChange={setFleetFilter}
+          fleetSearch={fleetSearch}
+          onFleetSearchChange={setFleetSearch}
+          selectedBusLiveDetails={selectedBusLiveDetails}
+          isLoadingBusDetails={isLoadingBusDetails}
+          onFitToFleet={handleFitToFleet}
+          onFitToRoute={handleFitToRoute}
           busStands={busStands}
           nearbyStands={nearbyStands}
           isLoadingNearby={isLoadingNearby}

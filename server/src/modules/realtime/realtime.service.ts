@@ -13,6 +13,7 @@ import {
   RealtimeEvents,
   getBusRoom,
   getRouteRoom,
+  FLEET_ROOM,
   BusPositionBroadcastPayload,
   BusStatusBroadcastPayload,
   BusNextStopBroadcastPayload,
@@ -161,7 +162,7 @@ export class RealtimeTrackingService {
     };
 
     const busRoom = getBusRoom(busId);
-    let broadcaster = this.io.to(busRoom);
+    let broadcaster = this.io.to(busRoom).to(FLEET_ROOM);
 
     if (routeId) {
       const routeRoom = getRouteRoom(routeId);

@@ -1,8 +1,7 @@
 /**
- * PERUNDHU (பேருந்து) — District Selection Design System (Step 4)
- * Strict compliance with approved tokens:
- * Deep Teal: #071F22 | Primary Teal: #1D7873 | Sage: #67958C
- * Warm Peach: #F5C096 | Vivid Red: #EF2E33 | Background: #F6F8F6 | Surface: #FFFFFF
+ * PERUNDHU (பேருந்து) — District Selection Design System
+ * Signature White Canvas, Shining Onyx Black Typography & Electric Cyber Yellow
+ * High-Contrast White Glass Cards, Specular Shimmer & Glowing Accents
  */
 
 .districts-page {
@@ -13,6 +12,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
 }
 
 /* ==============================================================================
@@ -41,12 +42,25 @@
 }
 
 .districts-title {
+  font-family: var(--font-family-display);
   font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-deep-teal);
-  letter-spacing: -0.01em;
+  font-weight: 900;
+  color: #000000;
+  letter-spacing: -0.02em;
   line-height: var(--line-height-tight);
   margin: 0;
+  background: linear-gradient(
+    135deg,
+    #000000 0%,
+    #27272A 30%,
+    #52525B 50%,
+    #000000 70%,
+    #18181B 100%
+  );
+  background-size: 250% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: perundhu-shining-sweep 5s ease-in-out infinite;
 }
 
 @media (min-width: 640px) {
@@ -57,7 +71,7 @@
 
 .districts-subtitle {
   font-size: var(--font-size-base);
-  color: var(--color-text-secondary);
+  color: #52525B;
   line-height: var(--line-height-normal);
   margin: 0;
   max-width: 700px;
@@ -68,11 +82,11 @@
   display: flex;
   align-items: center;
   gap: var(--space-4);
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background-color: #FFFFFF;
+  border: 1.5px solid rgba(250, 204, 21, 0.4);
   border-radius: var(--radius-lg);
   padding: var(--space-3) var(--space-4);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
   flex-wrap: wrap;
 }
 
@@ -81,7 +95,8 @@
   align-items: center;
   gap: var(--space-2);
   font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
+  color: #18181B;
+  font-weight: 700;
 }
 
 .districts-stat-dot {
@@ -92,12 +107,12 @@
 }
 
 .districts-stat-dot-active {
-  background-color: var(--color-status-success);
-  box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.2);
+  background-color: #FACC15;
+  box-shadow: 0 0 10px rgba(250, 204, 21, 0.6);
 }
 
 .districts-stat-dot-neutral {
-  background-color: var(--color-sage);
+  background-color: #A1A1AA;
 }
 
 /* ==============================================================================
@@ -121,7 +136,7 @@
 .district-search-icon {
   position: absolute;
   left: var(--space-3);
-  color: var(--color-text-muted);
+  color: #71717A;
   pointer-events: none;
   display: flex;
   align-items: center;
@@ -129,25 +144,25 @@
 
 .district-search-input {
   width: 100%;
-  min-height: 48px;
+  min-height: 50px;
   padding: var(--space-2) var(--space-10) var(--space-2) calc(var(--space-3) + 20px + var(--space-2));
-  background-color: var(--color-surface);
-  border: 1.5px solid var(--color-border);
+  background-color: #FFFFFF;
+  border: 1.5px solid rgba(0, 0, 0, 0.14);
   border-radius: var(--radius-lg);
   font-size: var(--font-size-base);
-  color: var(--color-text-primary);
-  box-shadow: var(--shadow-sm);
+  color: #000000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .district-search-input:focus {
   outline: none;
-  border-color: var(--color-primary-teal);
-  box-shadow: var(--focus-ring);
+  border-color: #FFE600;
+  box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.35), 0 0 16px rgba(250, 204, 21, 0.15);
 }
 
 .district-search-input::placeholder {
-  color: var(--color-text-muted);
+  color: #A1A1AA;
 }
 
 .district-search-clear-btn {
@@ -158,7 +173,7 @@
   background: transparent;
   border: none;
   padding: var(--space-2);
-  color: var(--color-text-muted);
+  color: #71717A;
   border-radius: var(--radius-md);
   cursor: pointer;
   display: inline-flex;
@@ -170,13 +185,13 @@
 }
 
 .district-search-clear-btn:hover {
-  color: var(--color-primary-teal);
-  background-color: var(--color-sage-light);
+  color: #000000;
+  background-color: rgba(250, 204, 21, 0.2);
 }
 
 .district-search-clear-btn:focus-visible {
   outline: none;
-  box-shadow: var(--focus-ring);
+  box-shadow: 0 0 0 2px #FFE600;
 }
 
 /* Filter pills row */
@@ -198,38 +213,42 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  padding: var(--space-1) var(--space-3);
+  padding: 6px 14px;
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
+  font-weight: 700;
   border-radius: var(--radius-full);
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  color: var(--color-text-secondary);
+  background-color: #F4F4F5;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #52525B;
   cursor: pointer;
-  min-height: 32px;
+  min-height: 34px;
   transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
 }
 
 .district-filter-tab:hover {
-  border-color: var(--color-sage);
-  color: var(--color-primary-teal);
+  border-color: #FFE600;
+  color: #000000;
+  background-color: #FFFFFF;
 }
 
 .district-filter-tab.active {
-  background-color: var(--color-primary-teal);
-  border-color: var(--color-primary-teal);
-  color: var(--color-surface);
+  background-color: #FFE600;
+  border-color: #FFE600;
+  color: #000000;
+  font-weight: 800;
+  box-shadow: 0 0 14px rgba(250, 204, 21, 0.4);
 }
 
 .district-filter-tab:focus-visible {
   outline: none;
-  box-shadow: var(--focus-ring);
+  box-shadow: 0 0 0 2px #FFE600;
 }
 
 .district-count-display {
   font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  font-weight: var(--font-weight-medium);
+  color: #71717A;
+  font-weight: 700;
+  font-family: var(--font-family-tech);
 }
 
 /* ==============================================================================
@@ -267,9 +286,10 @@
 
 .district-card {
   position: relative;
-  background-color: var(--color-surface);
-  border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  background-color: #FFFFFF;
+  backdrop-filter: blur(20px);
+  border: 1.5px solid rgba(250, 204, 21, 0.35);
+  border-radius: var(--radius-xl);
   padding: var(--space-5);
   display: flex;
   flex-direction: column;
@@ -277,46 +297,45 @@
   gap: var(--space-4);
   text-align: left;
   width: 100%;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
   transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
   cursor: default;
 }
 
 /* Active / Selectable District Card */
 .district-card-available {
-  border-color: var(--color-primary-teal);
+  border-color: rgba(250, 204, 21, 0.4);
   cursor: pointer;
-  background: linear-gradient(180deg, #FFFFFF 0%, #F5FBF9 100%);
+  background: #FFFFFF;
 }
 
 .district-card-available:hover {
-  transform: translateY(-2px);
-  border-color: var(--color-primary-teal-hover);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+  border-color: #FFE600;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.09), 0 0 20px rgba(250, 204, 21, 0.3);
 }
 
 .district-card-available:focus-visible {
   outline: none;
-  box-shadow: var(--focus-ring);
+  box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.4);
 }
 
 /* Selected state */
 .district-card-selected {
-  border-color: var(--color-primary-teal);
-  box-shadow: 0 0 0 2px var(--color-primary-teal), var(--shadow-md);
-  background-color: var(--color-background);
+  border-color: #FFE600;
+  box-shadow: 0 0 0 2px #FFE600, 0 0 25px rgba(250, 204, 21, 0.35);
+  background-color: #FFFFFF;
 }
 
 /* Coming Soon / Disabled District Card */
 .district-card-coming-soon {
-  opacity: 0.88;
-  background-color: var(--color-surface);
-  border-color: var(--color-border-subtle);
-  border-style: solid;
+  opacity: 0.75;
+  background-color: #FAFAFA;
+  border-color: rgba(0, 0, 0, 0.08);
 }
 
 .district-card-coming-soon:hover {
-  border-color: var(--color-border);
+  border-color: rgba(0, 0, 0, 0.16);
 }
 
 .district-card-top {
@@ -327,15 +346,71 @@
 }
 
 .district-code-badge {
-  font-family: var(--font-family-base);
+  font-family: var(--font-family-tech);
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-bold);
+  font-weight: 800;
   letter-spacing: 0.05em;
-  padding: 0.15rem 0.45rem;
+  padding: 0.2rem 0.55rem;
   border-radius: var(--radius-sm);
-  background-color: var(--color-background);
-  color: var(--color-text-secondary);
-  border: 1px solid var(--color-border);
+  background-color: #000000;
+  color: #FFE600;
+  border: 1px solid rgba(250, 204, 21, 0.5);
+}
+
+.district-landmark-preview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background-color: #071F22;
+  margin-top: var(--space-2);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.district-landmark-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.district-card:hover .district-landmark-img {
+  transform: scale(1.04);
+}
+
+.district-landmark-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.88) 100%);
+  color: #FFFFFF;
+  padding: 8px 8px 4px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--space-1);
+}
+
+.landmark-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #FFE600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.landmark-attribution {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.75);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 48%;
+  pointer-events: none;
 }
 
 .district-card-content {
@@ -345,17 +420,19 @@
 }
 
 .district-primary-name {
+  font-family: var(--font-family-display);
   font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-deep-teal);
+  font-weight: 800;
+  color: #000000;
   line-height: var(--line-height-tight);
   margin: 0;
 }
 
 .district-secondary-name {
   font-size: var(--font-size-sm);
-  color: var(--color-primary-teal);
-  font-weight: var(--font-weight-medium);
+  color: #CA8A04;
+  font-weight: 800;
+  font-family: var(--font-family-tamil);
 }
 
 .district-headquarters-row {
@@ -363,13 +440,13 @@
   align-items: center;
   gap: var(--space-1);
   font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
+  color: #71717A;
   margin-top: var(--space-1);
 }
 
 .district-card-footer {
   padding-top: var(--space-3);
-  border-top: 1px solid var(--color-border-subtle);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -377,9 +454,9 @@
 
 .district-card-action-btn {
   width: 100%;
-  min-height: 40px;
+  min-height: 42px;
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
+  font-weight: 800;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -388,7 +465,7 @@
 
 .district-coming-soon-desc {
   font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
+  color: #71717A;
   line-height: 1.4;
   margin: 0;
 }
@@ -404,34 +481,181 @@
   justify-content: center;
   padding: var(--space-12) var(--space-4);
   text-align: center;
-  background-color: var(--color-surface);
-  border: 1.5px dashed var(--color-border);
+  background-color: #FFFFFF;
+  border: 1.5px dashed rgba(250, 204, 21, 0.4);
   border-radius: var(--radius-xl);
   gap: var(--space-3);
   margin: var(--space-4) 0;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
 }
 
 .districts-empty-icon {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background-color: var(--color-sage-light);
-  color: var(--color-primary-teal);
+  background-color: rgba(250, 204, 21, 0.2);
+  color: #CA8A04;
+  border: 1px solid rgba(250, 204, 21, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .districts-empty-title {
+  font-family: var(--font-family-display);
   font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-deep-teal);
+  font-weight: 800;
+  color: #000000;
   margin: 0;
 }
 
 .districts-empty-desc {
   font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
+  color: #71717A;
   max-width: 420px;
   margin: 0;
+}
+
+
+/* ==============================================================================
+ * Phase 7: Expansion Notice Modal for Coming Soon Districts
+ * ============================================================================== */
+
+.district-expansion-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(7, 31, 33, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--space-4);
+  animation: modal-fade-in 0.2s ease-out;
+}
+
+@keyframes modal-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.district-expansion-modal-card {
+  background-color: #FFFFFF;
+  border: 1.5px solid rgba(250, 204, 21, 0.4);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+  max-width: 520px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modal-pop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modal-pop {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.district-expansion-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+  background-color: #FAF5FF;
+}
+
+.district-expansion-icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(250, 204, 21, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.district-expansion-modal-title {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-base);
+  font-weight: 800;
+  color: #000000;
+  margin: 0;
+}
+
+.district-expansion-modal-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #CA8A04;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.district-expansion-modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #71717A;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.district-expansion-modal-close:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #000000;
+}
+
+.district-expansion-modal-body {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.district-expansion-modal-message {
+  font-size: var(--font-size-sm);
+  color: #27272A;
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+}
+
+.district-expansion-pilot-callout {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background-color: rgba(29, 120, 115, 0.06);
+  border: 1px solid rgba(29, 120, 115, 0.2);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-xs);
+  color: var(--color-deep-teal);
+  line-height: var(--line-height-normal);
+}
+
+.district-expansion-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  background-color: #F8FAFC;
+  border-top: 1px solid var(--color-border);
 }

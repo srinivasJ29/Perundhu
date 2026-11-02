@@ -11,6 +11,31 @@ import { DistrictSelectionPage } from '../features/districts';
 import { RouteSelectionPage, LiveTrackingPlaceholder } from '../features/routes';
 import { DashboardPage } from '../features/dashboard';
 import { LiveMapPage } from '../features/map';
+import {
+  OperationsHubPage,
+  DepotManagementPage,
+  DepotDetailsPage,
+  ReserveFleetPage,
+  WorkshopManagementPage,
+  BusStandManagementPage,
+  DepotTransferPage,
+  FleetManagementPage,
+  BusDetailsPage,
+  DriverManagementPage,
+  DriverDetailsPage,
+  ConductorManagementPage,
+  ConductorDetailsPage,
+  EtmRegistryPage,
+  GpsTrackerRegistryPage,
+  DeviceAssignmentPage,
+  FleetDeviceMonitoringPage,
+  TransportAdminDashboardPage,
+  DepotManagerDashboardPage,
+  DispatcherDashboardPage,
+  DriverDashboardPage,
+  ConductorDashboardPage
+} from '../features/management';
+import { AnalyticsDashboardPage } from '../features/analytics/pages/AnalyticsDashboardPage';
 
 export const router = createBrowserRouter([
   {
@@ -48,6 +73,106 @@ export const router = createBrowserRouter([
       {
         element: <RootLayout />,
         children: [
+          {
+            path: '/operations',
+            element: <OperationsHubPage />
+          },
+          {
+            path: '/operations/admin-dashboard',
+            element: <TransportAdminDashboardPage />
+          },
+          {
+            path: '/operations/depot-dashboard',
+            element: <DepotManagerDashboardPage />
+          },
+          {
+            path: '/operations/dispatcher-dashboard',
+            element: <DispatcherDashboardPage />
+          },
+          {
+            path: '/operations/driver-dashboard',
+            element: <DriverDashboardPage />
+          },
+          {
+            path: '/operations/conductor-dashboard',
+            element: <ConductorDashboardPage />
+          },
+          {
+            path: '/driver',
+            element: <DriverDashboardPage />
+          },
+          {
+            path: '/conductor',
+            element: <ConductorDashboardPage />
+          },
+          {
+            path: '/operations/fleet',
+            element: <FleetManagementPage />
+          },
+          {
+            path: '/operations/fleet/:busId',
+            element: <BusDetailsPage />
+          },
+          {
+            path: '/operations/drivers',
+            element: <DriverManagementPage />
+          },
+          {
+            path: '/operations/drivers/:driverId',
+            element: <DriverDetailsPage />
+          },
+          {
+            path: '/operations/conductors',
+            element: <ConductorManagementPage />
+          },
+          {
+            path: '/operations/conductors/:conductorId',
+            element: <ConductorDetailsPage />
+          },
+          {
+            path: '/operations/etms',
+            element: <EtmRegistryPage />
+          },
+          {
+            path: '/operations/gps-trackers',
+            element: <GpsTrackerRegistryPage />
+          },
+          {
+            path: '/operations/assignments',
+            element: <DeviceAssignmentPage />
+          },
+          {
+            path: '/operations/monitoring',
+            element: <FleetDeviceMonitoringPage />
+          },
+          {
+            path: '/operations/analytics',
+            element: <AnalyticsDashboardPage />
+          },
+          {
+            path: '/operations/depots',
+            element: <DepotManagementPage />
+          },
+          {
+            path: '/operations/depots/:depotId',
+            element: <DepotDetailsPage />
+          },
+          {
+            path: '/operations/reserve-fleet',
+            element: <ReserveFleetPage />
+          },
+          {
+            path: '/operations/workshops',
+            element: <WorkshopManagementPage />
+          },
+          {
+            path: '/operations/bus-stands',
+            element: <BusStandManagementPage />
+          },
+          {
+            path: '/operations/transfers',
+            element: <DepotTransferPage />
+          },
           {
             path: '/districts',
             element: <DistrictSelectionPage />

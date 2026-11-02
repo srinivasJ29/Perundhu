@@ -51,14 +51,29 @@ export function signAccessToken(payload: {
   email: string;
   role: UserRole;
   sessionId: string;
+  organizationId?: string;
+  divisionId?: string;
+  depotId?: string;
+  workshopId?: string;
+  crewMemberId?: string;
+  badgeNumber?: string;
 }): string {
+  const tokenPayload: Record<string, any> = {
+    sub: payload.sub,
+    email: payload.email,
+    role: payload.role,
+    sessionId: payload.sessionId
+  };
+
+  if (payload.organizationId) tokenPayload.organizationId = payload.organizationId;
+  if (payload.divisionId) tokenPayload.divisionId = payload.divisionId;
+  if (payload.depotId) tokenPayload.depotId = payload.depotId;
+  if (payload.workshopId) tokenPayload.workshopId = payload.workshopId;
+  if (payload.crewMemberId) tokenPayload.crewMemberId = payload.crewMemberId;
+  if (payload.badgeNumber) tokenPayload.badgeNumber = payload.badgeNumber;
+
   return jwt.sign(
-    {
-      sub: payload.sub,
-      email: payload.email,
-      role: payload.role,
-      sessionId: payload.sessionId
-    },
+    tokenPayload,
     env.JWT_ACCESS_SECRET,
     {
       expiresIn: env.JWT_ACCESS_EXPIRES_IN as any,

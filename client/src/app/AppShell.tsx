@@ -1,12 +1,17 @@
 /**
  * PERUNDHU (பேருந்து) — Quantum App Shell
  * Top-level application layout orchestrating global route transitions,
- * top progress beam, animated bus page-to-page curtain, and viewport scroll synchronization.
+ * glowing progress beam, and AI Transit Copilot (LangGraph & LangChain).
  */
 
 import React, { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { RouteProgressBar, PageTransition, PremiumFrontOpening } from '../components/common';
+import { RouteProgressBar, PageTransition } from '../components/common';
+import {
+  AiCopilotProvider,
+  AiCopilotDrawer,
+  AiCopilotFloatingButton
+} from '../features/ai-copilot';
 
 export const AppShell: React.FC = () => {
   const location = useLocation();
@@ -21,12 +26,15 @@ export const AppShell: React.FC = () => {
   }, [location.pathname]);
 
   return (
-    <div className="perundhu-quantum-app">
-      <PremiumFrontOpening />
-      <RouteProgressBar />
-      <PageTransition key={location.pathname}>
-        <Outlet />
-      </PageTransition>
-    </div>
+    <AiCopilotProvider>
+      <div className="perundhu-quantum-app">
+        <RouteProgressBar />
+        <PageTransition key={location.pathname}>
+          <Outlet />
+        </PageTransition>
+        <AiCopilotDrawer />
+        <AiCopilotFloatingButton />
+      </div>
+    </AiCopilotProvider>
   );
 };

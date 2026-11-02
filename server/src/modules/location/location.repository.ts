@@ -4,7 +4,25 @@ import {
   LocationHistory
 } from '../../models';
 import { logger } from '../../common/logger';
-import { LocationObservation } from './location.types';
+import { LocationObservation, LocationSource } from './location.types';
+
+/**
+ * Strict source-priority ranking matrix (Task 5):
+ * 1. VEHICLE_HARDWARE_GPS (Rank 100): Certified tamper-proof vehicle tracker (AIS-140)
+ * 2. OFFICIAL_FLEET_FEED (Rank 80): Authorized central vendor gateway / webhook
+ * 3. AUTHORIZED_MOBILE_GPS (Rank 60): Approved driver mobile application
+ * 4. ETM_GPS (Rank 40): Conductor Electronic Ticketing Machine (when physically verified)
+ * 5. MANUAL_DISPATCH (Rank 20): Authorized depot manual entry
+ * 6. SIMULATOR (Rank 10): Synthetic demonstration telemetry (lowest priority)
+ */
+export const SOURCE_PRIORITY_RANK: Record<LocationSource, number> = {
+  VEHICLE_HARDWARE_GPS: 100,
+  OFFICIAL_FLEET_FEED: 80,
+  AUTHORIZED_MOBILE_GPS: 60,
+  ETM_GPS: 40,
+  MANUAL_DISPATCH: 20,
+  SIMULATOR: 10
+};
 
 export class LocationRepository {
   /**
@@ -37,6 +55,11 @@ export class LocationRepository {
           heading: observation.heading,
           speedKmph: observation.speedKmph,
           accuracyMeters: observation.accuracyMeters,
+          satellitesCount: observation.satellitesCount,
+          altitudeMeters: observation.altitudeMeters,
+          gpsFixStatus: observation.gpsFixStatus,
+          batteryPercent: observation.batteryPercent,
+          networkSignalDbm: observation.networkSignalDbm,
           source: observation.source,
           sourceDeviceId: observation.sourceDeviceId,
           trackingStatus: observation.trackingStatus,
@@ -121,6 +144,11 @@ export class LocationRepository {
       heading: doc.heading,
       speedKmph: doc.speedKmph,
       accuracyMeters: doc.accuracyMeters,
+      satellitesCount: doc.satellitesCount,
+      altitudeMeters: doc.altitudeMeters,
+      gpsFixStatus: doc.gpsFixStatus,
+      batteryPercent: doc.batteryPercent,
+      networkSignalDbm: doc.networkSignalDbm,
       source: doc.source,
       sourceDeviceId: doc.sourceDeviceId,
       trackingStatus: doc.trackingStatus,

@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Radio, User } from 'lucide-react';
+import { ArrowLeft, Radio, User, AlertCircle, X, ArrowRight, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { useAuth } from '../../auth';
 import { useDistricts } from '../hooks/useDistricts';
@@ -8,8 +8,9 @@ import { filterDistricts } from '../utils/filterDistricts';
 import { DistrictItem } from '../types';
 import { DistrictSearch } from '../components/DistrictSearch';
 import { DistrictGrid } from '../components/DistrictGrid';
-import { TOTAL_DISTRICTS_COUNT } from '../data/tamilNaduDistricts';
+import { TOTAL_DISTRICTS_COUNT, TAMIL_NADU_DISTRICTS } from '../data/tamilNaduDistricts';
 import { Badge } from '../../../components/common/Badge';
+import { Button } from '../../../components/common/Button';
 import '../styles/district-selection.css';
 
 export const DistrictSelectionPage: React.FC = () => {
@@ -23,6 +24,9 @@ export const DistrictSelectionPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
 
+  // Expansion modal state for inactive/coming-soon districts
+  const [expansionDistrict, setExpansionDistrict] = useState<DistrictItem | null>(null);
+
   useEffect(() => {
     document.title = `${t('districts.title')} — PERUNDHU`;
   }, [t]);
@@ -33,10 +37,23 @@ export const DistrictSelectionPage: React.FC = () => {
   }, [districts, searchQuery, statusFilter]);
 
   const handleSelectDistrict = (district: DistrictItem) => {
+    if (district.status !== 'AVAILABLE') {
+      setExpansionDistrict(district);
+      return;
+    }
     const success = selectDistrict(district);
     if (success) {
-      // Navigate to Step 5 route destination
+      // Navigate to route destination
       navigate(`/districts/${district.code.toLowerCase()}/routes`);
+    }
+  };
+
+  const handleExploreMadurai = () => {
+    const madurai = districts.find((d) => d.code === 'MDU') || TAMIL_NADU_DISTRICTS.find((d) => d.code === 'MDU');
+    if (madurai) {
+      selectDistrict(madurai);
+      setExpansionDistrict(null);
+      navigate('/districts/mdu/routes');
     }
   };
 
@@ -131,6 +148,81 @@ export const DistrictSelectionPage: React.FC = () => {
           onClearSearch={() => setSearchQuery('')}
         />
       </div>
+
+      {/* Accessible Informative Expansion Modal for Coming Soon Districts */}
+      {expansionDistrict && (
+        <div
+          className="district-expansion-modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="expansion-modal-title"
+          onClick={() => setExpansionDistrict(null)}
+        >
+          <div
+            className="district-expansion-modal-card"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="district-expansion-modal-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div className="district-expansion-icon-box">
+                  <AlertCircle size={22} color="#CA8A04" />
+                </div>
+                <div>
+                  <h2 id="expansion-modal-title" className="district-expansion-modal-title">
+                    {expansionDistrict.nameEn} ({expansionDistrict.nameTa})
+                  </h2>
+                  <span className="district-expansion-modal-badge">
+                    {t('passenger.expansion_notice_title')}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="district-expansion-modal-close"
+                onClick={() => setExpansionDistrict(null)}
+                aria-label={t('dashboard.close')}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="district-expansion-modal-body">
+              <p className="district-expansion-modal-message">
+                {t('passenger.expansion_notice_desc').replace(
+                  '{district}',
+                  language === 'ta' ? expansionDistrict.nameTa : expansionDistrict.nameEn
+                )}
+              </p>
+
+              <div className="district-expansion-pilot-callout">
+                <ShieldCheck size={18} color="var(--color-primary-teal)" style={{ flexShrink: 0 }} />
+                <div>
+                  <strong>{t('pilot.badge')}: </strong>
+                  <span>{t('landing.pilot_disclaimer')}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="district-expansion-modal-footer">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setExpansionDistrict(null)}
+              >
+                <span>{t('dashboard.close')}</span>
+              </Button>
+              <Button
+                type="button"
+                variant="primary"
+                onClick={handleExploreMadurai}
+                icon={<ArrowRight size={16} />}
+              >
+                <span>{t('passenger.explore_madurai')}</span>
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

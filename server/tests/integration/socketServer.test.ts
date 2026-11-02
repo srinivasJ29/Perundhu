@@ -419,4 +419,118 @@ describe('Socket.IO Real-Time Tracking Server (Integration)', () => {
       expect(receivedEvent).toBe(false);
     });
   });
+
+  // ---------------------------------------------------------------------------
+  // 4. Fleet Subscriptions & Permissions
+  // ---------------------------------------------------------------------------
+  describe('Fleet Subscriptions (subscribe:fleet)', () => {
+    it('should acknowledge general fleet subscription and return active buses snapshot', async () => {
+      vi.spyOn(LatestBusPosition, 'find').mockReturnValue({
+        sort: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockReturnThis(),
+        lean: vi.fn().mockResolvedValue([
+          {
+            busId: new Types.ObjectId(),
+            location: { coordinates: [78.1198, 9.9252] },
+            heading: 90,
+            speedKmph: 30,
+            trackingStatus: 'LIVE',
+            source: 'VEHICLE_HARDWARE_GPS',
+            recordedAt: new Date(),
+            receivedAt: new Date()
+          }
+        ])
+      } as any);
+
+      const client = await createClient();
+
+      const ackPromise = new Promise<any>((resolve) => {
+        client.on(RealtimeEvents.SUBSCRIPTION_ACK, (ack) => resolve(ack));
+      });
+
+      client.emit(RealtimeEvents.SUBSCRIBE_FLEET, {});
+      const ack = await ackPromise;
+
+      expect(ack.channel).toBe('fleet:all');
+      expect(ack.status).toBe('SUBSCRIBED');
+      expect(ack.snapshot).toBeDefined();
+      expect(ack.snapshot.totalBusesCount).toBe(1);
+    });
+
+    it('should reject unauthenticated client attempting restricted fleet subscription with UNAUTHORIZED', async () => {
+      const client = await createClient(); // unauthenticated anonymous
+
+      const errorPromise = new Promise<any>((resolve) => {
+        client.on(RealtimeEvents.SUBSCRIPTION_ERROR, (err) => resolve(err));
+      });
+
+      client.emit(RealtimeEvents.SUBSCRIBE_FLEET, { includeRestricted: true });
+      const err = await errorPromise;
+
+      expect(err.code).toBe('UNAUTHORIZED');
+      expect(err.error).toContain('Administrator');
+    });
+
+    it('should permit authenticated ADMIN client to subscribe to restricted fleet data', async () => {
+      vi.spyOn(LatestBusPosition, 'find').mockReturnValue({
+        sort: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockReturnThis(),
+        lean: vi.fn().mockResolvedValue([])
+      } as any);
+
+      const adminClient = await createClient({ token: mockAdminToken });
+
+      const ackPromise = new Promise<any>((resolve) => {
+        adminClient.on(RealtimeEvents.SUBSCRIPTION_ACK, (ack) => resolve(ack));
+      });
+
+      adminClient.emit(RealtimeEvents.SUBSCRIBE_FLEET, { includeRestricted: true });
+      const ack = await ackPromise;
+
+      expect(ack.channel).toBe('fleet:all');
+      expect(ack.status).toBe('SUBSCRIBED');
+    });
+
+    it('should broadcast accepted bus positions to fleet subscribers', async () => {
+      const busId = new Types.ObjectId();
+
+      vi.spyOn(LatestBusPosition, 'find').mockReturnValue({
+        sort: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockReturnThis(),
+        lean: vi.fn().mockResolvedValue([])
+      } as any);
+
+      vi.spyOn(LatestBusPosition, 'findOne').mockReturnValue({
+        lean: vi.fn().mockResolvedValue(null)
+      } as any);
+
+      const client = await createClient();
+
+      await new Promise<void>((resolve) => {
+        client.on(RealtimeEvents.SUBSCRIPTION_ACK, () => resolve());
+        client.emit(RealtimeEvents.SUBSCRIBE_FLEET, {});
+      });
+
+      const positionPromise = new Promise<any>((resolve) => {
+        client.on(RealtimeEvents.BUS_POSITION, (pos) => resolve(pos));
+      });
+
+      const obs: LocationObservation = {
+        busId,
+        location: { type: 'Point', coordinates: [78.1198, 9.9252] },
+        heading: 90,
+        speedKmph: 45,
+        source: 'VEHICLE_HARDWARE_GPS',
+        trackingStatus: 'LIVE',
+        recordedAt: new Date(),
+        receivedAt: new Date()
+      };
+
+      await locationPipelineService.processObservation(obs);
+      const received = await positionPromise;
+
+      expect(received.busId).toBe(busId.toString());
+      expect(received.source).toBe('VEHICLE_HARDWARE_GPS');
+    });
+  });
 });

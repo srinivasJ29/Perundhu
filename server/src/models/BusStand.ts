@@ -5,6 +5,8 @@ export type BusStandType = 'INTERCITY_TERMINAL' | 'MOFUSSIL' | 'TOWN_STAND';
 
 export interface IBusStand {
   districtId: Types.ObjectId;
+  divisionId?: Types.ObjectId;
+  depotIds?: Types.ObjectId[];
   code: string;
   nameEn: string;
   nameTa: string;
@@ -25,6 +27,17 @@ const busStandSchema = new Schema<BusStandDocument>(
       ref: 'District',
       required: [true, 'District reference is required'],
       index: true
+    },
+    divisionId: {
+      type: Schema.Types.ObjectId,
+      ref: 'TransportDivision',
+      default: undefined,
+      index: true
+    },
+    depotIds: {
+      type: [Schema.Types.ObjectId],
+      ref: 'Depot',
+      default: []
     },
     code: {
       type: String,

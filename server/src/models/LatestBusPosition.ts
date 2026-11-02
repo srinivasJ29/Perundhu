@@ -5,7 +5,9 @@ export type LocationSource =
   | 'SIMULATOR'
   | 'AUTHORIZED_MOBILE_GPS'
   | 'VEHICLE_HARDWARE_GPS'
-  | 'OFFICIAL_FLEET_FEED';
+  | 'OFFICIAL_FLEET_FEED'
+  | 'ETM_GPS'
+  | 'MANUAL_DISPATCH';
 
 export type TrackingStatus =
   | 'SIMULATED'
@@ -32,6 +34,11 @@ export interface ILatestBusPosition {
   heading: number;
   speedKmph: number;
   accuracyMeters: number;
+  satellitesCount?: number;
+  altitudeMeters?: number;
+  gpsFixStatus?: string;
+  batteryPercent?: number;
+  networkSignalDbm?: number;
   source: LocationSource;
   sourceDeviceId?: string;
   trackingStatus: TrackingStatus;
@@ -119,6 +126,31 @@ const latestBusPositionSchema = new Schema<LatestBusPositionDocument>(
       default: 5,
       min: [0, 'Accuracy must be non-negative']
     },
+    satellitesCount: {
+      type: Number,
+      min: 0,
+      max: 50,
+      default: undefined
+    },
+    altitudeMeters: {
+      type: Number,
+      default: undefined
+    },
+    gpsFixStatus: {
+      type: String,
+      trim: true,
+      default: undefined
+    },
+    batteryPercent: {
+      type: Number,
+      min: 0,
+      max: 100,
+      default: undefined
+    },
+    networkSignalDbm: {
+      type: Number,
+      default: undefined
+    },
     source: {
       type: String,
       enum: {
@@ -126,7 +158,9 @@ const latestBusPositionSchema = new Schema<LatestBusPositionDocument>(
           'SIMULATOR',
           'AUTHORIZED_MOBILE_GPS',
           'VEHICLE_HARDWARE_GPS',
-          'OFFICIAL_FLEET_FEED'
+          'OFFICIAL_FLEET_FEED',
+          'ETM_GPS',
+          'MANUAL_DISPATCH'
         ],
         message: 'Invalid location source: {VALUE}'
       },

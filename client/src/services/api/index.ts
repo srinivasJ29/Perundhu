@@ -6,3 +6,8 @@ export * from './routes.service';
 export * from './buses.service';
 export * from './trips.service';
 export * from './health.service';
+export * from './management.service';
+export * from './fleetStaffDevice.service';
+export * from './alerts.service';
+export * from './analytics.service';
+export * from './operations.service';

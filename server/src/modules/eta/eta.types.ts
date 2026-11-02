@@ -4,10 +4,23 @@ import { StopEventType } from '../../models/StopEvent';
 export type StopArrivalStatus = StopEventType;
 
 export type EtaPredictionSource =
+  | 'ML_PREDICTION'
+  | 'BASELINE_ESTIMATE'
+  | 'OFFICIAL_SCHEDULE'
+  | 'ETA_UNAVAILABLE'
   | 'LIVE_MOVEMENT'
   | 'SCHEDULE_FALLBACK'
   | 'SIMULATED_MOVEMENT'
   | 'UNAVAILABLE';
+
+export type EtaFallbackReason =
+  | 'GPS_STALE'
+  | 'BUS_OFF_ROUTE'
+  | 'MODEL_UNAVAILABLE'
+  | 'UNASSIGNED_TRIP'
+  | 'TERMINAL_REACHED'
+  | 'OUT_OF_DISTRIBUTION'
+  | 'INSUFFICIENT_HISTORY';
 
 export interface EnrichedStopItem {
   id: string;
@@ -57,6 +70,8 @@ export interface StopEtaPrediction {
   predictionSource: EtaPredictionSource;
   isRealTimePrediction: boolean;
   confidence: number;
+  confidenceIntervalSeconds?: [number, number];
+  fallbackReason?: EtaFallbackReason | string;
 }
 
 export interface TripEtaResponseDto {
@@ -70,7 +85,41 @@ export interface TripEtaResponseDto {
   isRealTimePrediction: boolean;
   predictionSource: EtaPredictionSource;
   confidence?: number;
+  modelVersion?: string;
   generatedAt: string;
   nextStop?: StopEtaPrediction;
   downstreamStops: StopEtaPrediction[];
+}
+
+export interface MlPredictionRequestDto {
+  bus_id: string;
+  route_id?: string;
+  route_number?: string;
+  target_stop_code?: string;
+  distance_to_stop_meters: number;
+  distance_along_route_meters: number;
+  current_speed_kmph: number;
+  rolling_speed_kmph?: number;
+  heading?: number;
+  stops_remaining?: number;
+  segment_index?: number;
+  scheduled_duration_seconds?: number;
+  recorded_at?: string;
+  is_deviated?: boolean;
+  tracking_status?: string;
+}
+
+export interface MlPredictionResponseDto {
+  bus_id: string;
+  target_stop_code?: string;
+  prediction_source: EtaPredictionSource;
+  predicted_seconds: number;
+  predicted_minutes: number;
+  confidence: number;
+  confidence_lower_seconds: number;
+  confidence_upper_seconds: number;
+  model_version: string;
+  prediction_timestamp: string;
+  fallback_reason?: EtaFallbackReason | string;
+  inference_latency_ms: number;
 }

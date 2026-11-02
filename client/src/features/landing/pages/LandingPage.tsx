@@ -7,15 +7,18 @@ import { LandingFooter } from '../components/LandingFooter';
 import '../styles/landing.css';
 
 /**
- * LandingPage Component (Step 2 Entry Point)
+ * LandingPage Component (Preserving Exact Project Workflow)
  *
- * The official opening page for PERUNDHU (பேருந்து) — TNSTC Live Bus Tracking.
- * Introduces the brand, the Madurai pilot corridor, core transit tracking capabilities,
- * bilingual Tamil/English preferences, and leads into the future passenger onboarding flow.
+ * Official opening page for PERUNDHU (பேருந்து) — TNSTC Live Bus Tracking.
+ * Orchestrates:
+ * 1. LandingHeader
+ * 2. HeroSection
+ * 3. FeatureHighlights
+ * 4. PilotInformation
+ * 5. LandingFooter
  */
 export const LandingPage: React.FC = () => {
   useEffect(() => {
-    // Set descriptive page title for accessibility & SEO
     document.title = 'PERUNDHU (பேருந்து) — TNSTC Live Bus Tracking';
   }, []);
 
@@ -39,3 +42,4 @@ export const LandingPage: React.FC = () => {
     </div>
   );
 };
+

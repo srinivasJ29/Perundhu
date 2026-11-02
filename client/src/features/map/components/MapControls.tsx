@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Navigation, Compass, Loader2, Plus, Minus } from 'lucide-react';
+import { Navigation, Compass, Loader2, Plus, Minus, Bus, Route as RouteIcon } from 'lucide-react';
 import { useLanguage } from '../../../hooks/useLanguage';
 
 interface MapControlsProps {
@@ -14,11 +14,13 @@ interface MapControlsProps {
   onRecenter: () => void;
   onZoomIn?: () => void;
   onZoomOut?: () => void;
+  onFitFleet?: () => void;
+  onFitRoute?: () => void;
 }
 
 /**
  * Floating map navigation controls with Zoom In (+), Zoom Out (-),
- * My Location, and Recenter triggers.
+ * Fit to Fleet, Fit to Route, My Location, and Recenter triggers.
  */
 export const MapControls: React.FC<MapControlsProps> = ({
   isLocatingUser,
@@ -26,9 +28,11 @@ export const MapControls: React.FC<MapControlsProps> = ({
   onRequestUserLocation,
   onRecenter,
   onZoomIn,
-  onZoomOut
+  onZoomOut,
+  onFitFleet,
+  onFitRoute
 }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   return (
     <div className="map-floating-controls-group" role="toolbar" aria-label="Map Navigation Controls">
@@ -61,6 +65,36 @@ export const MapControls: React.FC<MapControlsProps> = ({
       )}
 
       {(onZoomIn || onZoomOut) && <div className="map-floating-divider" aria-hidden="true" />}
+
+      {/* Fit to Fleet Button */}
+      {onFitFleet && (
+        <button
+          type="button"
+          id="map-fit-fleet-btn"
+          className="map-floating-btn"
+          onClick={onFitFleet}
+          title={language === 'ta' ? 'அனைத்து பேருந்துகளையும் காண்க' : 'Fit Map to Fleet'}
+          aria-label={language === 'ta' ? 'அனைத்து பேருந்துகளையும் காண்க' : 'Fit Map to Fleet'}
+        >
+          <Bus size={18} />
+        </button>
+      )}
+
+      {/* Fit to Route Button */}
+      {onFitRoute && (
+        <button
+          type="button"
+          id="map-fit-route-btn"
+          className="map-floating-btn"
+          onClick={onFitRoute}
+          title={language === 'ta' ? 'வழித்தடத்தை முழுவதும் காண்க' : 'Fit Map to Route'}
+          aria-label={language === 'ta' ? 'வழித்தடத்தை முழுவதும் காண்க' : 'Fit Map to Route'}
+        >
+          <RouteIcon size={18} />
+        </button>
+      )}
+
+      {(onFitFleet || onFitRoute) && <div className="map-floating-divider" aria-hidden="true" />}
 
       {/* My Location Button */}
       <button

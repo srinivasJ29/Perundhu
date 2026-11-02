@@ -38,12 +38,11 @@
   width: 0%;
   background: linear-gradient(
     90deg,
-    var(--color-brown-950) 0%,
-    var(--color-brown-850) 40%,
-    var(--color-brown-400) 80%,
-    var(--color-brown-300) 100%
+    #FFE600 0%,
+    #FACC15 50%,
+    #FFFFFF 100%
   );
-  box-shadow: 0 0 10px rgba(168, 109, 71, 0.6), 0 0 20px rgba(75, 46, 29, 0.3);
+  box-shadow: 0 0 16px rgba(250, 204, 21, 0.95), 0 0 30px rgba(250, 204, 21, 0.5);
   position: relative;
   transition: width 300ms cubic-bezier(0.16, 1, 0.3, 1);
   will-change: width;
@@ -732,33 +731,38 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  font-size: 2.5rem;
+  font-family: var(--font-family-display);
+  font-size: 2.75rem;
   font-weight: 900;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   color: #FFFFFF;
 }
 
 .opening-title-tamil {
   font-family: var(--font-family-tamil, 'Noto Sans Tamil', sans-serif);
-  color: #FACC15;
-  text-shadow: 0 0 25px rgba(250, 204, 21, 0.5);
+  color: #FFE600;
+  text-shadow: 0 0 30px rgba(250, 204, 21, 0.7);
 }
 
 .opening-title-separator {
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(250, 204, 21, 0.4);
   font-size: 1.5rem;
 }
 
 .opening-title-english {
-  background: linear-gradient(135deg, #FFFFFF 0%, #FACC15 100%);
+  font-family: var(--font-family-display);
+  background: linear-gradient(135deg, #FFFFFF 0%, #FFF5A5 30%, #FFE600 70%, #FACC15 100%);
+  background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  animation: perundhu-shining-sweep 4s infinite ease-in-out;
+  text-shadow: 0 0 25px rgba(250, 204, 21, 0.4);
 }
 
 .opening-subtitle {
   margin: 0 0 20px 0;
   font-size: 0.95rem;
-  color: #A1A1AA;
+  color: #D4D4D8;
   max-width: 520px;
   line-height: 1.5;
 }

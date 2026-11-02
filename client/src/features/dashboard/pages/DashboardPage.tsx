@@ -15,6 +15,7 @@ import { LiveBusOverview } from '../components/LiveBusOverview';
 import { QuickAccessGrid } from '../components/QuickAccessGrid';
 import { PassengerGuidance } from '../components/PassengerGuidance';
 import { TimetableModal } from '../components/TimetableModal';
+import { ServiceNoticesBanner } from '../components/ServiceNoticesBanner';
 import '../styles/dashboard.css';
 
 export const DashboardPage: React.FC = () => {
@@ -29,6 +30,10 @@ export const DashboardPage: React.FC = () => {
     liveOverview,
     nearbyStands,
     timetableModal,
+    alerts,
+    isLoadingAlerts,
+    alertsError,
+    refreshAlerts,
     handleRequestLocation,
     handleBrowseDistrictStands,
     handleOpenTimetable,
@@ -64,6 +69,16 @@ export const DashboardPage: React.FC = () => {
               locationOptions={locationOptions}
               districtRoutes={districtRoutes}
               onSelectRoute={(routeId) => selectRoute(routeId)}
+            />
+          </div>
+
+          {/* Official Transit Notices & Service Advisories */}
+          <div className="page-stagger-2" style={{ marginBottom: 'var(--space-4)' }}>
+            <ServiceNoticesBanner
+              alerts={alerts}
+              isLoading={isLoadingAlerts}
+              error={alertsError}
+              onRefresh={refreshAlerts}
             />
           </div>
 

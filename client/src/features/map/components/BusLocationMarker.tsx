@@ -4,8 +4,9 @@
  * kinematic speed display, and temporal freshness status.
  */
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Marker, Popup } from 'react-leaflet';
+import type L from 'leaflet';
 import { LiveBusMarkerData, SelectedMapEntity } from '../types';
 import { createBusLocationIcon } from '../utils/mapIcons';
 import { useLanguage } from '../../../hooks/useLanguage';
@@ -24,6 +25,90 @@ export const BusLocationMarker: React.FC<BusLocationMarkerProps> = ({
   onSelect
 }) => {
   const { t, language } = useLanguage();
+  const markerRef = useRef<L.Marker | null>(null);
+  const animFrameRef = useRef<number | null>(null);
+  const currentPosRef = useRef<[number, number]>([bus.lat, bus.lng]);
+  const currentHeadingRef = useRef<number>(bus.heading || 0);
+  const lastRecordedAtRef = useRef<string | null>(bus.recordedAt || null);
+
+  // Smooth Marker Interpolation between accepted GPS updates
+  useEffect(() => {
+    const marker = markerRef.current;
+    if (!marker) return;
+
+    // Reject stale or out-of-order timestamp updates from animating
+    if (
+      lastRecordedAtRef.current &&
+      bus.recordedAt &&
+      new Date(bus.recordedAt).getTime() < new Date(lastRecordedAtRef.current).getTime()
+    ) {
+      return;
+    }
+    lastRecordedAtRef.current = bus.recordedAt || null;
+
+    const startLat = currentPosRef.current[0];
+    const startLng = currentPosRef.current[1];
+    const startHeading = currentHeadingRef.current;
+
+    const targetLat = bus.lat;
+    const targetLng = bus.lng;
+    const targetHeading = bus.heading || 0;
+
+    // Calculate approximate distance in degrees
+    const dLat = targetLat - startLat;
+    const dLng = targetLng - startLng;
+    const distDeg = Math.sqrt(dLat * dLat + dLng * dLng);
+
+    // If jump is unusually large (> ~500m, approx 0.005 deg) or initializing, snap immediately without warping
+    if (distDeg > 0.005 || (startLat === 0 && startLng === 0)) {
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+      currentPosRef.current = [targetLat, targetLng];
+      currentHeadingRef.current = targetHeading;
+      marker.setLatLng([targetLat, targetLng]);
+      return;
+    }
+
+    // Cancel in-flight animation when newer coordinates arrive
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+    }
+
+    const startTime = performance.now();
+    const duration = 1800; // 1.8 seconds smooth interpolation
+
+    // Smallest angular difference handling 360 wrap-around
+    const diffHeading = ((targetHeading - startHeading + 540) % 360) - 180;
+
+    const step = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(1, elapsed / duration);
+      // Quadratic ease-out: starts briskly, settles smoothly
+      const eased = 1 - (1 - progress) * (1 - progress);
+
+      const curLat = startLat + dLat * eased;
+      const curLng = startLng + dLng * eased;
+      const curHeading = (startHeading + diffHeading * eased + 360) % 360;
+
+      currentPosRef.current = [curLat, curLng];
+      currentHeadingRef.current = curHeading;
+
+      marker.setLatLng([curLat, curLng]);
+
+      if (progress < 1) {
+        animFrameRef.current = requestAnimationFrame(step);
+      } else {
+        animFrameRef.current = null;
+      }
+    };
+
+    animFrameRef.current = requestAnimationFrame(step);
+
+    return () => {
+      if (animFrameRef.current) {
+        cancelAnimationFrame(animFrameRef.current);
+      }
+    };
+  }, [bus.lat, bus.lng, bus.heading, bus.recordedAt]);
 
   if (
     typeof bus.lat !== 'number' ||
@@ -75,6 +160,7 @@ export const BusLocationMarker: React.FC<BusLocationMarkerProps> = ({
 
   return (
     <Marker
+      ref={markerRef}
       position={[bus.lat, bus.lng]}
       icon={icon}
       eventHandlers={{

@@ -19,7 +19,7 @@ describe('Auth Live Database Integration Tests (MongoDB)', () => {
     if (env.MONGODB_URI) {
       try {
         if (mongoose.connection.readyState === 0) {
-          await mongoose.connect(env.MONGODB_URI);
+          await mongoose.connect(env.MONGODB_URI, { serverSelectionTimeoutMS: 2000 });
         }
         isDbConnected = mongoose.connection.readyState === 1;
       } catch (err) {

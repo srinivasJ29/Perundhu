@@ -15,10 +15,12 @@ import {
   LogOut,
   ChevronDown,
   Menu,
-  X
+  X,
+  Brain
 } from 'lucide-react';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { useAuth } from '../../auth';
+import { useAiCopilot } from '../../ai-copilot';
 import { Badge } from '../../../components/common/Badge';
 import { DashboardDistrictInfo, DashboardRouteSummary } from '../types';
 
@@ -33,6 +35,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 }) => {
   const { t, language, setLanguage } = useLanguage();
   const { user, isAuthenticated, logout } = useAuth();
+  const { openCopilot } = useAiCopilot();
   const navigate = useNavigate();
 
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -119,8 +122,20 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           )}
         </div>
 
-        {/* 3. Right Controls (Language & User Menu) */}
+        {/* 3. Right Controls (AI Copilot, Language & User Menu) */}
         <div className="dashboard-actions-group">
+          {/* AI Copilot Action Button */}
+          <button
+            type="button"
+            onClick={() => openCopilot()}
+            className="global-ai-copilot-btn"
+            title={language === 'ta' ? 'AI வழிகாட்டியைத் திற (LangGraph)' : 'Open AI Transit Copilot (LangGraph)'}
+            aria-label="Open AI Copilot"
+          >
+            <Brain size={15} />
+            <span>AI Copilot</span>
+          </button>
+
           {/* Language Switcher */}
           <button
             type="button"

@@ -93,6 +93,12 @@ export interface LiveBusMarkerData {
   fleetNumber?: string;
   registrationNumber?: string;
   routeNumber?: string;
+  displayTitleEn?: string;
+  displayTitleTa?: string;
+  depotName?: string;
+  depotCode?: string;
+  vehicleType?: string;
+  operationalStatus?: string;
   lat: number;
   lng: number;
   heading: number;
@@ -105,6 +111,21 @@ export interface LiveBusMarkerData {
   isSimulated: boolean;
   isDelayed?: boolean;
   isDeviated?: boolean;
+  freshness?: 'HEALTHY' | 'DELAYED' | 'STALE' | 'OFFLINE' | 'UNKNOWN';
+  satellitesCount?: number;
+  altitudeMeters?: number;
+  gpsFixStatus?: string;
+  batteryPercent?: number;
+  networkSignalDbm?: number;
+  deviceHealth?: {
+    overallStatus: string;
+    networkConnectivity: string;
+    gpsSignalStatus: string;
+    diagnosticSummary?: string;
+    satellitesTracked?: number;
+    batteryPercent?: number;
+    latencySeconds?: number;
+  };
   recordedAt: string;
   lastReceivedAt: number; // Epoch timestamp in ms
 }

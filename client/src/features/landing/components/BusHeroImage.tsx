@@ -23,13 +23,28 @@ export const BusHeroImage: React.FC = () => {
     <div className="hero-visual-card" data-testid="bus-hero-card">
       <div className="hero-bus-image-wrapper">
         {!hasError ? (
-          <img
-            src="/assets/branding/bus-hero.png"
-            alt={t('landing.bus_image_alt')}
-            className="hero-bus-img"
-            onError={() => setHasError(true)}
-            loading="eager"
-          />
+          <>
+            <picture>
+              <source type="image/webp" srcSet="/assets/buses/tnstc-hero-madurai.webp" />
+              <img
+                src="/assets/branding/bus-hero.png"
+                alt={t('landing.bus_image_alt')}
+                className="hero-bus-img"
+                onError={() => setHasError(true)}
+                loading="eager"
+              />
+            </picture>
+
+            {/* Authentic Tamil Nadu bus photo caption & attribution pill */}
+            <div className="hero-photo-attribution-badge">
+              <span className="badge-bullet" />
+              <span className="badge-text">
+                {language === 'ta'
+                  ? 'அரசு விரைவுப் பேருந்து • அசோக் லேலண்ட் (CC BY-SA 4.0, விஸ்வா சுந்தர்)'
+                  : 'TNSTC Mofussil Express • Ashok Leyland Viking (CC BY-SA 4.0, Vishwa Sundar)'}
+              </span>
+            </div>
+          </>
         ) : (
           <div
             className="hero-bus-fallback"

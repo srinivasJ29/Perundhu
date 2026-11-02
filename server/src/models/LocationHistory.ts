@@ -47,7 +47,9 @@ const locationHistorySchema = new Schema<LocationHistoryDocument>(
         'SIMULATOR',
         'AUTHORIZED_MOBILE_GPS',
         'VEHICLE_HARDWARE_GPS',
-        'OFFICIAL_FLEET_FEED'
+        'OFFICIAL_FLEET_FEED',
+        'ETM_GPS',
+        'MANUAL_DISPATCH'
       ],
       required: [true, 'Location source is required']
     },

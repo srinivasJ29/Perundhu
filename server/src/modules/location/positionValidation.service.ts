@@ -166,7 +166,9 @@ export class PositionValidationService {
       'SIMULATOR',
       'AUTHORIZED_MOBILE_GPS',
       'VEHICLE_HARDWARE_GPS',
-      'OFFICIAL_FLEET_FEED'
+      'OFFICIAL_FLEET_FEED',
+      'ETM_GPS',
+      'MANUAL_DISPATCH'
     ];
     if (!validSources.includes(obs.source)) {
       errors.push(`Invalid location source: ${obs.source}`);

@@ -1,4 +1,4 @@
-import { Schema, model, Document, Model } from 'mongoose';
+import { Schema, model, Document, Model, Types } from 'mongoose';
 import { UserRole, UserStatus, SafeUser } from '../types';
 
 export interface IUser {
@@ -8,6 +8,12 @@ export interface IUser {
   role: UserRole;
   status: UserStatus;
   phone?: string;
+  organizationId?: Types.ObjectId;
+  divisionId?: Types.ObjectId;
+  depotId?: Types.ObjectId;
+  workshopId?: Types.ObjectId;
+  crewMemberId?: Types.ObjectId;
+  badgeNumber?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -43,7 +49,20 @@ const userSchema = new Schema<UserDocument>(
     },
     role: {
       type: String,
-      enum: ['PASSENGER', 'ADMIN'],
+      enum: [
+        'PASSENGER',
+        'ADMIN',
+        'SUPER_ADMIN',
+        'TRANSPORT_ADMIN',
+        'REGIONAL_ADMIN',
+        'DIVISION_ADMIN',
+        'DEPOT_MANAGER',
+        'WORKSHOP_MANAGER',
+        'DISPATCHER',
+        'DRIVER',
+        'CONDUCTOR',
+        'ANALYST'
+      ],
       default: 'PASSENGER',
       required: true,
       index: true
@@ -59,6 +78,41 @@ const userSchema = new Schema<UserDocument>(
       type: String,
       trim: true,
       sparse: true
+    },
+    organizationId: {
+      type: Schema.Types.ObjectId,
+      ref: 'TransportOrganization',
+      default: undefined,
+      index: true
+    },
+    divisionId: {
+      type: Schema.Types.ObjectId,
+      ref: 'TransportDivision',
+      default: undefined,
+      index: true
+    },
+    depotId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Depot',
+      default: undefined,
+      index: true
+    },
+    workshopId: {
+      type: Schema.Types.ObjectId,
+      ref: 'MaintenanceWorkshop',
+      default: undefined,
+      index: true
+    },
+    crewMemberId: {
+      type: Schema.Types.ObjectId,
+      ref: 'CrewMember',
+      default: undefined,
+      index: true
+    },
+    badgeNumber: {
+      type: String,
+      trim: true,
+      default: undefined
     }
   },
   {
@@ -76,6 +130,12 @@ userSchema.methods.toSafeUser = function (): SafeUser {
     role: this.role,
     status: this.status,
     phone: this.phone,
+    organizationId: this.organizationId ? this.organizationId.toString() : undefined,
+    divisionId: this.divisionId ? this.divisionId.toString() : undefined,
+    depotId: this.depotId ? this.depotId.toString() : undefined,
+    workshopId: this.workshopId ? this.workshopId.toString() : undefined,
+    crewMemberId: this.crewMemberId ? this.crewMemberId.toString() : undefined,
+    badgeNumber: this.badgeNumber,
     createdAt: this.createdAt,
     updatedAt: this.updatedAt
   };

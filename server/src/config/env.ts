@@ -115,6 +115,14 @@ const envSchema = z.object({
   SIMULATOR_ROUTE_END_POLICY: z
     .enum(['LOOP', 'COMPLETE'])
     .default('LOOP'),
+  SIMULATOR_MAX_BUSES: z
+    .preprocess((val) => {
+      if (typeof val === 'string' && val.trim() !== '') {
+        const parsed = parseInt(val, 10);
+        return isNaN(parsed) ? val : parsed;
+      }
+      return val;
+    }, z.number().int().min(1).max(200).default(40)),
 
   // Phase 7: Position Validation, Freshness & Route Matching Configuration
   LOCATION_MAX_FUTURE_SKEW_MS: z
@@ -238,7 +246,29 @@ const envSchema = z.object({
         return isNaN(parsed) ? val : parsed;
       }
       return val;
-    }, z.number().int().min(1).max(10).default(2))
+    }, z.number().int().min(1).max(10).default(2)),
+
+  // Phase 9: AI/ML Bus Arrival Time Prediction (ETA) Configuration
+  ML_ETA_ENABLED: z
+    .preprocess((val) => {
+      if (typeof val === 'string') return val === 'true' || val === '1';
+      return val;
+    }, z.boolean().default(true)),
+  ML_ETA_SERVICE_URL: z.string().url().default('http://localhost:8000'),
+  ML_ETA_SERVICE_TIMEOUT_MS: z
+    .preprocess((val) => {
+      if (typeof val === 'string' && val.trim() !== '') {
+        const parsed = parseInt(val, 10);
+        return isNaN(parsed) ? val : parsed;
+      }
+      return val;
+    }, z.number().int().min(500).max(10000).default(2500)),
+  ML_ETA_API_KEY: z.string().default('perundhu-ml-internal-secret-2026'),
+  ML_ETA_FALLBACK_TO_BASELINE: z
+    .preprocess((val) => {
+      if (typeof val === 'string') return val === 'true' || val === '1';
+      return val;
+    }, z.boolean().default(true))
 }).superRefine((data, ctx) => {
   if (data.NODE_ENV === 'production') {
     if (!data.MONGODB_URI || data.MONGODB_URI.trim().length === 0) {

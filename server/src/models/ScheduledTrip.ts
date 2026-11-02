@@ -9,6 +9,9 @@ export interface IScheduledTrip {
   tripCode: string;
   routeDirectionId: Types.ObjectId;
   busId?: Types.ObjectId;
+  depotId?: Types.ObjectId;
+  driverId?: Types.ObjectId;
+  conductorId?: Types.ObjectId;
   departureTime: string; // HH:mm
   arrivalTime: string;   // HH:mm
   operationalDays: DayOfWeek[];
@@ -40,6 +43,24 @@ const scheduledTripSchema = new Schema<ScheduledTripDocument>(
     busId: {
       type: Schema.Types.ObjectId,
       ref: 'Bus',
+      default: undefined,
+      index: true
+    },
+    depotId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Depot',
+      default: undefined,
+      index: true
+    },
+    driverId: {
+      type: Schema.Types.ObjectId,
+      ref: 'CrewMember',
+      default: undefined,
+      index: true
+    },
+    conductorId: {
+      type: Schema.Types.ObjectId,
+      ref: 'CrewMember',
       default: undefined,
       index: true
     },

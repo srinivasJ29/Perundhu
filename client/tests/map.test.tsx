@@ -108,7 +108,10 @@ vi.mock('../src/services/socket/socketClient', () => ({
         socketMockState.ackListeners.delete(cb);
       };
     }),
-    onSubscriptionError: vi.fn(() => vi.fn())
+    onSubscriptionError: vi.fn(() => vi.fn()),
+    subscribeFleet: vi.fn(),
+    unsubscribeFleet: vi.fn(),
+    onReconcile: vi.fn(() => vi.fn())
   }
 }));
 

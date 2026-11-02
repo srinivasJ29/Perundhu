@@ -20,6 +20,7 @@ import { Button } from '../../../components/common/Button';
 import { Badge } from '../../../components/common/Badge';
 import { NearbyStandsState } from '../types';
 import { NearbyBusStandDto } from '../../../types/domain';
+import { getBusStandAsset } from '../../../lib/assets';
 
 interface NearbyBusStandsProps {
   nearbyState: NearbyStandsState;
@@ -76,17 +77,12 @@ export const NearbyBusStands: React.FC<NearbyBusStandsProps> = ({
           </div>
         </div>
 
-        {/* Action button if not yet requested */}
+        {/* Header Status Badge */}
         {!nearbyState.permissionRequested && (
-          <Button
-            type="button"
-            variant="primary"
-            onClick={onRequestLocation}
-            icon={<Navigation size={14} />}
-            disabled={nearbyState.isLoading}
-          >
-            <span>{t('dashboard.detect_location_btn')}</span>
-          </Button>
+          <Badge variant="neutral">
+            <Compass size={12} style={{ marginRight: '4px' }} />
+            <span>{language === 'ta' ? 'ஜிபிஎஸ் இருப்பிடம்' : 'GPS Radar Ready'}</span>
+          </Badge>
         )}
       </div>
 
@@ -167,6 +163,7 @@ export const NearbyBusStands: React.FC<NearbyBusStandsProps> = ({
               const nearbyStand = stand as NearbyBusStandDto;
               const hasDistance = typeof nearbyStand.distanceMeters === 'number';
               const formattedDist = formatDistance(nearbyStand.distanceMeters);
+              const standAsset = getBusStandAsset(stand.code);
 
               return (
                 <article
@@ -175,6 +172,23 @@ export const NearbyBusStands: React.FC<NearbyBusStandsProps> = ({
                   role="listitem"
                   aria-labelledby={`stand-name-${stand.id}`}
                 >
+                  {standAsset && (
+                    <div className="nearby-stand-photo-wrap">
+                      <picture>
+                        <source type="image/webp" srcSet={standAsset.thumb} />
+                        <img
+                          src={standAsset.jpg}
+                          alt={language === 'ta' ? standAsset.altTa : standAsset.altEn}
+                          className="nearby-stand-photo"
+                          loading="lazy"
+                        />
+                      </picture>
+                      <div className="nearby-stand-photo-attribution" title={standAsset.attribution}>
+                        <span>{standAsset.attribution.replace(' (Wikimedia Commons, ', ' / ').replace(')', '')}</span>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="nearby-stand-top">
                     <Badge variant="neutral">
                       <Layers size={11} style={{ marginRight: '3px' }} />

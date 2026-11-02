@@ -19,6 +19,8 @@ export const SocketEvents = {
   UNSUBSCRIBE_BUS: 'unsubscribe:bus',
   SUBSCRIBE_ROUTE: 'subscribe:route',
   UNSUBSCRIBE_ROUTE: 'unsubscribe:route',
+  SUBSCRIBE_FLEET: 'subscribe:fleet',
+  UNSUBSCRIBE_FLEET: 'unsubscribe:fleet',
 
   // Server -> Client
   SUBSCRIPTION_ACK: 'subscription:ack',
@@ -51,6 +53,21 @@ export interface SubscribeRoutePayload {
 
 export interface UnsubscribeRoutePayload {
   routeId: string;
+}
+
+export interface SubscribeFleetPayload {
+  depotId?: string;
+  includeRestricted?: boolean;
+}
+
+export interface UnsubscribeFleetPayload {
+  depotId?: string;
+}
+
+export interface FleetTrackingSnapshot {
+  totalBusesCount: number;
+  buses: BusPositionPayload[];
+  timestamp: string;
 }
 
 // =============================================================================

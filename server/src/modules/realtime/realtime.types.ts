@@ -12,6 +12,8 @@ import { StopEventType } from '../../models/StopEvent';
 // =============================================================================
 export const BUS_ROOM_PREFIX = 'bus:';
 export const ROUTE_ROOM_PREFIX = 'route:';
+export const FLEET_ROOM = 'fleet:all';
+export const FLEET_DEPOT_PREFIX = 'fleet:depot:';
 
 export function getBusRoom(busId: string | Types.ObjectId): string {
   return `${BUS_ROOM_PREFIX}${busId.toString()}`;
@@ -19,6 +21,10 @@ export function getBusRoom(busId: string | Types.ObjectId): string {
 
 export function getRouteRoom(routeId: string | Types.ObjectId): string {
   return `${ROUTE_ROOM_PREFIX}${routeId.toString()}`;
+}
+
+export function getFleetDepotRoom(depotId: string | Types.ObjectId): string {
+  return `${FLEET_DEPOT_PREFIX}${depotId.toString()}`;
 }
 
 // =============================================================================
@@ -30,6 +36,8 @@ export const RealtimeEvents = {
   UNSUBSCRIBE_BUS: 'unsubscribe:bus',
   SUBSCRIBE_ROUTE: 'subscribe:route',
   UNSUBSCRIBE_ROUTE: 'unsubscribe:route',
+  SUBSCRIBE_FLEET: 'subscribe:fleet',
+  UNSUBSCRIBE_FLEET: 'unsubscribe:fleet',
 
   // Server -> Client
   SUBSCRIPTION_ACK: 'subscription:ack',
@@ -61,6 +69,15 @@ export interface SubscribeRoutePayload {
 
 export interface UnsubscribeRoutePayload {
   routeId: string;
+}
+
+export interface SubscribeFleetPayload {
+  depotId?: string;
+  includeRestricted?: boolean;
+}
+
+export interface UnsubscribeFleetPayload {
+  depotId?: string;
 }
 
 // =============================================================================
@@ -180,6 +197,12 @@ export interface BusTrackingSnapshot extends BusPositionBroadcastPayload {
 export interface RouteTrackingSnapshot {
   routeId: string;
   activeBusesCount: number;
+  buses: BusPositionBroadcastPayload[];
+  timestamp: string;
+}
+
+export interface FleetTrackingSnapshot {
+  totalBusesCount: number;
   buses: BusPositionBroadcastPayload[];
   timestamp: string;
 }

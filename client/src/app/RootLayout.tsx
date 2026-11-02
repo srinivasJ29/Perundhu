@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Bus, Globe, Compass, Sparkles, MapPin } from 'lucide-react';
+import { Bus, Globe, Compass, Sparkles, MapPin, Brain, Building2 } from 'lucide-react';
 import { useLanguage } from '../hooks/useLanguage';
 import { useSocket } from '../hooks/useSocket';
 import { Badge } from '../components/common/Badge';
+import { useAiCopilot } from '../features/ai-copilot';
 
 export const RootLayout: React.FC = () => {
   const { language, setLanguage, t } = useLanguage();
   const { isConnected, isConnecting } = useSocket();
+  const { openCopilot } = useAiCopilot();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -65,6 +67,14 @@ export const RootLayout: React.FC = () => {
                 <MapPin size={15} />
                 <span>{language === 'ta' ? 'மாவட்டங்கள்' : 'Districts'}</span>
               </Link>
+
+              <Link
+                to="/operations"
+                className={`global-nav-link ${location.pathname.startsWith('/operations') ? 'is-active' : ''}`}
+              >
+                <Building2 size={15} />
+                <span>{language === 'ta' ? 'செயல்பாடுகள்' : 'Operations'}</span>
+              </Link>
             </div>
 
             {/* Status & Language Controls */}
@@ -90,6 +100,18 @@ export const RootLayout: React.FC = () => {
                   {isConnected ? 'LIVE' : isConnecting ? 'CONNECTING' : 'IDLE'}
                 </span>
               </div>
+
+              {/* AI Copilot Action Badge */}
+              <button
+                type="button"
+                onClick={() => openCopilot()}
+                className="global-ai-copilot-btn"
+                title="Open PERUNDHU AI Transit Copilot (LangGraph)"
+                aria-label="Open AI Copilot"
+              >
+                <Brain size={15} />
+                <span>AI Copilot</span>
+              </button>
 
               {/* One-Action Language Switcher */}
               <button
@@ -162,6 +184,20 @@ export const RootLayout: React.FC = () => {
                   <div className="mobile-nav-text">
                     <span className="mobile-nav-title">{language === 'ta' ? 'மாவட்டங்கள்' : 'Districts'}</span>
                     <span className="mobile-nav-sub">{language === 'ta' ? '38 மாவட்டங்கள்' : 'All districts'}</span>
+                  </div>
+                </Link>
+
+                <Link
+                  to="/operations"
+                  className="landing-mobile-nav-item"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <div className="mobile-nav-icon-box">
+                    <Building2 size={18} />
+                  </div>
+                  <div className="mobile-nav-text">
+                    <span className="mobile-nav-title">{language === 'ta' ? 'செயல்பாடுகள் & பணிமனை' : 'Operations & Depots'}</span>
+                    <span className="mobile-nav-sub">{language === 'ta' ? 'பணிமனை, ரிசர்வ், பட்டறைகள்' : 'Depots, Reserve & Workshops'}</span>
                   </div>
                 </Link>
               </nav>

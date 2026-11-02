@@ -34,6 +34,7 @@ export interface SimulatedBusState {
   speedKmph: number;
   speedMetersPerSec: number;
   sessionStartTimeMs: number;
+  initialDistanceMeters?: number;
   currentDistanceMeters: number;
   currentLocation: [number, number];
   currentHeading: number;
@@ -49,6 +50,7 @@ export interface SimulatorOptions {
   writeHistory?: boolean;
   historyIntervalTicks?: number;
   routeEndPolicy?: 'LOOP' | 'COMPLETE';
+  maxBuses?: number;
   clock?: () => number; // Injectable clock for unit/integration testing
   pipeline?: LocationPipelineService;
 }
@@ -94,6 +96,7 @@ export class RouteSimulatorService implements ILocationProvider {
   private writeHistory: boolean;
   private historyIntervalTicks: number;
   private routeEndPolicy: 'LOOP' | 'COMPLETE';
+  private maxBuses: number;
   private clock: () => number;
   private pipeline?: LocationPipelineService;
 
@@ -104,6 +107,7 @@ export class RouteSimulatorService implements ILocationProvider {
     this.writeHistory = options?.writeHistory ?? env.SIMULATOR_WRITE_HISTORY;
     this.historyIntervalTicks = options?.historyIntervalTicks ?? env.SIMULATOR_HISTORY_INTERVAL_TICKS;
     this.routeEndPolicy = options?.routeEndPolicy ?? env.SIMULATOR_ROUTE_END_POLICY;
+    this.maxBuses = options?.maxBuses ?? env.SIMULATOR_MAX_BUSES ?? 40;
     this.clock = options?.clock ?? Date.now;
     this.pipeline = pipeline ?? options?.pipeline;
   }
@@ -153,6 +157,7 @@ export class RouteSimulatorService implements ILocationProvider {
       if (overrides.writeHistory !== undefined) this.writeHistory = overrides.writeHistory;
       if (overrides.historyIntervalTicks !== undefined) this.historyIntervalTicks = overrides.historyIntervalTicks;
       if (overrides.routeEndPolicy !== undefined) this.routeEndPolicy = overrides.routeEndPolicy;
+      if (overrides.maxBuses !== undefined) this.maxBuses = overrides.maxBuses;
       if (overrides.clock !== undefined) this.clock = overrides.clock;
     }
 
@@ -361,7 +366,9 @@ export class RouteSimulatorService implements ILocationProvider {
       const buses = await Bus.find({
         isActive: true,
         status: 'IN_SERVICE'
-      }).lean();
+      })
+        .limit(this.maxBuses)
+        .lean();
 
       const now = this.clock();
       const currentEligibleBusIds = new Set<string>();

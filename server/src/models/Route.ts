@@ -4,6 +4,8 @@ export type ServiceCategory = 'TOWN_SERVICE' | 'MOFUSSIL' | 'EXPRESS';
 
 export interface IRoute {
   districtId: Types.ObjectId;
+  organizationId?: Types.ObjectId;
+  divisionId?: Types.ObjectId;
   routeNumber: string;
   displayTitleEn: string;
   displayTitleTa: string;
@@ -21,6 +23,18 @@ const routeSchema = new Schema<RouteDocument>(
       type: Schema.Types.ObjectId,
       ref: 'District',
       required: [true, 'District reference is required'],
+      index: true
+    },
+    organizationId: {
+      type: Schema.Types.ObjectId,
+      ref: 'TransportOrganization',
+      default: undefined,
+      index: true
+    },
+    divisionId: {
+      type: Schema.Types.ObjectId,
+      ref: 'TransportDivision',
+      default: undefined,
       index: true
     },
     routeNumber: {
